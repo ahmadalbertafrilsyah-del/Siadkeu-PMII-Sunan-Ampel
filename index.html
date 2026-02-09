@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIADKEU - PK PMII SUNAN AMPEL</title>
+    <title>SIADKEU - SYSTEM</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Arial@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> 
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
@@ -26,763 +24,694 @@
             --surface: #ffffff; 
             --surface-secondary: #f8fafc;
             --text-main: #1e293b; 
-            --text-light: #64748b; 
             --text-heading: #003399; 
-            --border-color: #e2e8f0; 
-            --shadow: 0 4px 20px rgba(0,0,0,0.05);
             --sidebar-width: 280px; 
             --header-height: 70px; 
             --radius: 16px;
         }
-
-        body.dark-mode {
-            --primary: #3b82f6; 
-            --primary-dark: #2563eb;
-            --accent: #fbbf24;
-            --bg-body: #0f172a; 
-            --surface: #1e293b; 
-            --surface-secondary: #334155;
-            --text-main: #f8fafc; 
-            --text-light: #cbd5e1; 
-            --text-heading: #FFD700; 
-            --border-color: #334155; 
-            --shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-
-        body { font-family: 'Arial' sans-serif; background-color: var(--bg-body); color: var(--text-main); overflow-x: hidden; transition: all 0.3s; }
+        body.dark-mode { --primary: #3b82f6; --bg-body: #0f172a; --surface: #1e293b; --text-main: #f8fafc; --text-heading: #FFD700; }
+        body { font-family: 'Arial', sans-serif; background-color: var(--bg-body); color: var(--text-main); transition: 0.3s; overflow-x: hidden; }
         
-        .sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0; background: linear-gradient(160deg, #003399 0%, #001a4d 100%); color: white; z-index: 1060; transition: transform 0.4s; box-shadow: 4px 0 25px rgba(0,0,0,0.1); overflow-y: auto; }
+        /* LOGIN */
+        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.5s; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; }
+        .login-logo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 3px solid var(--accent); }
+
+        /* SIDEBAR */
+        .sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0; background: linear-gradient(160deg, #003399 0%, #001a4d 100%); color: white; z-index: 1060; transition: 0.4s; overflow-y: auto; }
         body.dark-mode .sidebar { background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%); border-right: 1px solid #334155; }
-        .sidebar-brand { height: 90px; display: flex; align-items: center; padding: 0 25px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 1.25rem; letter-spacing: 0.5px; justify-content: space-between; }
-        .sidebar-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); box-shadow: 0 0 15px rgba(255, 204, 0, 0.4); }
-        .sidebar-menu { list-style: none; padding: 25px 15px; margin: 0; }
-        .nav-item { margin-bottom: 8px; }
-        .nav-item a { display: flex; align-items: center; padding: 12px 20px; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 12px; transition: all 0.3s; font-weight: 500; font-size: 0.95rem; cursor: pointer; }
-        .nav-item a:hover { background: rgba(255,255,255,0.15); color: var(--accent); transform: translateX(5px); }
-        .nav-item a.active { background: rgba(255,255,255,0.25); color: #fff; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-left: 4px solid var(--accent); }
-        .nav-item i { width: 25px; margin-right: 20px; font-size: 1.1rem; } 
-        .nav-item .fa-chevron-down { margin-left: auto; font-size: 0.8rem; width: auto; transition: transform 0.3s; margin-right: 0; }
-        .submenu { list-style: none; padding-left: 20px; margin-top: 5px; display: none; }
-        .submenu.show { display: block; animation: slideDown 0.3s ease; }
-        .submenu li a { font-size: 0.85rem; padding: 8px 15px; opacity: 0.9; display: block; border-radius: 8px; margin-bottom: 4px; }
+        .sidebar-brand { height: 90px; display: flex; align-items: center; padding: 0 25px; font-size: 1.25rem; justify-content: space-between; overflow: hidden; }
         
-        .main-header { position: fixed; top: 0; left: var(--sidebar-width); right: 0; height: var(--header-height); background: var(--surface); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 1000; border-bottom: 1px solid var(--border-color); transition: all 0.4s; }
-        body.dark-mode .main-header { background: rgba(30, 41, 59, 0.95); }
-        .content-wrapper { margin-top: var(--header-height); margin-left: var(--sidebar-width); padding: 30px; transition: all 0.4s; min-height: calc(100vh - var(--header-height)); }
-        .header-title h6 { font-weight: 700; color: var(--text-heading); margin: 0; font-size: 1.1rem; }
-        .scope-badge { background: var(--accent); color: #000; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; margin-left: 10px; text-transform: uppercase; }
+        /* Fix Logo Size in Sidebar */
+        .sidebar-logo { width: 45px !important; height: 45px !important; min-width: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
 
-        .card-modern { border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); transition: transform 0.3s; overflow: hidden; margin-bottom: 25px; }
-        .card-header-modern { padding: 20px 25px; background: transparent; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: var(--text-heading); }
-        .info-box { background: var(--surface); border-radius: var(--radius); padding: 25px; display: flex; align-items: center; box-shadow: var(--shadow); border: 1px solid var(--border-color); height: 100%; position: relative; overflow: hidden; }
+        .sidebar-menu { list-style: none; padding: 25px 15px; margin: 0; }
+        .nav-item a { display: flex; align-items: center; padding: 12px 20px; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 12px; transition: 0.3s; cursor: pointer; margin-bottom: 5px; }
+        .nav-item a:hover, .nav-item a.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; border-left: 4px solid var(--accent); }
+        .nav-item i { width: 25px; margin-right: 20px; } 
+        
+        /* DROPDOWN LSO */
+        .submenu { list-style: none; padding-left: 20px; margin-top: 5px; display: none; background: rgba(0,0,0,0.1); border-radius: 10px; }
+        .submenu.show { display: block; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .main-header { position: fixed; top: 0; left: var(--sidebar-width); right: 0; height: var(--header-height); background: var(--surface); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 1000; transition: 0.4s; border-bottom: 1px solid #e2e8f0; }
+        body.dark-mode .main-header { background: rgba(30, 41, 59, 0.95); border-color: #334155; }
+        .content-wrapper { margin-top: var(--header-height); margin-left: var(--sidebar-width); padding: 30px; transition: 0.4s; min-height: 100vh; }
+        
+        /* COMPONENTS */
+        .card-modern { border: 1px solid #e2e8f0; border-radius: var(--radius); background: var(--surface); box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 25px; }
+        body.dark-mode .card-modern { border-color: #334155; }
+        .card-header-modern { padding: 20px 25px; border-bottom: 1px solid #e2e8f0; font-weight: 600; display: flex; justify-content: space-between; align-items: center; color: var(--text-heading); }
+        .info-box { background: var(--surface); border-radius: var(--radius); padding: 25px; display: flex; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; height: 100%; position: relative; overflow: hidden; }
         .info-box::after { content: ''; position: absolute; right: 0; top: 0; height: 100%; width: 5px; background: var(--primary); }
         .icon-circle { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-right: 20px; flex-shrink: 0; color: white; }
-        
+
         .bg-gradient-blue { background: linear-gradient(135deg, #003399, #005ce6); }
         .bg-gradient-yellow { background: linear-gradient(135deg, #FFCC00, #ffdb4d); color: #000; }
         .bg-gradient-green { background: linear-gradient(135deg, #10b981, #059669); }
         .bg-gradient-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        
-        .form-control, .form-select { background-color: var(--surface); border: 1px solid var(--border-color); color: var(--text-main); }
-        .table th { background: var(--surface-secondary); color: var(--text-heading); border-bottom: 2px solid var(--border-color); white-space: nowrap; }
-        .table td { border-bottom: 1px solid var(--border-color); background-color: var(--surface); color: var(--text-main); vertical-align: middle; }
-
-        .admin-controls { display: none; background: rgba(255, 204, 0, 0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--accent); }
-        .status-badge { font-size: 0.85em; padding: 6px 12px; border-radius: 20px; }
-        .col-alasan { white-space: normal; min-width: 200px; font-size: 0.85rem; color: var(--text-light); }
-        table.dataTable thead th { background-color: var(--primary) !important; color: white !important; border-bottom: 3px solid var(--accent) !important; text-align: center; vertical-align: middle; }
-        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { color: var(--text-main) !important; margin-bottom: 1rem; margin-top: 1rem;} 
+        .bg-gradient-purple { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
 
         .page-section { display: none; animation: slideUp 0.3s ease-out; } .page-section.active { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .mobile-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1050; display: none; }
+        
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); width: 280px; } .sidebar.active { transform: translateX(0); }
+            .sidebar { transform: translateX(-100%); } .sidebar.active { transform: translateX(0); }
             .main-header { left: 0; padding: 0 20px; } .content-wrapper { margin-left: 0; padding: 20px; }
-            #sidebarToggle { display: block; margin-right: 15px; } .mobile-overlay.active { display: block; }
+            #sidebarToggle { display: block !important; margin-right: 15px; }
         }
-        #sidebarToggle, .btn-close-sidebar { display: none; background: none; border: none; font-size: 1.6rem; color: var(--text-main); }
-        @media (max-width: 992px) { #sidebarToggle, .btn-close-sidebar { display: block; } }
-
+        #sidebarToggle { display: none; background: none; border: none; font-size: 1.6rem; color: var(--text-main); }
+        .calendar-container { position: relative; padding-bottom: 75%; height: 0; overflow: hidden; border-radius: 12px; }
+        .calendar-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        .ai-app-card { text-decoration: none; color: var(--text-main); display: block; height: 100%; transition: all 0.3s; }
+        .ai-app-card:hover { transform: translateY(-5px); }
+        
+        /* PIN MODAL */
         .pin-display { font-size: 2rem; letter-spacing: 10px; text-align: center; border: none; background: transparent; color: var(--text-heading); font-weight: bold; width: 100%; outline: none; }
-        .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 250px; margin: 0 auto; }
-        .btn-pin { height: 60px; border-radius: 50%; font-size: 1.2rem; font-weight: bold; background: var(--surface-secondary); color: var(--text-main); border: 1px solid var(--border-color); }
-        .btn-pin:hover { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
 
-    <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
+    <div id="login-overlay">
+        <div class="login-card">
+            <img src="https://i.ibb.co.com/JWksCfcn/Logo-PMII.png" class="login-logo" alt="Logo">
+            <h4 class="fw-bold mb-1" style="color:var(--primary)">SIADKEU</h4>
+            <p class="text-muted small mb-4">Sistem Administrasi & Keuangan</p>
+            <form onsubmit="handleLogin(event)">
+                <div class="mb-3 text-start">
+                    <label class="form-label small fw-bold">Email</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="admin@pmii.com" required>
+                </div>
+                <div class="mb-4 text-start">
+                    <label class="form-label small fw-bold">Password</label>
+                    <input type="password" id="loginPass" class="form-control" required>
+                </div>
+                <button type="submit" id="btnLogin" class="btn btn-primary w-100 fw-bold py-2">MASUK</button>
+            </form>
+            <div id="loginError" class="text-danger small mt-3 fw-bold"></div>
+        </div>
+    </div>
 
-    <div class="modal fade" id="mdlPin" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" id="mdlPin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="background: var(--surface); color: var(--text-main);">
-                <div class="modal-header border-0 justify-content-center"><h6 class="modal-title fw-bold" style="color:var(--text-heading)">MASUKKAN PIN</h6></div>
-                <div class="modal-body text-center">
-                    <div class="mb-3"><i class="fas fa-lock fa-2x text-warning mb-2"></i><p class="small text-muted" id="pinTargetName">Akses Terkunci</p></div>
-                    <input type="password" id="pinInput" class="pin-display mb-4" readonly>
-                    <div class="pin-keypad">
-                        <button class="btn btn-pin" onclick="typePin('1')">1</button><button class="btn btn-pin" onclick="typePin('2')">2</button><button class="btn btn-pin" onclick="typePin('3')">3</button>
-                        <button class="btn btn-pin" onclick="typePin('4')">4</button><button class="btn btn-pin" onclick="typePin('5')">5</button><button class="btn btn-pin" onclick="typePin('6')">6</button>
-                        <button class="btn btn-pin" onclick="typePin('7')">7</button><button class="btn btn-pin" onclick="typePin('8')">8</button><button class="btn btn-pin" onclick="typePin('9')">9</button>
-                        <button class="btn btn-pin text-danger" onclick="clearPin()"><i class="fas fa-times"></i></button><button class="btn btn-pin" onclick="typePin('0')">0</button><button class="btn btn-pin text-success" onclick="submitPin()"><i class="fas fa-check"></i></button>
+                <div class="modal-header border-0 justify-content-center pb-0"><h6 class="modal-title fw-bold">KEAMANAN</h6></div>
+                <div class="modal-body text-center pt-2">
+                    <div class="mb-3"><i class="fas fa-user-lock fa-3x text-warning"></i></div>
+                    <p class="small text-muted mb-2" id="pinTargetName">Masukkan PIN Akses</p>
+                    <input type="password" id="pinInput" class="form-control text-center fw-bold fs-4" maxlength="10" placeholder="****" style="letter-spacing: 5px;">
+                    <div class="d-grid gap-2 mt-3">
+                        <button class="btn btn-primary" onclick="submitPin()">Buka Akses</button>
+                        <button class="btn btn-secondary" onclick="closePinModal()">Batal</button>
                     </div>
                 </div>
-                <div class="modal-footer border-0 justify-content-center"><button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Batal</button></div>
             </div>
         </div>
     </div>
 
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-brand">
-            <div class="d-flex align-items-center"><img src="https://i.ibb.co.com/JWksCfcn/Logo-PMII.png" alt="Logo PMII" class="sidebar-logo"><span class="ms-3 fw-bold tracking-wide">SIADKEU</span></div>
-            <button class="btn-close-sidebar" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
-        </div>
-        <ul class="sidebar-menu">
-            <li class="nav-item"><a class="nav-link active" onclick="showGlobalDashboard(this)"><i class="fas fa-tachometer-alt"></i> <span>Dashboard Utama</span></a></li>
-            <li class="nav-item"><a class="nav-link" onclick="requestAccess('pusat', this)"><i class="fas fa-home"></i> <span>Lembaga</span></a></li>
-            <li class="nav-item"><a class="nav-link" onclick="requestAccess('kopri', this)"><i class="fas fa-venus"></i> <span>BSO KOPRI</span></a></li>
-            <li class="nav-item"><a class="nav-link" onclick="toggleSubmenu('lsoSubmenu', this)"><i class="fas fa-users-cog"></i> <span>Lembaga (LSO)</span> <i class="fas fa-chevron-down"></i></a><ul class="submenu" id="lsoSubmenu"><li class="text-center py-2 text-white-50 small">Memuat...</li></ul></li>
-            
-            <li class="nav-item mt-3 border-top pt-2"><a class="nav-link" onclick="showSection('oprec-view', this)"><i class="fas fa-users"></i> <span>Open Recruitment</span></a></li>
-            
-            <li class="nav-item"><a class="nav-link" onclick="showSection('asisten-ai', this)"><i class="fas fa-robot"></i> <span>Asisten AI</span></a></li>
-            <li class="nav-item"><a class="nav-link" onclick="requestAccess('settings', this)"><i class="fas fa-cog"></i> <span>Pengaturan Web</span></a></li>
-        </ul>
-    </aside>
+    <div id="app-container" style="display:none;">
+        <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
 
-    <header class="main-header">
-        <div class="d-flex align-items-center">
-            <button id="sidebarToggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-            <div id="realtimeClock" class="d-md-none ms-3 fw-bold text-primary" style="font-size: 0.9rem;"></div>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-            <div id="realtimeClockDesktop" class="d-none d-md-block text-primary fw-bold bg-white px-3 py-1 rounded shadow-sm" style="font-size:0.9rem">...</div>
-            <button class="btn-theme-toggle btn btn-sm rounded-circle border" onclick="toggleTheme()" style="background:var(--surface); color:var(--text-heading)"><i class="fas fa-moon" id="themeIcon"></i></button>
-            <div class="header-title text-end d-none d-sm-block"><h6>PK. PMII Sunan Ampel <span id="headerBadge" class="scope-badge">GLOBAL</span></h6><small>Sistem Administrasi dan Keuangan</small></div>
-            <div class="user-avatar ms-2"><img src="https://ui-avatars.com/api/?name=Admin&background=003399&color=fff" class="rounded-circle" width="40" alt="Admin"></div>
-        </div>
-    </header>
-
-    <div class="content-wrapper">
-        
-        <div id="dashboard-global" class="page-section active">
-            <h4 class="fw-bold mb-4" style="color:var(--text-heading)">Ringkasan Seluruh Lembaga</h4>
-            <div class="row g-4" id="globalSummaryContainer">
-                <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>
-            </div>
-        </div>
-
-        <div id="main-view" class="page-section">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold m-0" id="pageTitle" style="color:var(--text-heading)">Dashboard</h4>
-            </div>
-            <ul class="nav nav-tabs mb-4 border-bottom-0" id="modulTabs" role="tablist">
-                <li class="nav-item"><button class="nav-link active fw-bold" id="linkTabDash" data-bs-toggle="tab" data-bs-target="#tabDash" type="button"><i class="fas fa-th-large me-2"></i>Info</button></li>
-                <li class="nav-item"><button class="nav-link fw-bold" id="linkTabSurat" data-bs-toggle="tab" data-bs-target="#tabSurat" type="button"><i class="fas fa-envelope me-2"></i>Persuratan</button></li>
-                <li class="nav-item"><button class="nav-link fw-bold" id="linkTabKeu" data-bs-toggle="tab" data-bs-target="#tabKeu" type="button"><i class="fas fa-wallet me-2"></i>Keuangan</button></li>
-                <li class="nav-item"><button class="nav-link fw-bold" id="linkTabInv" data-bs-toggle="tab" data-bs-target="#tabInv" type="button"><i class="fas fa-box me-2"></i>Inventaris</button></li>
-            </ul>
-            <div class="tab-content">
-                <div class="tab-pane fade show active" id="tabDash">
-                    <div class="row g-4">
-                        <div class="col-xl-3 col-md-6"><div class="info-box"><div class="icon-circle bg-gradient-blue"><i class="fas fa-inbox"></i></div><div><div class="text-muted small fw-bold uppercase">SURAT MASUK</div><h3 class="m-0 fw-bold" id="cntSM">0</h3></div></div></div>
-                        <div class="col-xl-3 col-md-6"><div class="info-box"><div class="icon-circle bg-gradient-yellow"><i class="fas fa-paper-plane"></i></div><div><div class="text-muted small fw-bold uppercase">SURAT KELUAR</div><h3 class="m-0 fw-bold" id="cntSK">0</h3></div></div></div>
-                        <div class="col-xl-3 col-md-6"><div class="info-box"><div class="icon-circle bg-gradient-green"><i class="fas fa-wallet"></i></div><div><div class="text-muted small fw-bold uppercase">TOTAL SALDO</div><h4 class="m-0 fw-bold fs-5" id="cntUang">Rp 0</h4></div></div></div>
-                        <div class="col-xl-3 col-md-6"><div class="info-box"><div class="icon-circle bg-gradient-red"><i class="fas fa-box"></i></div><div><div class="text-muted small fw-bold uppercase">TOTAL ASET</div><h3 class="m-0 fw-bold" id="cntInv">0</h3></div></div></div>
-                    </div>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="d-flex align-items-center">
+                    <img src="https://i.ibb.co.com/JWksCfcn/Logo-PMII.png" alt="Logo" class="sidebar-logo header-user-logo">
+                    <span class="ms-3 fw-bold">SIADKEU</span>
                 </div>
-                <div class="tab-pane fade" id="tabSurat">
-                    <ul class="nav nav-pills mb-3 gap-2">
-                        <li class="nav-item"><button class="nav-link active btn-sm" data-bs-toggle="pill" data-bs-target="#subSM">Surat Masuk</button></li>
-                        <li class="nav-item"><button class="nav-link btn-sm" data-bs-toggle="pill" data-bs-target="#subSK">Surat Keluar</button></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="subSM">
-                            <div class="card-modern">
-                                <div class="card-header-modern"><span>Tabel Surat Masuk</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblSM', 'Surat_Masuk')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#mdlSM"><i class="fas fa-plus"></i></button></div></div>
-                                <div class="table-responsive">
-                                    <table class="table" id="tblSM">
-                                        <thead>
-                                            <tr>
-                                                <th>No. Surat</th>
-                                                <th>Asal Surat</th>
-                                                <th>Kategori</th>
-                                                <th>Tgl Buat</th>
-                                                <th>Tgl Datang</th>
-                                                <th>Perihal</th>
-                                                <th>Ket</th>
-                                                <th>File</th>
-                                                <th>Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="bodySM"></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="subSK">
-                            <div class="card-modern">
-                                <div class="card-header-modern"><span>Tabel Surat Keluar</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblSK', 'Surat_Keluar')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#mdlSK"><i class="fas fa-plus"></i></button></div></div>
-                                <div class="table-responsive">
-                                    <table class="table" id="tblSK">
-                                        <thead>
-                                            <tr>
-                                                <th>No. Surat</th>
-                                                <th>Tujuan</th>
-                                                <th>Kategori</th>
-                                                <th>Tgl Buat</th>
-                                                <th>Tgl Kirim</th>
-                                                <th>Perihal</th>
-                                                <th>Ket</th>
-                                                <th>File</th>
-                                                <th>Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="bodySK"></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="tab-pane fade" id="tabKeu"><ul class="nav nav-pills mb-3 gap-2"><li class="nav-item"><button class="nav-link active btn-sm" data-bs-toggle="pill" data-bs-target="#tabKasBank">Kas Bank</button></li><li class="nav-item"><button class="nav-link btn-sm" data-bs-toggle="pill" data-bs-target="#tabOps">Operasional</button></li></ul><div class="tab-content"><div class="tab-pane fade show active" id="tabKasBank"><div class="card-modern"><div class="card-header-modern"><span>Laporan Kas Bank</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblKasBank', 'Kas_Bank')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-info text-white" onclick="openModalKeu('Bank')"><i class="fas fa-plus"></i></button></div></div><div class="table-responsive"><table class="table table-bordered border-light" id="tblKasBank"><thead><tr><th>Tanggal</th><th>Keterangan</th><th class="text-end">Debit</th><th class="text-end">Kredit</th><th class="text-end">Saldo</th><th class="text-center">Aksi</th></tr></thead><tbody id="bodyKasBank"></tbody><tfoot id="footKasBank"></tfoot></table></div></div></div><div class="tab-pane fade" id="tabOps"><div class="card-modern"><div class="card-header-modern"><span>Laporan Operasional</span><div class="d-flex gap-2 align-items-center"><input type="month" id="filterBulanOps" class="form-control form-control-sm w-auto" onchange="renderKeu()"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblOps', 'Laporan_Ops')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-warning text-white" onclick="openModalKeu('Operasional')"><i class="fas fa-plus"></i></button></div></div><div class="table-responsive"><table class="table table-bordered border-light" id="tblOps"><thead><tr><th>Tanggal</th><th>Uraian</th><th>PJ</th><th class="text-center">Jml</th><th class="text-end">Hrg Satuan</th><th class="text-end">Total</th><th class="text-end">Debit</th><th class="text-end">Kredit</th><th class="text-end">Saldo</th><th class="text-center">Aksi</th></tr></thead><tbody id="bodyOps"></tbody><tfoot id="footOps"></tfoot></table></div></div></div></div></div>
-                <div class="tab-pane fade" id="tabInv"><ul class="nav nav-pills mb-3 gap-2"><li class="nav-item"><button class="nav-link active btn-sm" data-bs-toggle="pill" data-bs-target="#tabRekap">Rekapitulasi</button></li><li class="nav-item"><button class="nav-link btn-sm" data-bs-toggle="pill" data-bs-target="#tabBuku">Buku Inventaris</button></li></ul><div class="tab-content"><div class="tab-pane fade show active" id="tabRekap"><div class="card-modern"><div class="card-header-modern"><span>Rekapitulasi Inventaris</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblRekap', 'Rekap_Inv')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-primary text-white" onclick="openModalInv('Rekap')"><i class="fas fa-plus"></i></button></div></div><div class="table-responsive"><table class="table" id="tblRekap"><thead><tr><th>Nama Barang</th><th>Merk</th><th>Tahun</th><th>Jumlah</th><th>Keadaan</th><th>Ket</th><th>Aksi</th></tr></thead><tbody id="bodyRekap"></tbody></table></div></div></div><div class="tab-pane fade" id="tabBuku"><div class="card-modern"><div class="card-header-modern"><span>Buku Inventaris</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblBuku', 'Buku_Inv')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-primary text-white" onclick="openModalInv('Buku')"><i class="fas fa-plus"></i></button></div></div><div class="table-responsive"><table class="table" id="tblBuku"><thead><tr><th>Kode</th><th>Nama Barang</th><th>Jenis</th><th>Keadaan</th><th>Ket</th><th>Aksi</th></tr></thead><tbody id="bodyBuku"></tbody></table></div></div></div></div></div>
+                <button class="btn-close-sidebar text-white d-lg-none" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
             </div>
-        </div>
-
-        <div id="oprec-view" class="page-section">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h4 class="fw-bold m-0" style="color:var(--text-heading)">Rekapitulasi Open Recruitment</h4>
-                    <small class="text-muted">Portal Data & Penentuan Biro/LSO</small>
-                </div>
-                <button class="btn btn-warning fw-bold text-dark" id="btnAdminTrigger" onclick="requestAccess('oprec_admin', this)">
-                    <i class="fas fa-user-lock"></i> Mode Admin
-                </button>
-                <button class="btn btn-danger fw-bold text-white d-none" id="btnLogoutAdmin" onclick="toggleAdminOprec(false)">
-                    <i class="fas fa-sign-out-alt"></i> Keluar Admin
-                </button>
-            </div>
-
-            <div class="admin-controls shadow-sm" id="adminPanel">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold text-dark"><i class="fas fa-shield-alt"></i> Panel Admin Oprec</h5>
-                </div>
+            <ul class="sidebar-menu">
+                <li class="nav-item"><a class="nav-link active" onclick="switchScope('global', this)"><i class="fas fa-database"></i> <span>Database</span></a></li>
                 
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-8">
-                        <label class="form-label fw-bold text-dark">Import Data Excel (.xlsx / .xls)</label>
-                        <div class="input-group">
-                            <input type="file" class="form-control" id="excelFileInput" accept=".xlsx, .xls">
-                            <button class="btn btn-success" id="btnUploadExcel"><i class="fas fa-cloud-upload-alt"></i> Upload & Simpan</button>
+                <div id="menu-admin-global">
+                    <li class="nav-item"><a class="nav-link" onclick="requestAccess('pusat', this)"><i class="fas fa-home"></i> <span>Lembaga</span></a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="requestAccess('kopri', this)"><i class="fas fa-venus"></i> <span>BSO KOPRI</span></a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="toggleSubmenu('lsoSubmenu', this)">
+                            <i class="fas fa-users-cog"></i> <span>Lembaga (LSO)</span> <i class="fas fa-chevron-down ms-auto" style="margin-right:0; transition: transform 0.3s;"></i>
+                        </a>
+                        <ul class="submenu" id="lsoSubmenu">
+                            <li class="text-center py-2 small text-white-50">Memuat...</li>
+                        </ul>
+                    </li>
+                </div>
+
+                <li class="nav-item mt-2 pt-2 border-top"><a class="nav-link" onclick="showSection('proker-view', this)"><i class="fas fa-calendar-alt"></i> <span>Program Kerja</span></a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('pengurus-view', this)"><i class="fas fa-sitemap"></i> <span>Susunan Pengurus</span></a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('asisten-ai', this)"><i class="fas fa-robot"></i> <span>Sistem AI</span></a></li>
+                <li class="nav-item" id="menu-settings"><a class="nav-link" onclick="requestAccess('settings', this)"><i class="fas fa-cog"></i> <span>Pengaturan Web</span></a></li>
+                <li class="nav-item mt-4"><a class="nav-link text-warning" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Keluar</span></a></li>
+            </ul>
+        </aside>
+
+        <header class="main-header">
+            <div class="d-flex align-items-center">
+                <button id="sidebarToggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <div id="realtimeClock" class="d-md-none ms-3 fw-bold text-primary small"></div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div id="realtimeClockDesktop" class="d-none d-md-block text-primary fw-bold bg-white px-3 py-1 rounded shadow-sm small">...</div>
+                <button class="btn btn-sm rounded-circle border" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+                <div class="text-end d-none d-sm-block"><h6 class="m-0 fw-bold header-org-name" style="color:var(--text-heading)">Organisasi</h6><small class="text-muted">Sistem Terpadu</small></div>
+                <img src="https://ui-avatars.com/api/?name=User&background=003399&color=fff" class="rounded-circle header-user-logo" width="40" alt="User">
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <div id="dashboard-global" class="page-section active">
+                <h4 class="fw-bold mb-4">Database Organisasi <span id="dashScopeBadge" class="badge bg-secondary">GLOBAL</span></h4>
+                <div class="row g-4" id="globalSummaryContainer"><div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div></div>
+            </div>
+
+            <div id="main-view" class="page-section">
+                <h4 class="fw-bold mb-4" id="pageTitle">Detail Data</h4>
+                <ul class="nav nav-tabs mb-4" id="modulTabs">
+                    <li class="nav-item"><button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#tabDash">Info</button></li>
+                    <li class="nav-item"><button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tabSurat">Persuratan</button></li>
+                    <li class="nav-item"><button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tabKeu">Keuangan</button></li>
+                    <li class="nav-item"><button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tabInv">Inventaris</button></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="tabDash">
+                        <div class="row g-4">
+                            <div class="col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-blue"><i class="fas fa-inbox"></i></div><div><small>SURAT MASUK</small><h3 id="cntSM">0</h3></div></div></div>
+                            <div class="col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-yellow"><i class="fas fa-paper-plane"></i></div><div><small>SURAT KELUAR</small><h3 id="cntSK">0</h3></div></div></div>
+                            <div class="col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-green"><i class="fas fa-wallet"></i></div><div><small>SALDO</small><h4 id="cntUang" class="fs-6">Rp 0</h4></div></div></div>
+                            <div class="col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-red"><i class="fas fa-box"></i></div><div><small>ASET</small><h3 id="cntInv">0</h3></div></div></div>
                         </div>
-                        <small class="text-muted">*Pastikan Header Kolom Excel sesuai format Database.</small>
                     </div>
-                    <div class="col-md-4 text-end">
-                        <div id="loadingUpload" class="d-none text-primary">
-                            <span class="spinner-border spinner-border-sm"></span> Menyimpan data...
+                    <div class="tab-pane fade" id="tabSurat">
+                        <ul class="nav nav-pills mb-3 gap-2">
+                            <li class="nav-item"><button class="nav-link active btn-sm" data-bs-toggle="pill" data-bs-target="#subSM">Surat Masuk</button></li>
+                            <li class="nav-item"><button class="nav-link btn-sm" data-bs-toggle="pill" data-bs-target="#subSK">Surat Keluar</button></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="subSM">
+                                <div class="card-modern p-3">
+                                    <div class="card-header-modern"><span>Tabel Surat Masuk</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblSM','Surat_Masuk')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#mdlSM"><i class="fas fa-plus"></i></button></div></div>
+                                    <div class="table-responsive"><table class="table" id="tblSM"><thead><tr><th>No</th><th>Asal</th><th>Tgl Buat</th><th>Tgl Terima</th><th>Perihal</th><th>Ket</th><th>File</th><th>Aksi</th></tr></thead><tbody id="bodySM"></tbody></table></div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="subSK">
+                                <div class="card-modern p-3">
+                                    <div class="card-header-modern"><span>Tabel Surat Keluar</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblSK','Surat_Keluar')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#mdlSK"><i class="fas fa-plus"></i></button></div></div>
+                                    <div class="table-responsive"><table class="table" id="tblSK"><thead><tr><th>No</th><th>Tujuan</th><th>Tgl Buat</th><th>Tgl Kirim</th><th>Perihal</th><th>Ket</th><th>File</th><th>Aksi</th></tr></thead><tbody id="bodySK"></tbody></table></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="tabKeu">
+                        <ul class="nav nav-pills mb-3 gap-2">
+                            <li class="nav-item"><button class="nav-link active btn-sm" data-bs-toggle="pill" data-bs-target="#tabKasBank">Kas Bank</button></li>
+                            <li class="nav-item"><button class="nav-link btn-sm" data-bs-toggle="pill" data-bs-target="#tabOps">Operasional</button></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="tabKasBank">
+                                <div class="card-modern p-3">
+                                    <div class="card-header-modern"><span>Kas Bank</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblKasBank','Kas')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-info text-white" onclick="openModalKeu('Bank')"><i class="fas fa-plus"></i></button></div></div>
+                                    <div class="table-responsive"><table class="table table-bordered" id="tblKasBank"><thead><tr><th>Tgl</th><th>Uraian</th><th>Debit</th><th>Kredit</th><th>Saldo</th><th>Aksi</th></tr></thead><tbody id="bodyKasBank"></tbody></table></div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tabOps">
+                                <div class="card-modern p-3">
+                                    <div class="card-header-modern"><span>Laporan Operasional</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblOps','Ops')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-warning text-white" onclick="openModalKeu('Operasional')"><i class="fas fa-plus"></i></button></div></div>
+                                    <div class="table-responsive"><table class="table table-bordered" id="tblOps"><thead><tr><th>Tgl</th><th>Uraian</th><th>PJ</th><th>Qty</th><th>Harga</th><th>Total</th><th>Debit</th><th>Kredit</th><th>Saldo</th><th>Aksi</th></tr></thead><tbody id="bodyOps"></tbody><tfoot id="footOps"></tfoot></table></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="tabInv">
+                        <ul class="nav nav-pills mb-3 gap-2">
+                            <li class="nav-item"><button class="nav-link active btn-sm" data-bs-toggle="pill" data-bs-target="#tabRekap">Rekapitulasi</button></li>
+                            <li class="nav-item"><button class="nav-link btn-sm" data-bs-toggle="pill" data-bs-target="#tabBuku">Buku Inv.</button></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="tabRekap">
+                                <div class="card-modern p-3">
+                                    <div class="card-header-modern"><span>Rekapitulasi</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblRekap','Rekap')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-primary" onclick="openModalInv('Rekap')"><i class="fas fa-plus"></i></button></div></div>
+                                    <div class="table-responsive"><table class="table" id="tblRekap"><thead><tr><th>Barang</th><th>Merk</th><th>Tahun</th><th>Jml</th><th>Kondisi</th><th>Ket</th><th>Aksi</th></tr></thead><tbody id="bodyRekap"></tbody></table></div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tabBuku">
+                                <div class="card-modern p-3">
+                                    <div class="card-header-modern"><span>Buku Inventaris</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblBuku','Buku')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-primary" onclick="openModalInv('Buku')"><i class="fas fa-plus"></i></button></div></div>
+                                    <div class="table-responsive"><table class="table" id="tblBuku"><thead><tr><th>Kode</th><th>Barang</th><th>Jenis</th><th>Kondisi</th><th>Ket</th><th>Aksi</th></tr></thead><tbody id="bodyBuku"></tbody></table></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card-modern p-3">
-                <div class="table-responsive">
-                    <table id="dataTableOprec" class="table table-hover table-bordered w-100" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>Nama Lengkap</th>
-                                <th>Panggilan</th>
-                                <th>NIM</th>
-                                <th>Rayon</th>
-                                <th>Kontak WA</th>
-                                <th>Pilihan 1</th>
-                                <th>Alasan 1</th>
-                                <th>Pilihan 2</th>
-                                <th>Alasan 2</th>
-                                <th class="text-center bg-warning text-dark">KEPUTUSAN</th>
-                                <th class="text-center admin-only" style="display:none">AKSI</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBodyOprec">
-                            </tbody>
-                    </table>
+            <div id="proker-view" class="page-section">
+                <h4 class="fw-bold mb-4">Kalender Program Kerja</h4>
+                <div class="card-modern p-2"><div class="calendar-container"><iframe id="calendarFrame" src="" frameborder="0" scrolling="no"></iframe></div></div>
+            </div>
+
+            <div id="pengurus-view" class="page-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold m-0">Susunan Pengurus</h4>
+                </div>
+                <div class="card-modern p-3"><div class="table-responsive"><table id="tblPengurus" class="table table-hover w-100"><thead><tr><th>No</th><th>Nama</th><th>Jabatan</th><th>Rayon</th><th>WA</th></tr></thead><tbody id="bodyPengurus"></tbody></table></div></div>
+            </div>
+
+            <div id="pengaturan" class="page-section">
+                <h4 class="mb-4 fw-bold">Pengaturan Web</h4>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card-modern p-4 h-100">
+                            <h5 class="fw-bold mb-3">Tampilan & Header</h5>
+                            <div class="mb-3"><label class="small fw-bold">Nama Lembaga</label><input type="text" id="set_org_name" class="form-control" onchange="saveAppConfig('org_name', this.value)"></div>
+                            <div class="mb-3"><label class="small fw-bold">URL Logo</label><input type="text" id="set_logo_url" class="form-control" onchange="saveAppConfig('logo_url', this.value)"></div>
+                            <h5 class="fw-bold mb-3 mt-4">Integrasi</h5>
+                            <div class="mb-3"><label class="small fw-bold">ID Google Calendar</label><input type="text" id="set_calendar_id" class="form-control" onchange="saveAppConfig('calendar_id', this.value)"></div>
+                            <div class="mb-3"><label class="small fw-bold">Link Cek PO-PPTA (Gemini)</label><input type="text" id="set_link_po" class="form-control" placeholder="https://gemini.google.com/share/..." onchange="saveAppConfig('link_po', this.value)"></div>
+                            <div class="mb-3"><label class="small fw-bold">Update Data Pengurus (Excel)</label><div class="input-group"><input type="file" id="excelPengurusInput" class="form-control" accept=".xlsx, .xls"><button class="btn btn-success" onclick="uploadPengurus()">Upload</button></div><small class="text-muted">Format: NAMA, NIM, WA, RAYON, JABATAN</small></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-modern p-4 h-100">
+                            <h5 class="fw-bold mb-3">Keamanan (PIN)</h5>
+                            <div class="mb-3"><label class="small fw-bold">PIN Master (Pengaturan)</label><input type="text" id="pin_master" class="form-control" onchange="savePin('master', this.value)"></div>
+                            <div class="mb-3"><label class="small fw-bold">PIN Lembaga (Pusat)</label><input type="text" id="pin_pusat" class="form-control" onchange="savePin('pusat', this.value)"></div>
+                            <div class="mb-3"><label class="small fw-bold">PIN KOPRI</label><input type="text" id="pin_kopri" class="form-control" onchange="savePin('kopri', this.value)"></div>
+                            
+                            <h5 class="fw-bold mb-3 mt-4">Manajemen LSO</h5>
+                            <form onsubmit="addLSO(event)" class="d-flex flex-column gap-2 mb-3">
+                                <input id="newLSO" class="form-control" placeholder="Nama LSO (misal: LPM)" required>
+                                <input id="newLSOPin" class="form-control" placeholder="PIN Akses LSO" required>
+                                <button class="btn btn-primary w-100">Tambah LSO</button>
+                            </form>
+                            <label class="small fw-bold mb-2">Daftar LSO & PIN:</label>
+                            <ul class="list-group list-group-flush" id="listLSO"></ul>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div id="pengaturan" class="page-section">
-            <h4 class="mb-4 fw-bold" style="color:var(--text-heading)">Pengaturan Web</h4>
-            <div class="row g-4">
-                <div class="col-md-6"><div class="card-modern p-4 h-100"><h5 class="fw-bold mb-3">Manajemen LSO</h5><form onsubmit="addLSO(event)" class="d-flex flex-column gap-2 mb-4"><input id="newLSO" class="form-control" placeholder="Nama LSO" required><input type="number" id="newLSOPin" class="form-control" placeholder="PIN (Default: 1234)" pattern="[0-9]*"><button class="btn btn-primary text-white">Tambah LSO</button></form><ul class="list-group list-group-flush" id="listLSO"></ul></div></div>
-                <div class="col-md-6"><div class="card-modern p-4 h-100"><h5 class="fw-bold mb-3">Atur PIN</h5><div class="mb-3"><label class="small fw-bold">PIN Pengaturan</label><div class="input-group"><input type="password" id="pin_master" class="form-control"><button class="btn btn-outline-primary" onclick="updatePin('master')">Simpan</button></div></div><div class="mb-3"><label class="small fw-bold">PIN Lembaga</label><div class="input-group"><input type="password" id="pin_pusat" class="form-control"><button class="btn btn-outline-primary" onclick="updatePin('pusat')">Simpan</button></div></div><div class="mb-3"><label class="small fw-bold">PIN KOPRI</label><div class="input-group"><input type="password" id="pin_kopri" class="form-control"><button class="btn btn-outline-primary" onclick="updatePin('kopri')">Simpan</button></div></div></div></div>
-            </div>
-        </div>
 
-        <div id="asisten-ai" class="page-section">
-            <h4 class="mb-4 fw-bold">Asisten AI</h4>
-            <div class="row g-4">
-                <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/71f52c5a6a49" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-blue"><i class="fas fa-robot"></i></div><h5 class="fw-bold m-0">Cek PO-PPTA Lembaga</h5></div><p class="text-muted small">Cek format surat otomatis sesuai PO-PPTA Terbaru.</p></a></div></div>
-                <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/e06bb2f1202e" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-red"><i class="fas fa-file-signature"></i></div><h5 class="fw-bold m-0">Tempel TTD dan Stempel</h5></div><p class="text-muted small">Tanda tangan dan Stempel digital presisi pada PDF.</p></a></div></div>
-                <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/52524759fda3" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-yellow"><i class="fas fa-brain"></i></div><h5 class="fw-bold m-0">Generator Renstra</h5></div><p class="text-muted small">Buat Program Kerja, Visi Misi, dan Analisis SWOT instan.</p></a></div></div>
-                <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/705409a52beb" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-green"><i class="fas fa-clipboard-list"></i></div><h5 class="fw-bold m-0">Generator Notulen</h5></div><p class="text-muted small">Ubah foto catatan rapat menjadi teks notulensi rapi.</p></a></div></div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="modal fade" id="mdlSM">
-        <div class="modal-dialog modal-dialog-centered">
-            <form class="modal-content border-0 shadow-lg" onsubmit="saveData(event, 'sm')">
-                <div class="modal-header bg-primary text-white border-0">
-                    <h6 class="modal-title fw-bold">Surat Masuk</h6>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <select id="sm_kat" class="form-select mb-3">
-                        <option value="Internal">Internal</option>
-                        <option value="Eksternal">Eksternal</option>
-                    </select>
-                    <input id="sm_no" class="form-control mb-3" placeholder="No. Surat" required>
-                    <input id="sm_asal" class="form-control mb-3" placeholder="Asal Surat" required>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6"><small>Tgl Buat</small><input type="date" id="sm_tgl_buat" class="form-control" required></div>
-                        <div class="col-6"><small>Tgl Datang</small><input type="date" id="sm_tgl_datang" class="form-control" required></div>
-                    </div>
-                    <input id="sm_hal" class="form-control mb-3" placeholder="Perihal" required>
-                    <textarea id="sm_ket" class="form-control mb-3" placeholder="Keterangan"></textarea>
-                    
-                    <label class="small fw-bold mb-1">Link File (Google Drive)</label>
-                    <input type="text" id="sm_file" class="form-control" placeholder="Tempel Link Drive di sini...">
-
-                </div>
-                <div class="modal-footer border-0"><button class="btn btn-primary w-100">Simpan</button></div>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal fade" id="mdlSK">
-        <div class="modal-dialog modal-dialog-centered">
-            <form class="modal-content border-0 shadow-lg" onsubmit="saveData(event, 'sk')">
-                <div class="modal-header bg-warning text-white border-0">
-                    <h6 class="modal-title fw-bold">Surat Keluar</h6>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <select id="sk_kat" class="form-select mb-3">
-                        <option value="Internal">Internal</option>
-                        <option value="Eksternal">Eksternal</option>
-                    </select>
-                    <input id="sk_no" class="form-control mb-3" placeholder="No. Surat" required>
-                    <input id="sk_tujuan" class="form-control mb-3" placeholder="Tujuan Surat" required>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6"><small>Tgl Buat</small><input type="date" id="sk_tgl_buat" class="form-control" required></div>
-                        <div class="col-6"><small>Tgl Kirim</small><input type="date" id="sk_tgl_kirim" class="form-control" required></div>
-                    </div>
-                    <input id="sk_hal" class="form-control mb-3" placeholder="Perihal" required>
-                    <textarea id="sk_ket" class="form-control mb-3" placeholder="Keterangan"></textarea>
-                    
-                    <label class="small fw-bold mb-1">Link File (Google Drive)</label>
-                    <input type="text" id="sk_file" class="form-control" placeholder="Tempel Link Drive di sini...">
-
-                </div>
-                <div class="modal-footer border-0"><button class="btn btn-warning text-white w-100">Simpan</button></div>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal fade" id="mdlKeu"><div class="modal-dialog modal-dialog-centered"><form class="modal-content border-0 shadow-lg" onsubmit="saveData(event, 'keu')"><div class="modal-header bg-info text-white border-0"><h6 class="modal-title fw-bold" id="ttlKeu">Input Keuangan</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="keu_cat"><input type="date" id="keu_tgl" class="form-control mb-3" required><input id="keu_uraian" class="form-control mb-3" placeholder="Uraian / Keterangan" required><div id="opsFields" class="d-none"><input id="keu_pj" class="form-control mb-2" placeholder="Penanggung Jawab (PJ)"><div class="row g-2 mb-3"><div class="col-6"><input type="number" id="keu_qty" class="form-control" placeholder="Jml" oninput="calcTotal()"></div><div class="col-6"><input type="number" id="keu_hrg" class="form-control" placeholder="Hrg Satuan" oninput="calcTotal()"></div></div></div><select id="keu_jenis" class="form-select mb-3"><option value="Masuk">Pemasukan (Debit)</option><option value="Keluar">Pengeluaran (Kredit)</option></select><input type="number" id="keu_nom" class="form-control fw-bold text-primary" placeholder="Nominal (Rp)" required></div><div class="modal-footer border-0"><button class="btn btn-info text-white w-100">Simpan</button></div></form></div></div>
-    <div class="modal fade" id="mdlInv"><div class="modal-dialog modal-dialog-centered"><form class="modal-content border-0 shadow-lg" onsubmit="saveData(event, 'inv')"><div class="modal-header bg-success text-white border-0"><h6 class="modal-title fw-bold" id="ttlInv">Input Inventaris</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="inv_type"><input id="inv_nama" class="form-control mb-3" placeholder="Nama Barang" required><div id="rekapFields"><input id="inv_merk" class="form-control mb-3" placeholder="Merk"><div class="row g-2 mb-3"><div class="col-6"><input type="number" id="inv_thn" class="form-control" placeholder="Tahun"></div><div class="col-6"><input type="number" id="inv_jml" class="form-control" placeholder="Jumlah"></div></div></div><div id="bukuFields" class="d-none"><input id="inv_kode" class="form-control mb-3" placeholder="Kode Inventaris"><input id="inv_jenis" class="form-control mb-3" placeholder="Jenis Barang"></div><select id="inv_cond" class="form-select mb-3"><option>Baik</option><option>Kurang Baik</option><option>Rusak</option></select><textarea id="inv_ket" class="form-control" placeholder="Keterangan"></textarea></div><div class="modal-footer border-0"><button class="btn btn-success w-100">Simpan</button></div></form></div></div>
-
-    <div class="modal fade" id="plottingModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content" style="background: var(--surface); color: var(--text-main);">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Plotting Anggota</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Menentukan posisi untuk: <strong id="plotNama" class="text-primary"></strong></p>
-                    <input type="hidden" id="plotId">
-                    
-                    <div class="d-grid gap-2 mb-3">
-                        <button class="btn btn-outline-primary text-start" onclick="savePlot('pilihan1')">
-                            1. <span id="txtP1" class="fw-bold"></span>
-                        </button>
-                        <button class="btn btn-outline-primary text-start" onclick="savePlot('pilihan2')">
-                            2. <span id="txtP2" class="fw-bold"></span>
-                        </button>
-                    </div>
-                    <label>Atau ketik manual (Biro/LSO lain):</label>
-                    <div class="input-group">
-                        <input type="text" id="manualPlot" class="form-control" placeholder="Contoh: Biro Humas">
-                        <button class="btn btn-success" onclick="savePlot('manual')">Simpan</button>
-                    </div>
+            <div id="asisten-ai" class="page-section">
+                <h4 class="mb-4 fw-bold">Sistem AI</h4>
+                <div class="row g-4">
+                    <div class="col-md-6"><div class="card-modern h-100"><a id="linkPoPptaCard" href="https://gemini.google.com/share/71f52c5a6a49" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-blue"><i class="fas fa-robot"></i></div><h5 class="fw-bold m-0">Cek PO-PPTA Lembaga</h5></div><p class="text-muted small">Cek format surat otomatis sesuai PO-PPTA Terbaru.</p></a></div></div>
+                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/e06bb2f1202e" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-red"><i class="fas fa-file-signature"></i></div><h5 class="fw-bold m-0">Tempel TTD dan Stempel</h5></div><p class="text-muted small">Tanda tangan dan Stempel digital presisi pada PDF.</p></a></div></div>
+                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/52524759fda3" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-yellow"><i class="fas fa-brain"></i></div><h5 class="fw-bold m-0">Generator Renstra</h5></div><p class="text-muted small">Buat Program Kerja, Visi Misi, dan Analisis SWOT instan.</p></a></div></div>
+                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/705409a52beb" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-green"><i class="fas fa-clipboard-list"></i></div><h5 class="fw-bold m-0">Generator Notulen</h5></div><p class="text-muted small">Ubah foto catatan rapat menjadi teks notulensi rapi.</p></a></div></div>
+                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/c7d5c59bcb84" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-purple"><i class="fas fa-cut"></i></div><h5 class="fw-bold m-0">PDF Splitter Pro</h5></div><p class="text-muted small">Pisah halaman PDF menjadi file terpisah.</p></a></div></div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="mdlSM"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'sm')"><div class="modal-header"><h5 class="modal-title">Surat Masuk</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><select id="sm_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select><input id="sm_no" class="form-control mb-2" placeholder="Nomor Surat" required><input id="sm_asal" class="form-control mb-2" placeholder="Asal Surat" required><div class="row g-2 mb-2"><div class="col"><input type="date" id="sm_tgl_buat" class="form-control" required></div><div class="col"><input type="date" id="sm_tgl_datang" class="form-control" required></div></div><input id="sm_hal" class="form-control mb-2" placeholder="Perihal" required><textarea id="sm_ket" class="form-control mb-2" placeholder="Keterangan"></textarea><input type="file" class="form-control"></div><div class="modal-footer"><button class="btn btn-primary">Simpan</button></div></form></div></div>
+    <div class="modal fade" id="mdlSK"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'sk')"><div class="modal-header"><h5 class="modal-title">Surat Keluar</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><select id="sk_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select><input id="sk_no" class="form-control mb-2" placeholder="Nomor Surat" required><input id="sk_tujuan" class="form-control mb-2" placeholder="Tujuan" required><div class="row g-2 mb-2"><div class="col"><input type="date" id="sk_tgl_buat" class="form-control" required></div><div class="col"><input type="date" id="sk_tgl_kirim" class="form-control" required></div></div><input id="sk_hal" class="form-control mb-2" placeholder="Perihal" required><textarea id="sk_ket" class="form-control mb-2" placeholder="Keterangan"></textarea><input type="file" class="form-control"></div><div class="modal-footer"><button class="btn btn-warning">Simpan</button></div></form></div></div>
+    <div class="modal fade" id="mdlKeu"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'keu')"><div class="modal-header"><h5 class="modal-title" id="ttlKeu">Keuangan</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="keu_cat"><input type="date" id="keu_tgl" class="form-control mb-2" required><input id="keu_uraian" class="form-control mb-2" placeholder="Uraian" required><div id="opsFields" class="d-none"><input id="keu_pj" class="form-control mb-2" placeholder="PJ"><div class="row g-2 mb-2"><div class="col"><input type="number" id="keu_qty" class="form-control" placeholder="Qty" oninput="calcTotal()"></div><div class="col"><input type="number" id="keu_hrg" class="form-control" placeholder="Harga" oninput="calcTotal()"></div></div></div><select id="keu_jenis" class="form-select mb-2"><option value="Masuk">Pemasukan</option><option value="Keluar">Pengeluaran</option></select><input type="number" id="keu_nom" class="form-control" placeholder="Nominal" required></div><div class="modal-footer"><button class="btn btn-info text-white">Simpan</button></div></form></div></div>
+    <div class="modal fade" id="mdlInv"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'inv')"><div class="modal-header"><h5 class="modal-title" id="ttlInv">Inventaris</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="inv_type"><input id="inv_nama" class="form-control mb-2" placeholder="Nama Barang" required><div id="rekapFields"><input id="inv_merk" class="form-control mb-2" placeholder="Merk"><div class="row g-2 mb-2"><div class="col"><input type="number" id="inv_thn" class="form-control" placeholder="Tahun"></div><div class="col"><input type="number" id="inv_jml" class="form-control" placeholder="Jumlah"></div></div></div><div id="bukuFields" class="d-none"><input id="inv_kode" class="form-control mb-2" placeholder="Kode"><input id="inv_jenis" class="form-control mb-2" placeholder="Jenis"></div><select id="inv_cond" class="form-select mb-2"><option>Baik</option><option>Kurang Baik</option><option>Rusak</option></select><textarea id="inv_ket" class="form-control" placeholder="Ket"></textarea></div><div class="modal-footer"><button class="btn btn-success">Simpan</button></div></form></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, setDoc, writeBatch, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, getDoc, setDoc, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIG FIREBASE
-        const firebaseConfig = { apiKey: "AIzaSyAwsqkpDt01N2U9PpPNfnKFbB2_AqaSFvA", projectId: "pk-pmii-sa" }; 
-        let db; try{const app=initializeApp(firebaseConfig);db=getFirestore(app);}catch(e){}
+        // FIREBASE CONFIG (ASLI)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwsqkpDt01N2U9PpPNfnKFbB2_AqaSFvA",
+            authDomain: "pk-pmii-sa.firebaseapp.com",
+            databaseURL: "https://pk-pmii-sa-default-rtdb.firebaseio.com",
+            projectId: "pk-pmii-sa",
+            storageBucket: "pk-pmii-sa.firebasestorage.app",
+            messagingSenderId: "65693017214",
+            appId: "1:65693017214:web:895e47eee4e25544eaa42f",
+            measurementId: "G-05CEN0SF82"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // VARIABLES
-        let rawSM=[], rawSK=[], rawInv=[], rawKeu=[], listLSO=[];
-        let oprecTable = null; 
-        let p1ValTemp = '', p2ValTemp = '';
-        let isAdminOprec = false;
+        // STATE
+        let currentUser = null; 
+        let currentScope = 'global'; 
+        let pinData = { master:'1234', pusat:'1234', kopri:'1234' }; 
+        let listLSO = [];
+        let rawData = { sm:[], sk:[], keu:[], inv:[], pengurus:[], users:[] };
+        let pinModalInstance = null; 
+        let pendingAction = null;
 
-        let pinData = { pusat: '1234', kopri: '1234', master: '1234' }; 
-        let currentScope = 'global';
-        let pendingScope = null; let pendingEl = null;
-        const fmtRp = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(n);
+        // --- AUTH ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const userDocRef = doc(db, "users", user.uid);
+                    const userSnap = await getDoc(userDocRef);
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        currentUser = { uid: user.uid, email: user.email, ...userData };
+                        setupUIByRole(); initAppData();
+                        const overlay = document.getElementById('login-overlay');
+                        const appCont = document.getElementById('app-container');
+                        if (overlay) overlay.style.opacity = '0';
+                        setTimeout(() => { 
+                            if(overlay) overlay.style.display = 'none'; 
+                            if(appCont) appCont.style.display = 'block'; 
+                        }, 500);
+                    } else {
+                        // Jaga-jaga jika Admin pertama kali belum buat doc di firestore
+                        if(user.email.includes('admin')) {
+                            currentUser = { uid: user.uid, email: user.email, role: 'admin', name: 'Administrator' };
+                            setupUIByRole(); initAppData();
+                            const overlay = document.getElementById('login-overlay');
+                            const appCont = document.getElementById('app-container');
+                            if (overlay) overlay.style.opacity = '0';
+                            setTimeout(() => { 
+                                if(overlay) overlay.style.display = 'none'; 
+                                if(appCont) appCont.style.display = 'block'; 
+                            }, 500);
+                        } else {
+                            alert("Akun belum disetting di Firestore.");
+                            await signOut(auth);
+                        }
+                    }
+                } catch (err) { alert("Error Login: " + err.message); }
+            } else {
+                const appCont = document.getElementById('app-container');
+                const overlay = document.getElementById('login-overlay');
+                if(appCont) appCont.style.display = 'none';
+                if(overlay) { overlay.style.display = 'flex'; overlay.style.opacity = '1'; }
+            }
+        });
 
-        if(db){
-            onSnapshot(collection(db,"surat_masuk"),s=>{rawSM=s.docs.map(d=>({id:d.id,...d.data()})); refreshView(); renderGlobalDashboard();});
-            onSnapshot(collection(db,"surat_keluar"),s=>{rawSK=s.docs.map(d=>({id:d.id,...d.data()})); refreshView(); renderGlobalDashboard();});
-            onSnapshot(collection(db,"keuangan"),s=>{rawKeu=s.docs.map(d=>({id:d.id,...d.data()})); refreshView(); renderGlobalDashboard();});
-            onSnapshot(collection(db,"inventaris"),s=>{rawInv=s.docs.map(d=>({id:d.id,...d.data()})); refreshView(); renderGlobalDashboard();});
-            onSnapshot(collection(db,"settings_lso"),s=>{listLSO=s.docs.map(d=>({id:d.id,...d.data()})); renderLSOMenu(); renderLSOList(); renderGlobalDashboard();});
-            onSnapshot(collection(db,"auth_config"), s => {s.docs.forEach(d => { pinData[d.id] = d.data().pin; });});
-            
-            onSnapshot(collection(db,"pendaftar_oprec"), s => {
-                const data = s.docs.map(d => ({id:d.id, ...d.data()}));
-                renderOprecTable(data);
-            });
+        window.handleLogin = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            const btn = document.getElementById('btnLogin');
+            if(btn) { btn.disabled = true; btn.innerText = "Proses..."; }
+            try { await signInWithEmailAndPassword(auth, email, pass); } 
+            catch (error) { 
+                const errEl = document.getElementById('loginError');
+                if(errEl) errEl.innerText = error.message; 
+                if(btn) { btn.disabled = false; btn.innerText = "MASUK"; }
+            }
         }
 
-        // --- DASHBOARD LOGIC ---
-        window.renderGlobalDashboard = () => {
-            if(currentScope !== 'global') return;
-            const container = document.getElementById('globalSummaryContainer');
-            if(!listLSO && rawSM.length === 0) { container.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>'; return; }
-            let html = '';
-            const scopes = [{id: 'pusat', name: 'Lembaga', color: 'blue'}, {id: 'kopri', name: 'BSO KOPRI', color: 'pink'}, ...listLSO.map(l => ({id: 'lso_'+l.id, name: l.nama, color: 'info'}))];
-            scopes.forEach(s => {
-                const sSM = rawSM.filter(x => (x.scope||'pusat') === s.id).length;
-                const sSK = rawSK.filter(x => (x.scope||'pusat') === s.id).length;
-                let saldo = 0; rawKeu.filter(x => (x.scope||'pusat') === s.id).forEach(k => saldo += (k.jenis === 'Masuk' ? k.nom : -k.nom));
-                let borderStyle = s.id === 'pusat' ? 'var(--primary)' : (s.id === 'kopri' ? 'var(--accent)' : '#17a2b8');
-                html += `<div class="col-md-6 col-xl-4"><div class="card-modern p-3 h-100" style="border-left: 5px solid ${borderStyle}"><div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold m-0 text-uppercase" style="color:var(--text-heading)">${s.name}</h6><span class="badge bg-secondary rounded-pill">AKTIF</span></div><div class="row g-2 text-center"><div class="col-4"><div class="p-2 rounded bg-light border"><small class="d-block text-muted" style="font-size:0.7rem">S. MASUK</small><strong class="text-primary">${sSM}</strong></div></div><div class="col-4"><div class="p-2 rounded bg-light border"><small class="d-block text-muted" style="font-size:0.7rem">S. KELUAR</small><strong class="text-warning">${sSK}</strong></div></div><div class="col-4"><div class="p-2 rounded bg-light border"><small class="d-block text-muted" style="font-size:0.7rem">SALDO</small><strong class="text-success" style="font-size:0.8rem">${fmtRp(saldo).split(',')[0]}</strong></div></div></div></div></div>`;
-            });
-            container.innerHTML = html;
+        window.logout = () => { if(confirm("Keluar?")) signOut(auth).then(()=>location.reload()); }
+
+        // TOGGLE SUBMENU (FIXED)
+        window.toggleSubmenu = (id, el) => {
+            const submenu = document.getElementById(id);
+            const icon = el.querySelector('.fa-chevron-down');
+            if (submenu) {
+                if (submenu.classList.contains('show')) {
+                    submenu.classList.remove('show');
+                    if(icon) icon.style.transform = 'rotate(0deg)';
+                } else {
+                    submenu.classList.add('show');
+                    if(icon) icon.style.transform = 'rotate(180deg)';
+                }
+            }
         }
 
-        window.showGlobalDashboard = (el) => {
-            currentScope = 'global';
-            showSection('dashboard-global', el);
-            document.getElementById('headerBadge').innerText = 'GLOBAL'; document.getElementById('headerBadge').style.background = '#6c757d';
+        function setupUIByRole() {
+            const role = currentUser.role;
+            const name = currentUser.name || "User";
             
-            document.querySelectorAll('.sidebar .nav-link, .submenu a').forEach(n => n.classList.remove('active'));
-            if(el) el.classList.add('active');
+            const headerName = document.querySelector('.header-org-name');
+            const badge = document.getElementById('dashScopeBadge');
+            const menuAdmin = document.getElementById('menu-admin-global');
+            const menuSettings = document.getElementById('menu-settings');
+            const pageTitle = document.getElementById('pageTitle');
 
+            if(headerName) headerName.innerText = name;
+            if(badge) badge.innerText = role === 'admin' ? 'GLOBAL' : name;
+            
+            if(role === 'rayon') {
+                if(menuAdmin) menuAdmin.style.display = 'none';
+                // Di kode sebelumnya, id="menu-settings" ada di <li>. Pastikan HTML-nya benar.
+                if(menuSettings) menuSettings.style.display = 'none'; 
+                
+                currentScope = currentUser.uid;
+                if(pageTitle) pageTitle.innerText = "Dashboard " + name;
+                showSection('dashboard-global'); 
+            } else {
+                if(menuAdmin) menuAdmin.style.display = 'block';
+                if(menuSettings) menuSettings.style.display = 'block';
+                currentScope = 'global';
+            }
             renderGlobalDashboard();
         }
 
-        // --- AUTH & PIN ---
-        window.requestAccess = (scope, el) => {
-            pendingScope = scope; pendingEl = el;
-            let reqPin = '1234', name = '';
-            
-            if(scope === 'settings') { reqPin = pinData['master'] || '1234'; name = "Pengaturan"; }
-            else if(scope === 'pusat') { reqPin = pinData['pusat'] || '1234'; name = "Lembaga"; }
-            else if(scope === 'kopri') { reqPin = pinData['kopri'] || '1234'; name = "KOPRI"; }
-            else if(scope === 'oprec_admin') { reqPin = pinData['pusat'] || '1234'; name = "Admin Oprec"; }
-            else { const l = listLSO.find(i => 'lso_'+i.id === scope); reqPin = l&&l.pin?l.pin:'1234'; name = l?l.nama:'LSO'; }
-            
-            document.getElementById('pinTargetName').innerText = `Akses ke: ${name}`;
-            document.getElementById('pinTargetName').dataset.correctPin = reqPin;
-            document.getElementById('pinInput').value = ''; new bootstrap.Modal(document.getElementById('mdlPin')).show();
-        }
-        window.typePin = (n) => { const i = document.getElementById('pinInput'); if(i.value.length<6) i.value+=n; }
-        window.clearPin = () => document.getElementById('pinInput').value='';
-        window.submitPin = () => {
-            if(document.getElementById('pinInput').value === document.getElementById('pinTargetName').dataset.correctPin || document.getElementById('pinInput').value === pinData['master']) {
-                bootstrap.Modal.getInstance(document.getElementById('mdlPin')).hide();
-                if(pendingScope==='settings') showSection('pengaturan', pendingEl);
-                else if(pendingScope==='oprec_admin') toggleAdminOprec(true);
-                else switchScope(pendingScope, pendingEl);
-            } else { alert('PIN SALAH!'); clearPin(); }
+        // --- DATA ---
+        function initAppData() {
+            const uid = currentUser.uid;
+            const role = currentUser.role;
+            const collections = ['surat_masuk', 'surat_keluar', 'keuangan', 'inventaris', 'susunan_pengurus'];
+            collections.forEach(col => {
+                onSnapshot(collection(db, col), (s) => {
+                    const all = s.docs.map(d => ({id:d.id, ...d.data()}));
+                    if(role === 'admin') {
+                        if(col==='surat_masuk') rawData.sm = all;
+                        if(col==='surat_keluar') rawData.sk = all;
+                        if(col==='keuangan') rawData.keu = all;
+                        if(col==='inventaris') rawData.inv = all;
+                        if(col==='susunan_pengurus') rawData.pengurus = all;
+                    } else {
+                        const filtered = all.filter(x => x.uid === uid);
+                        if(col==='surat_masuk') rawData.sm = filtered;
+                        if(col==='surat_keluar') rawData.sk = filtered;
+                        if(col==='keuangan') rawData.keu = filtered;
+                        if(col==='inventaris') rawData.inv = filtered;
+                        if(col==='susunan_pengurus') rawData.pengurus = filtered;
+                    }
+                    const mainView = document.getElementById('main-view');
+                    const dashView = document.getElementById('dashboard-global');
+                    if(mainView && mainView.classList.contains('active')) refreshView();
+                    if(dashView && dashView.classList.contains('active')) renderGlobalDashboard();
+                    if(col==='susunan_pengurus') renderPengurusTable();
+                });
+            });
+
+            // LOAD CONFIG & PIN
+            onSnapshot(doc(db, "users", uid, "config", "auth"), (doc) => { 
+                if(doc.exists()) {
+                    pinData = doc.data(); 
+                    ['master','pusat','kopri'].forEach(k => { if(document.getElementById(`pin_${k}`)) document.getElementById(`pin_${k}`).value = pinData[k] || ''; });
+                }
+            });
+            onSnapshot(doc(db, "users", uid, "config", "general"), (doc) => { if(doc.exists()) applyAppConfig(doc.data()); });
+            onSnapshot(collection(db, "users", uid, "settings_lso"), (s) => { listLSO = s.docs.map(d => ({id:d.id, ...d.data()})); renderLSOMenu(); renderLSOList(); });
         }
 
-        // --- NAVIGATION & SCOPE ---
+        // --- UI LOGIC ---
+        function applyAppConfig(data) {
+            if(data.org_name) { 
+                const els = document.querySelectorAll('.header-org-name');
+                els.forEach(el => el.innerText = data.org_name); 
+                if(document.getElementById('set_org_name')) document.getElementById('set_org_name').value = data.org_name; 
+            }
+            if(data.logo_url) { 
+                const els = document.querySelectorAll('.header-user-logo');
+                els.forEach(el => el.src = data.logo_url); 
+                if(document.getElementById('set_logo_url')) document.getElementById('set_logo_url').value = data.logo_url; 
+            }
+            if(data.calendar_id) { 
+                const frame = document.getElementById('calendarFrame');
+                if(frame) frame.src = `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(data.calendar_id)}&ctz=Asia%2FJakarta&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0`; 
+                if(document.getElementById('set_calendar_id')) document.getElementById('set_calendar_id').value = data.calendar_id; 
+            }
+            if(data.link_po) { 
+                const link = document.getElementById('linkPoPptaCard');
+                if(link) link.href = data.link_po; 
+                if(document.getElementById('set_link_po')) document.getElementById('set_link_po').value = data.link_po; 
+            }
+        }
+        window.saveAppConfig = async (k,v) => await setDoc(doc(db, "users", currentUser.uid, "config", "general"), { [k]: v }, { merge: true });
+        window.savePin = async (k, v) => { await setDoc(doc(db, "users", currentUser.uid, "config", "auth"), { [k]: v }, { merge: true }); alert("Tersimpan!"); }
+        window.addLSO = async (e) => { e.preventDefault(); const n=document.getElementById('newLSO').value, p=document.getElementById('newLSOPin').value; if(n&&p){ await addDoc(collection(db, "users", currentUser.uid, "settings_lso"), { nama: n, pin: p }); e.target.reset(); } }
+        window.delLSO = async (id) => { if(confirm("Hapus?")) await deleteDoc(doc(db, "users", currentUser.uid, "settings_lso", id)); }
+
+        // NAVIGATION
         window.switchScope = (scope, el) => {
+            if(scope === 'global') {
+                currentScope = 'global';
+                showSection('dashboard-global', el);
+                renderGlobalDashboard();
+                return;
+            }
             currentScope = scope;
-            let label = scope === 'pusat' ? 'Lembaga' : (scope==='kopri'?'BSO KOPRI':'LSO');
-            if(scope.startsWith('lso_')) { const lso = listLSO.find(l => 'lso_'+l.id === scope); label = lso ? lso.nama : 'LSO'; }
+            showSection('main-view', el);
+            let label = '';
+            if(scope === 'pusat') label = 'LEMBAGA';
+            else if(scope === 'kopri') label = 'BSO KOPRI';
+            else if(scope.startsWith('lso_')) { const lso = listLSO.find(x => x.id === scope.replace('lso_', '')); label = lso ? lso.nama : 'LSO'; }
+            else label = currentUser.name; 
             
-            document.getElementById('headerBadge').innerText = scope === 'pusat' ? 'PUSAT' : (scope==='kopri'?'KOPRI':'LSO');
-            document.getElementById('headerBadge').style.background = scope === 'kopri' ? 'var(--accent)' : (scope==='pusat'?'var(--primary)':'#17a2b8');
-            document.getElementById('pageTitle').innerText = `Dashboard - ${label}`;
+            const pageTitle = document.getElementById('pageTitle');
+            if(pageTitle) pageTitle.innerText = "Dashboard " + label;
             
-            const triggerEl = document.querySelector('#linkTabDash');
-            bootstrap.Tab.getOrCreateInstance(triggerEl).show();
-
-            document.querySelectorAll('.sidebar .nav-link, .submenu a').forEach(n => n.classList.remove('active'));
-            if(el) el.classList.add('active');
-
-            showSection('main-view', el); 
             refreshView();
         }
 
-        // --- DATA RENDERING ---
+        window.showGlobalDashboard = (el) => switchScope('global', el);
+        window.showSection = (id, el) => {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active')); 
+            const sec = document.getElementById(id);
+            if(sec) sec.classList.add('active');
+            
+            if(el) { document.querySelectorAll('.sidebar .nav-link').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+            if(window.innerWidth < 992) toggleSidebar();
+        }
+
+        // PIN
+        const pinModalEl = document.getElementById('mdlPin');
+        pinModalInstance = new bootstrap.Modal(pinModalEl);
+        pinModalEl.addEventListener('shown.bs.modal', () => { 
+            const input = document.getElementById('pinInput');
+            if(input) { input.value = ''; input.focus(); }
+        });
+        const pinInput = document.getElementById('pinInput');
+        if(pinInput) pinInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') submitPin(); });
+
+        window.requestAccess = (scope, el) => {
+            pendingAction = { scope, el };
+            let reqPin = '1234';
+            if(scope === 'settings') reqPin = pinData['master'];
+            else if(scope === 'pusat') reqPin = pinData['pusat'];
+            else if(scope === 'kopri') reqPin = pinData['kopri'];
+            else if(scope.startsWith('lso_')) { const lso = listLSO.find(x => x.id === scope.replace('lso_', '')); reqPin = lso ? lso.pin : '1234'; }
+            
+            const target = document.getElementById('pinTargetName');
+            if(target) target.dataset.correctPin = reqPin || '1234';
+            if(pinModalInstance) pinModalInstance.show();
+        }
+
+        window.submitPin = () => {
+            const val = document.getElementById('pinInput').value;
+            const correct = document.getElementById('pinTargetName').dataset.correctPin;
+            if(val === correct || val === pinData['master']) { 
+                if(pinModalInstance) pinModalInstance.hide(); 
+                executeAction(); 
+            }
+            else { alert("PIN Salah!"); document.getElementById('pinInput').value = ''; }
+        }
+        window.closePinModal = () => { if(pinModalInstance) pinModalInstance.hide(); pendingAction = null; }
+        function executeAction() {
+            if(!pendingAction) return;
+            const { scope, el } = pendingAction;
+            if(scope === 'settings') showSection('pengaturan', el); else switchScope(scope, el);
+        }
+
+        // RENDERING
         function refreshView() {
             if(currentScope === 'global') return;
-            const curSM = rawSM.filter(x => (x.scope||'pusat') === currentScope);
-            const curSK = rawSK.filter(x => (x.scope||'pusat') === currentScope);
-            const curKeu = rawKeu.filter(x => (x.scope||'pusat') === currentScope);
-            const curInv = rawInv.filter(x => (x.scope||'pusat') === currentScope);
-
-            // RENDER SURAT MASUK (Dengan Link Manual)
-            document.getElementById('bodySM').innerHTML = curSM.map(x => {
-                let btnFile = (x.file && x.file.startsWith('http')) 
-                    ? `<a href="${x.file}" target="_blank" class="text-primary"><i class="fas fa-file-pdf"></i></a>` 
-                    : '-';
-                
-                // --- FIX: Memisahkan kolom Kategori agar sesuai Header ---
-                return `<tr>
-                    <td>${x.no}</td>
-                    <td>${x.asal}</td>
-                    <td><span class="badge ${x.cat === 'Internal' ? 'bg-secondary' : 'bg-primary'}">${x.cat}</span></td>
-                    <td>${x.tgl_buat}</td>
-                    <td>${x.tgl_datang}</td>
-                    <td>${x.hal}</td>
-                    <td>${x.ket||'-'}</td>
-                    <td class="text-center">${btnFile}</td>
-                    <td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_masuk','${x.id}')"><i class="fas fa-trash"></i></button></td>
-                </tr>`;
-            }).join('');
-
-            // RENDER SURAT KELUAR (Dengan Link Manual)
-            document.getElementById('bodySK').innerHTML = curSK.map(x => {
-                let btnFile = (x.file && x.file.startsWith('http')) 
-                    ? `<a href="${x.file}" target="_blank" class="text-primary"><i class="fas fa-file-pdf"></i></a>` 
-                    : '-';
-                
-                // --- FIX: Memisahkan kolom Kategori agar sesuai Header ---
-                return `<tr>
-                    <td>${x.no}</td>
-                    <td>${x.tujuan}</td>
-                    <td><span class="badge ${x.cat === 'Internal' ? 'bg-secondary' : 'bg-primary'}">${x.cat}</span></td>
-                    <td>${x.tgl_buat}</td>
-                    <td>${x.tgl_kirim}</td>
-                    <td>${x.hal}</td>
-                    <td>${x.ket||'-'}</td>
-                    <td class="text-center">${btnFile}</td>
-                    <td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_keluar','${x.id}')"><i class="fas fa-trash"></i></button></td>
-                </tr>`;
-            }).join('');
-
-            renderKeuTable(curKeu);
-            document.getElementById('bodyRekap').innerHTML = curInv.filter(x=>x.type==='Rekap').map(x=>`<tr><td>${x.nama}</td><td>${x.merk||'-'}</td><td>${x.thn||'-'}</td><td>${x.jml}</td><td>${x.cond}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('inventaris','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
-            document.getElementById('bodyBuku').innerHTML = curInv.filter(x=>x.type==='Buku').map(x=>`<tr><td>${x.kode||'-'}</td><td>${x.nama}</td><td>${x.jenis||'-'}</td><td>${x.cond}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('inventaris','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
-            
-            document.getElementById('cntSM').innerText = curSM.length;
-            document.getElementById('cntSK').innerText = curSK.length;
-            document.getElementById('cntInv').innerText = curInv.length;
-            let sal = 0; curKeu.forEach(k => sal += (k.jenis === 'Masuk' ? k.nom : -k.nom));
-            document.getElementById('cntUang').innerText = fmtRp(sal);
-        }
-
-        function renderKeuTable(data) {
-            let balBank = 0;
-            const bankData = data.filter(x => x.cat === 'Bank').sort((a,b)=> new Date(a.tgl) - new Date(b.tgl));
-            document.getElementById('bodyKasBank').innerHTML = bankData.map(x => {
-                let d = x.jenis==='Masuk'?x.nom:0, k = x.jenis==='Keluar'?x.nom:0; balBank += (d-k);
-                return `<tr><td>${x.tgl}</td><td>${x.uraian}</td><td class="text-success text-end">${d?fmtRp(d):'-'}</td><td class="text-danger text-end">${k?fmtRp(k):'-'}</td><td class="fw-bold text-end">${fmtRp(balBank)}</td><td class="text-center"><button class="btn btn-sm btn-danger rounded-circle" onclick="del('keuangan','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
-            }).join('');
-            const filter = document.getElementById('filterBulanOps').value;
-            let opsData = data.filter(x => x.cat === 'Operasional');
-            if(filter) opsData = opsData.filter(x => x.tgl.startsWith(filter));
-            opsData.sort((a,b)=> new Date(a.tgl) - new Date(b.tgl));
-            let balOps = 0, totD=0, totK=0;
-            document.getElementById('bodyOps').innerHTML = opsData.map(x => {
-                let d = x.jenis==='Masuk'?x.nom:0, k = x.jenis==='Keluar'?x.nom:0; balOps += (d-k); totD+=d; totK+=k;
-                return `<tr><td>${x.tgl}</td><td>${x.uraian}</td><td>${x.pj||'-'}</td><td class="text-center">${x.qty||'-'}</td><td class="text-end">${x.hrg?fmtRp(x.hrg):'-'}</td><td class="text-end">${x.qty&&x.hrg?fmtRp(x.qty*x.hrg):'-'}</td><td class="text-success text-end">${d?fmtRp(d):'-'}</td><td class="text-danger text-end">${k?fmtRp(k):'-'}</td><td class="fw-bold text-end">${fmtRp(balOps)}</td><td class="text-center"><button class="btn btn-sm btn-danger rounded-circle" onclick="del('keuangan','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
-            }).join('');
-            document.getElementById('footOps').innerHTML = `<tr class="fw-bold bg-light"><td colspan="6" class="text-end">TOTAL</td><td class="text-success text-end">${fmtRp(totD)}</td><td class="text-danger text-end">${fmtRp(totK)}</td><td class="text-primary text-end">${fmtRp(totD-totK)}</td><td></td></tr>`;
-        }
-        window.renderKeu = refreshView;
-
-        // --- OPREC LOGIC ---
-        window.toggleAdminOprec = (state) => {
-            isAdminOprec = state;
-            if(state) {
-                $('#adminPanel').slideDown();
-                $('.admin-only').show();
-                $('#btnAdminTrigger').addClass('d-none');
-                $('#btnLogoutAdmin').removeClass('d-none');
-            } else {
-                $('#adminPanel').slideUp();
-                $('.admin-only').hide();
-                $('#btnAdminTrigger').removeClass('d-none');
-                $('#btnLogoutAdmin').addClass('d-none');
-            }
-            if(oprecTable) oprecTable.columns.adjust().draw();
-        }
-
-        window.renderOprecTable = (data) => {
-            if ($.fn.DataTable.isDataTable('#dataTableOprec')) {
-                $('#dataTableOprec').DataTable().destroy();
-            }
-            const tbody = document.getElementById('tableBodyOprec');
-            tbody.innerHTML = '';
-            data.forEach(d => {
-                let statusHtml = d.keputusan ? `<span class="badge bg-success status-badge">${d.keputusan}</span>` : `<span class="badge bg-secondary status-badge opacity-50">Diproses</span>`;
-                let displayStyle = isAdminOprec ? '' : 'display:none';
-                let btnAksi = `<button class="btn btn-warning btn-sm" onclick="bukaPlotting('${d.id}', '${d.nama_lengkap}', '${d.pilihan1}', '${d.pilihan2}')"><i class="fas fa-pencil-alt"></i></button><button class="btn btn-danger btn-sm ms-1" onclick="del('pendaftar_oprec','${d.id}')"><i class="fas fa-trash"></i></button>`;
-                let waLink = d.wa ? `<a href="https://wa.me/${d.wa.replace(/[^0-9]/g,'').replace(/^0/,'62')}" target="_blank" class="text-success fw-bold"><i class="fab fa-whatsapp"></i></a>` : '-';
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td><span class="fw-bold">${d.nama_lengkap||'-'}</span></td><td>${d.nama_panggilan || '-'}</td><td>${d.nim || '-'}</td><td>${d.rayon || '-'}</td><td class="text-center">${waLink}</td><td>${d.pilihan1 || '-'}</td><td><div class="col-alasan">${d.alasan1 || '-'}</div></td><td>${d.pilihan2 || '-'}</td><td><div class="col-alasan">${d.alasan2 || '-'}</div></td><td><div class="text-center">${statusHtml}</div></td><td class="text-center admin-only" style="${displayStyle}">${btnAksi}</td>`;
-                tbody.appendChild(tr);
-            });
-            oprecTable = $('#dataTableOprec').DataTable({
-                scrollX: true,
-                language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json' },
-                drawCallback: function() { if(isAdminOprec) $('.admin-only').show(); else $('.admin-only').hide(); }
-            });
-        }
-
-        // Upload Excel Logic 
-        document.getElementById('btnUploadExcel').addEventListener('click', () => {
-            const fileInput = document.getElementById('excelFileInput');
-            if (!fileInput.files.length) { alert("Pilih file Excel dulu!"); return; }
-            $('#loadingUpload').removeClass('d-none');
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const rows = XLSX.utils.sheet_to_json(worksheet, {raw: false});
-                    const batch = writeBatch(db);
-                    let count = 0;
-                    rows.forEach((row) => {
-                        if (!row['NAMA LENGKAP']) return; 
-                        const docRef = doc(collection(db, 'pendaftar_oprec'));
-                        batch.set(docRef, {
-                            nama_lengkap: row['NAMA LENGKAP'] || '',
-                            nama_panggilan: row['NAMA PANGGILAN'] || '',
-                            nim: row['NOMOR INDUK MAHASISWA (NIM)'] || '',
-                            alamat: row['ALAMAT ASAL'] || '',
-                            rayon: row['ASAL RAYON'] || '',
-                            wa: row['Nomor HP/WhatsApp'] || '',
-                            pilihan1: row['PILIHAN 1'] || '',
-                            alasan1: row['ALASAN PILIHAN 1'] || '',
-                            pilihan2: row['PILIHAN 2'] || '',
-                            alasan2: row['ALASAN PILIHAN 2'] || '',
-                            keputusan: ''
-                        });
-                        count++;
-                    });
-                    await batch.commit();
-                    $('#loadingUpload').addClass('d-none');
-                    alert(`Berhasil mengupload ${count} data!`);
-                    $('#excelFileInput').val('');
-                } catch (err) {
-                    console.error(err);
-                    alert("Gagal upload: " + err.message);
-                    $('#loadingUpload').addClass('d-none');
-                }
+            const filterFn = (item) => {
+                if(currentUser.role === 'admin') return item.scope === currentScope;
+                else return true; 
             };
-            reader.readAsArrayBuffer(file);
-        });
+            const s_sm = (rawData.sm||[]).filter(filterFn);
+            const s_sk = (rawData.sk||[]).filter(filterFn);
+            const s_keu = (rawData.keu||[]).filter(filterFn);
+            const s_inv = (rawData.inv||[]).filter(filterFn);
 
-        // Plotting Functions
-        window.bukaPlotting = (id, nama, p1, p2) => {
-            document.getElementById('plotId').value = id;
-            document.getElementById('plotNama').innerText = nama;
-            document.getElementById('txtP1').innerText = p1;
-            document.getElementById('txtP2').innerText = p2;
-            p1ValTemp = p1; p2ValTemp = p2;
-            document.getElementById('manualPlot').value = '';
-            new bootstrap.Modal(document.getElementById('plottingModal')).show();
+            const t_sm = document.getElementById('bodySM');
+            if(t_sm) t_sm.innerHTML = s_sm.map(x=>`<tr><td>${x.no}</td><td>${x.asal}</td><td>${x.tgl_buat}</td><td>${x.tgl_datang}</td><td>${x.hal}</td><td>${x.ket||'-'}</td><td>${x.file!==' - '?`<a href="#" class="text-primary"><i class="fas fa-file-pdf"></i></a>`:'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_masuk','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            
+            const t_sk = document.getElementById('bodySK');
+            if(t_sk) t_sk.innerHTML = s_sk.map(x=>`<tr><td>${x.no}</td><td>${x.tujuan}</td><td>${x.tgl_buat}</td><td>${x.tgl_kirim}</td><td>${x.hal}</td><td>${x.ket||'-'}</td><td>${x.file!==' - '?`<a href="#" class="text-primary"><i class="fas fa-file-pdf"></i></a>`:'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_keluar','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            
+            let balBank=0, balOps=0;
+            const t_bank = document.getElementById('bodyKasBank');
+            if(t_bank) t_bank.innerHTML = s_keu.filter(x=>x.cat==='Bank').sort((a,b)=>new Date(a.tgl)-new Date(b.tgl)).map(x=>{ const d=x.jenis==='Masuk'?x.nom:0, k=x.jenis==='Keluar'?x.nom:0; balBank+=(d-k); return `<tr><td>${x.tgl}</td><td>${x.uraian}</td><td class="text-success">${fmtRp(d)}</td><td class="text-danger">${fmtRp(k)}</td><td class="fw-bold">${fmtRp(balBank)}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('keuangan','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }).join('');
+            
+            const t_ops = document.getElementById('bodyOps');
+            if(t_ops) t_ops.innerHTML = s_keu.filter(x=>x.cat==='Operasional').sort((a,b)=>new Date(a.tgl)-new Date(b.tgl)).map(x=>{ const d=x.jenis==='Masuk'?x.nom:0, k=x.jenis==='Keluar'?x.nom:0; balOps+=(d-k); return `<tr><td>${x.tgl}</td><td>${x.uraian}</td><td>${x.pj||'-'}</td><td>${x.qty||'-'}</td><td>${x.hrg?fmtRp(x.hrg):'-'}</td><td>${x.qty&&x.hrg?fmtRp(x.qty*x.hrg):'-'}</td><td class="text-success">${fmtRp(d)}</td><td class="text-danger">${fmtRp(k)}</td><td class="fw-bold">${fmtRp(balOps)}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('keuangan','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }).join('');
+            
+            const t_rekap = document.getElementById('bodyRekap');
+            if(t_rekap) t_rekap.innerHTML = s_inv.filter(x=>x.type==='Rekap').map(x=>`<tr><td>${x.nama}</td><td>${x.merk||'-'}</td><td>${x.thn||'-'}</td><td>${x.jml}</td><td>${x.cond}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('inventaris','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            
+            const t_buku = document.getElementById('bodyBuku');
+            if(t_buku) t_buku.innerHTML = s_inv.filter(x=>x.type==='Buku').map(x=>`<tr><td>${x.kode||'-'}</td><td>${x.nama}</td><td>${x.jenis||'-'}</td><td>${x.cond}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('inventaris','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+
+            let totalSaldo = 0; s_keu.forEach(k => totalSaldo += (k.jenis === 'Masuk' ? k.nom : -k.nom));
+            if(document.getElementById('cntSM')) document.getElementById('cntSM').innerText = s_sm.length;
+            if(document.getElementById('cntSK')) document.getElementById('cntSK').innerText = s_sk.length;
+            if(document.getElementById('cntInv')) document.getElementById('cntInv').innerText = s_inv.length;
+            if(document.getElementById('cntUang')) document.getElementById('cntUang').innerText = fmtRp(totalSaldo);
         }
 
-        window.savePlot = async (type) => {
-            let val = '';
-            if (type === 'pilihan1') val = p1ValTemp;
-            else if (type === 'pilihan2') val = p2ValTemp;
-            else val = document.getElementById('manualPlot').value;
-            if(!val) { alert("Data kosong!"); return; }
-            const id = document.getElementById('plotId').value;
-            await updateDoc(doc(db, "pendaftar_oprec", id), { keputusan: val });
-            bootstrap.Modal.getInstance(document.getElementById('plottingModal')).hide();
+        window.renderGlobalDashboard = () => {
+            const container = document.getElementById('globalSummaryContainer');
+            if(!container) return;
+            
+            let html = '';
+            if(currentUser.role === 'admin') {
+                const scopes = [{id:'pusat',name:'LEMBAGA'}, {id:'kopri',name:'BSO KOPRI'}, ...listLSO.map(l=>({id:'lso_'+l.id, name:l.nama}))];
+                scopes.forEach(s => {
+                    const sm = (rawData.sm||[]).filter(x => x.scope === s.id).length;
+                    const sk = (rawData.sk||[]).filter(x => x.scope === s.id).length;
+                    const totUang = (rawData.keu||[]).filter(x => x.scope === s.id).reduce((acc,curr)=>acc+(curr.jenis==='Masuk'?curr.nom:-curr.nom),0);
+                    html += `<div class="col-md-4"><div class="card-modern p-3 border-start border-5 border-primary"><h6 class="fw-bold text-uppercase">${s.name}</h6><div class="d-flex justify-content-between mt-3"><div class="text-center"><small>S. Masuk</small><h5 class="text-primary fw-bold">${sm}</h5></div><div class="text-center"><small>S. Keluar</small><h5 class="text-warning fw-bold">${sk}</h5></div><div class="text-center"><small>Saldo</small><h5 class="text-success fw-bold fs-6">${fmtRp(totUang)}</h5></div></div></div></div>`;
+                });
+            } else {
+                const sm = (rawData.sm||[]).length;
+                const sk = (rawData.sk||[]).length;
+                const totUang = (rawData.keu||[]).reduce((acc,curr)=>acc+(curr.jenis==='Masuk'?curr.nom:-curr.nom),0);
+                html += `<div class="col-12"><div class="alert alert-info">Selamat Datang, <b>${currentUser.name}</b>. Berikut ringkasan data Anda.</div></div><div class="col-md-4"><div class="card-modern p-3"><h6 class="text-muted">Total Surat</h6><h2>${sm+sk}</h2></div></div><div class="col-md-4"><div class="card-modern p-3"><h6 class="text-muted">Saldo Kas</h6><h2 class="text-success">${fmtRp(totUang)}</h2></div></div><div class="col-md-4"><div class="card-modern p-3"><h6 class="text-muted">Total Aset</h6><h2>${(rawData.inv||[]).length}</h2></div></div>`;
+            }
+            container.innerHTML = html || '<div class="col-12 text-center text-muted">Belum ada data.</div>';
         }
 
-        // --- UTILS ---
+        window.renderPengurusTable = () => { 
+            const t = document.getElementById('bodyPengurus');
+            if(t) t.innerHTML = (rawData.pengurus||[]).map((d,i)=>`<tr><td>${i+1}</td><td>${d.nama}</td><td>${d.jabatan}</td><td>${d.rayon}</td><td>${d.wa}</td></tr>`).join(''); 
+        }
+        
+        function renderLSOMenu(){ 
+            const lsoMenu = document.getElementById('lsoSubmenu');
+            if(lsoMenu) lsoMenu.innerHTML = listLSO.map(l=>`<li><a onclick="requestAccess('lso_${l.id}', this)">${l.nama}</a></li>`).join(''); 
+            
+            const lsoList = document.getElementById('listLSO');
+            if(lsoList) lsoList.innerHTML = listLSO.map(l=>`<li class="list-group-item d-flex justify-content-between"><span>${l.nama} <span class="badge bg-secondary">${l.pin}</span></span> <button class="btn btn-sm btn-outline-danger" onclick="delLSO('${l.id}')">x</button></li>`).join(''); 
+        }
+
+        // SAVE
         const v=id=>document.getElementById(id).value;
-        window.updateClock = () => {
-            const n = new Date();
-            const str = `${n.toLocaleDateString('id-ID')} ${n.toLocaleTimeString('id-ID')}`;
-            const elDesk = document.getElementById('realtimeClockDesktop');
-            const elMob = document.getElementById('realtimeClock');
-            if(elDesk) elDesk.innerText = str;
-            if(elMob) elMob.innerText = str;
-        }
-        setInterval(updateClock, 1000);
-        updateClock(); 
-
         window.saveData = async (e, t) => {
             e.preventDefault(); 
-            let d={ createdAt:Date.now(), scope: currentScope }; 
-            
-            // --- LOGIC MANUAL LINK ---
-            if(t.startsWith('sm')){ 
-                d.cat=v('sm_kat'); d.no=v('sm_no'); d.asal=v('sm_asal'); 
-                d.tgl_buat=v('sm_tgl_buat'); d.tgl_datang=v('sm_tgl_datang'); 
-                d.hal=v('sm_hal'); d.ket=v('sm_ket'); 
-                
-                // Ambil text dari input manual
-                d.file = v('sm_file') || '-'; 
-                
-                await addDoc(collection(db,"surat_masuk"),d); 
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('mdlSM')).hide();
-            }
-            
-            if(t.startsWith('sk')){ 
-                d.cat=v('sk_kat'); d.no=v('sk_no'); d.tujuan=v('sk_tujuan'); 
-                d.tgl_buat=v('sk_tgl_buat'); d.tgl_kirim=v('sk_tgl_kirim'); 
-                d.hal=v('sk_hal'); d.ket=v('sk_ket'); 
-                
-                // Ambil text dari input manual
-                d.file = v('sk_file') || '-';
-                
-                await addDoc(collection(db,"surat_keluar"),d); 
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('mdlSK')).hide();
-            }
-            
-            if(t==='keu'){ d.cat=v('keu_cat'); d.tgl=v('keu_tgl'); d.uraian=v('keu_uraian'); d.jenis=v('keu_jenis'); d.nom=parseFloat(v('keu_nom')); if(d.cat==='Operasional'){d.pj=v('keu_pj'); d.qty=v('keu_qty'); d.hrg=v('keu_hrg');} await addDoc(collection(db,"keuangan"),d); bootstrap.Modal.getOrCreateInstance(document.getElementById('mdlKeu')).hide();}
-            if(t==='inv'){ d.type=v('inv_type'); d.nama=v('inv_nama'); d.cond=v('inv_cond'); d.ket=v('inv_ket'); if(d.type==='Rekap'){d.merk=v('inv_merk'); d.thn=v('inv_thn'); d.jml=v('inv_jml');} else {d.kode=v('inv_kode'); d.jenis=v('inv_jenis');} await addDoc(collection(db,"inventaris"),d); bootstrap.Modal.getOrCreateInstance(document.getElementById('mdlInv')).hide();}
-
+            const d = { createdAt: Date.now(), scope: currentScope, uid: currentUser.uid };
+            const f = e.target.querySelector('input[type="file"]'); 
+            d.file = (f && f.files.length > 0) ? f.files[0].name : '-';
+            if(t==='sm'){ d.cat=v('sm_kat'); d.no=v('sm_no'); d.asal=v('sm_asal'); d.tgl_buat=v('sm_tgl_buat'); d.tgl_datang=v('sm_tgl_datang'); d.hal=v('sm_hal'); d.ket=v('sm_ket'); await addDoc(collection(db,"surat_masuk"),d); bootstrap.Modal.getInstance(document.getElementById('mdlSM')).hide(); }
+            if(t==='sk'){ d.cat=v('sk_kat'); d.no=v('sk_no'); d.tujuan=v('sk_tujuan'); d.tgl_buat=v('sk_tgl_buat'); d.tgl_kirim=v('sk_tgl_kirim'); d.hal=v('sk_hal'); d.ket=v('sk_ket'); await addDoc(collection(db,"surat_keluar"),d); bootstrap.Modal.getInstance(document.getElementById('mdlSK')).hide(); }
+            if(t==='keu'){ d.cat=v('keu_cat'); d.tgl=v('keu_tgl'); d.uraian=v('keu_uraian'); d.jenis=v('keu_jenis'); d.nom=parseFloat(v('keu_nom')); if(d.cat==='Operasional'){d.pj=v('keu_pj'); d.qty=v('keu_qty'); d.hrg=v('keu_hrg');} await addDoc(collection(db,"keuangan"),d); bootstrap.Modal.getInstance(document.getElementById('mdlKeu')).hide(); }
+            if(t==='inv'){ d.type=v('inv_type'); d.nama=v('inv_nama'); d.cond=v('inv_cond'); d.ket=v('inv_ket'); if(d.type==='Rekap'){d.merk=v('inv_merk'); d.thn=v('inv_thn'); d.jml=v('inv_jml');} else {d.kode=v('inv_kode'); d.jenis=v('inv_jenis');} await addDoc(collection(db,"inventaris"),d); bootstrap.Modal.getInstance(document.getElementById('mdlInv')).hide(); }
             e.target.reset();
         }
+        window.del = async (c,i) => { if(confirm('Hapus?')) await deleteDoc(doc(db,c,i)); }
+        window.uploadPengurus = () => {
+            const file = document.getElementById('excelPengurusInput').files[0];
+            if(!file) return alert("Pilih file!");
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                const batch = writeBatch(db);
+                rows.forEach(r => { const docRef = doc(collection(db, "susunan_pengurus")); batch.set(docRef, { uid: currentUser.uid, nama: r.NAMA||'', nim: r.NIM||'', wa: r.WA||'', rayon: r.RAYON||'', jabatan: r.JABATAN||'' }); });
+                await batch.commit(); alert("Selesai!");
+            };
+            reader.readAsArrayBuffer(file);
+        }
 
-        window.openModalKeu = (t) => { document.getElementById('keu_cat').value=t; document.getElementById('ttlKeu').innerText=`Input ${t}`; document.getElementById('opsFields').className=t==='Operasional'?'d-block':'d-none'; new bootstrap.Modal(document.getElementById('mdlKeu')).show(); }
-        window.openModalInv = (t) => { document.getElementById('inv_type').value=t; document.getElementById('ttlInv').innerText=`Input ${t}`; document.getElementById('rekapFields').className=t==='Rekap'?'d-block':'d-none'; document.getElementById('bukuFields').className=t==='Buku'?'d-block':'d-none'; new bootstrap.Modal(document.getElementById('mdlInv')).show(); }
-        window.calcTotal = () => { const q=parseFloat(v('keu_qty'))||0, h=parseFloat(v('keu_hrg'))||0; document.getElementById('keu_nom').value = q*h; }
-        window.del = async(c,id) => { if(confirm('Hapus data?')) await deleteDoc(doc(db,c,id)); }
+        const fmtRp = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(n);
         window.dlExcel = (id,n) => XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById(id),{sheet:"Sheet1"}), `${n}_${currentScope}.xlsx`);
-        window.showSection = (id, el) => { document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.sidebar .nav-link, .submenu a').forEach(n => n.classList.remove('active')); if(el) el.classList.add('active'); if(window.innerWidth<992 && id!=='dashboard-global'){document.getElementById('sidebar').classList.remove('active'); document.getElementById('mobileOverlay').classList.remove('active');} }
-        window.toggleSidebar=()=>{document.getElementById('sidebar').classList.toggle('active'); document.getElementById('mobileOverlay').classList.toggle('active');}
-        window.toggleTheme=()=>{document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode')?'dark':'light');}
-        window.toggleSubmenu=(id,el)=>{document.getElementById(id).classList.toggle('show'); el.setAttribute('aria-expanded', document.getElementById(id).classList.contains('show'));}
-        window.addLSO=async(e)=>{e.preventDefault(); const n=v('newLSO'), p=v('newLSOPin')||'1234'; if(n){await addDoc(collection(db,'settings_lso'),{nama:n,pin:p}); e.target.reset();}}
-        window.updatePin=async(t)=>{const p=document.getElementById('pin_'+t).value; if(p){await setDoc(doc(db,'auth_config',t),{pin:p}); alert('Sukses'); document.getElementById('pin_'+t).value='';}}
-        function renderLSOMenu(){document.getElementById('lsoSubmenu').innerHTML = listLSO.length?listLSO.map(l=>`<li><a onclick="requestAccess('lso_${l.id}', this)" style="cursor:pointer">${l.nama}</a></li>`).join(''):'<li class="text-center py-2 small">Kosong</li>';}
-        function renderLSOList(){document.getElementById('listLSO').innerHTML=listLSO.map(l=>`<li class="list-group-item d-flex justify-content-between">${l.nama} <button class="btn btn-sm btn-outline-danger" onclick="del('settings_lso','${l.id}')">x</button></li>`).join('');}
-
+        window.openModalKeu = (c) => { document.getElementById('keu_cat').value=c; document.getElementById('ttlKeu').innerText=`Input ${c}`; document.getElementById('opsFields').className=c==='Operasional'?'d-block':'d-none'; new bootstrap.Modal(document.getElementById('mdlKeu')).show(); }
+        window.openModalInv = (t) => { document.getElementById('inv_type').value=t; document.getElementById('ttlInv').innerText=`Input ${t}`; document.getElementById('rekapFields').className=t==='Rekap'?'d-block':'d-none'; document.getElementById('bukuFields').className=t==='Buku'?'d-block':'d-none'; new bootstrap.Modal(document.getElementById('mdlInv')).show(); }
+        window.calcTotal = () => { document.getElementById('keu_nom').value = (parseFloat(v('keu_qty'))||0) * (parseFloat(v('keu_hrg'))||0); }
+        window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('active');
+        window.toggleTheme = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode')?'dark':'light'); }
         if(localStorage.getItem('theme')==='dark') toggleTheme();
-        showGlobalDashboard(document.querySelector('.nav-link.active'));
+        setInterval(() => { const n=new Date(); document.getElementById('realtimeClock').innerText=n.toLocaleTimeString(); document.getElementById('realtimeClockDesktop').innerText=n.toLocaleTimeString(); }, 1000);
     </script>
 </body>
 </html>
