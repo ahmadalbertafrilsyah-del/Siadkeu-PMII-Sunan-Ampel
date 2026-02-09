@@ -41,8 +41,6 @@
         .sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0; background: linear-gradient(160deg, #003399 0%, #001a4d 100%); color: white; z-index: 1060; transition: 0.4s; overflow-y: auto; }
         body.dark-mode .sidebar { background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%); border-right: 1px solid #334155; }
         .sidebar-brand { height: 90px; display: flex; align-items: center; padding: 0 25px; font-size: 1.25rem; justify-content: space-between; overflow: hidden; }
-        
-        /* Fix Logo Size in Sidebar */
         .sidebar-logo { width: 45px !important; height: 45px !important; min-width: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
 
         .sidebar-menu { list-style: none; padding: 25px 15px; margin: 0; }
@@ -50,7 +48,6 @@
         .nav-item a:hover, .nav-item a.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; border-left: 4px solid var(--accent); }
         .nav-item i { width: 25px; margin-right: 20px; } 
         
-        /* DROPDOWN LSO */
         .submenu { list-style: none; padding-left: 20px; margin-top: 5px; display: none; background: rgba(0,0,0,0.1); border-radius: 10px; }
         .submenu.show { display: block; animation: slideDown 0.3s ease; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -59,7 +56,6 @@
         body.dark-mode .main-header { background: rgba(30, 41, 59, 0.95); border-color: #334155; }
         .content-wrapper { margin-top: var(--header-height); margin-left: var(--sidebar-width); padding: 30px; transition: 0.4s; min-height: 100vh; }
         
-        /* COMPONENTS */
         .card-modern { border: 1px solid #e2e8f0; border-radius: var(--radius); background: var(--surface); box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 25px; }
         body.dark-mode .card-modern { border-color: #334155; }
         .card-header-modern { padding: 20px 25px; border-bottom: 1px solid #e2e8f0; font-weight: 600; display: flex; justify-content: space-between; align-items: center; color: var(--text-heading); }
@@ -142,11 +138,12 @@
                 <button class="btn-close-sidebar text-white d-lg-none" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
             </div>
             <ul class="sidebar-menu">
-                <li class="nav-item"><a class="nav-link active" onclick="switchScope('global', this)"><i class="fas fa-database"></i> <span>Database</span></a></li>
+                <li class="nav-item"><a class="nav-link active" onclick="switchScope('global', this)"><i class="fas fa-database"></i> <span>Dashboard</span></a></li>
                 
                 <div id="menu-admin-global">
                     <li class="nav-item"><a class="nav-link" onclick="requestAccess('pusat', this)"><i class="fas fa-home"></i> <span>Lembaga</span></a></li>
                     <li class="nav-item"><a class="nav-link" onclick="requestAccess('kopri', this)"><i class="fas fa-venus"></i> <span>BSO KOPRI</span></a></li>
+
                     <li class="nav-item">
                         <a class="nav-link" onclick="toggleSubmenu('lsoSubmenu', this)">
                             <i class="fas fa-users-cog"></i> <span>Lembaga (LSO)</span> <i class="fas fa-chevron-down ms-auto" style="margin-right:0; transition: transform 0.3s;"></i>
@@ -155,6 +152,18 @@
                             <li class="text-center py-2 small text-white-50">Memuat...</li>
                         </ul>
                     </li>
+
+                    <div id="menu-admin-rayon" style="display:none;">
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="toggleSubmenu('rayonSubmenu', this)">
+                                <i class="fas fa-users"></i> <span>Database Rayon</span> 
+                                <i class="fas fa-chevron-down ms-auto" style="margin-right:0; transition: transform 0.3s;"></i>
+                            </a>
+                            <ul class="submenu" id="rayonSubmenu">
+                                <li class="text-center py-2 small text-white-50">Memuat data...</li>
+                            </ul>
+                        </li>
+                    </div>
                 </div>
 
                 <li class="nav-item mt-2 pt-2 border-top"><a class="nav-link" onclick="showSection('proker-view', this)"><i class="fas fa-calendar-alt"></i> <span>Program Kerja</span></a></li>
@@ -180,8 +189,10 @@
 
         <div class="content-wrapper">
             <div id="dashboard-global" class="page-section active">
-                <h4 class="fw-bold mb-4">Database Organisasi <span id="dashScopeBadge" class="badge bg-secondary">GLOBAL</span></h4>
-                <div class="row g-4" id="globalSummaryContainer"><div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div></div>
+                <h4 class="fw-bold mb-4">Dashboard <span id="dashScopeBadge" class="badge bg-secondary">UTAMA</span></h4>
+                <div class="row g-4" id="globalSummaryContainer">
+                    <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>
+                </div>
             </div>
 
             <div id="main-view" class="page-section">
@@ -201,6 +212,7 @@
                             <div class="col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-red"><i class="fas fa-box"></i></div><div><small>ASET</small><h3 id="cntInv">0</h3></div></div></div>
                         </div>
                     </div>
+                    
                     <div class="tab-pane fade" id="tabSurat">
                         <ul class="nav nav-pills mb-3 gap-2">
                             <li class="nav-item"><button class="nav-link active btn-sm" data-bs-toggle="pill" data-bs-target="#subSM">Surat Masuk</button></li>
@@ -221,6 +233,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="tab-pane fade" id="tabKeu">
                         <ul class="nav nav-pills mb-3 gap-2">
                             <li class="nav-item"><button class="nav-link active btn-sm" data-bs-toggle="pill" data-bs-target="#tabKasBank">Kas Bank</button></li>
@@ -241,6 +254,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="tab-pane fade" id="tabInv">
                         <ul class="nav nav-pills mb-3 gap-2">
                             <li class="nav-item"><button class="nav-link active btn-sm" data-bs-toggle="pill" data-bs-target="#tabRekap">Rekapitulasi</button></li>
@@ -334,7 +348,6 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, getDoc, setDoc, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // FIREBASE CONFIG (ASLI)
         const firebaseConfig = {
             apiKey: "AIzaSyAwsqkpDt01N2U9PpPNfnKFbB2_AqaSFvA",
             authDomain: "pk-pmii-sa.firebaseapp.com",
@@ -351,10 +364,12 @@
 
         // STATE
         let currentUser = null; 
+        let activeScopeUid = null; 
         let currentScope = 'global'; 
-        let pinData = { master:'1234', pusat:'1234', kopri:'1234' }; 
+        let listeners = [];
         let listLSO = [];
         let rawData = { sm:[], sk:[], keu:[], inv:[], pengurus:[], users:[] };
+        let pinData = { master:'1234', pusat:'1234', kopri:'1234' };
         let pinModalInstance = null; 
         let pendingAction = null;
 
@@ -365,153 +380,330 @@
                     const userDocRef = doc(db, "users", user.uid);
                     const userSnap = await getDoc(userDocRef);
                     if (userSnap.exists()) {
-                        const userData = userSnap.data();
-                        currentUser = { uid: user.uid, email: user.email, ...userData };
-                        setupUIByRole(); initAppData();
-                        const overlay = document.getElementById('login-overlay');
-                        const appCont = document.getElementById('app-container');
-                        if (overlay) overlay.style.opacity = '0';
-                        setTimeout(() => { 
-                            if(overlay) overlay.style.display = 'none'; 
-                            if(appCont) appCont.style.display = 'block'; 
-                        }, 500);
+                        currentUser = { uid: user.uid, email: user.email, ...userSnap.data() };
+                    } else if(user.email.includes('admin')) {
+                        currentUser = { uid: user.uid, email: user.email, role: 'admin', name: 'Administrator' };
                     } else {
-                        // Jaga-jaga jika Admin pertama kali belum buat doc di firestore
-                        if(user.email.includes('admin')) {
-                            currentUser = { uid: user.uid, email: user.email, role: 'admin', name: 'Administrator' };
-                            setupUIByRole(); initAppData();
-                            const overlay = document.getElementById('login-overlay');
-                            const appCont = document.getElementById('app-container');
-                            if (overlay) overlay.style.opacity = '0';
-                            setTimeout(() => { 
-                                if(overlay) overlay.style.display = 'none'; 
-                                if(appCont) appCont.style.display = 'block'; 
-                            }, 500);
-                        } else {
-                            alert("Akun belum disetting di Firestore.");
-                            await signOut(auth);
-                        }
+                        alert("Akun belum disetting di Firestore."); await signOut(auth); return;
                     }
-                } catch (err) { alert("Error Login: " + err.message); }
+                    
+                    setupUIByRole();
+                    loadDataForScope(currentUser.uid); 
+                    
+                    if(currentUser.role === 'admin') loadRayonList();
+
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('app-container').style.display = 'block';
+
+                } catch (err) { alert("Error: " + err.message); }
             } else {
-                const appCont = document.getElementById('app-container');
-                const overlay = document.getElementById('login-overlay');
-                if(appCont) appCont.style.display = 'none';
-                if(overlay) { overlay.style.display = 'flex'; overlay.style.opacity = '1'; }
+                document.getElementById('app-container').style.display = 'none';
+                document.getElementById('login-overlay').style.display = 'flex';
             }
         });
 
         window.handleLogin = async (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPass').value;
             const btn = document.getElementById('btnLogin');
-            if(btn) { btn.disabled = true; btn.innerText = "Proses..."; }
-            try { await signInWithEmailAndPassword(auth, email, pass); } 
-            catch (error) { 
-                const errEl = document.getElementById('loginError');
-                if(errEl) errEl.innerText = error.message; 
-                if(btn) { btn.disabled = false; btn.innerText = "MASUK"; }
-            }
+            btn.disabled=true; btn.innerText="Proses...";
+            try { await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPass').value); } 
+            catch (error) { document.getElementById('loginError').innerText = error.message; btn.disabled=false; btn.innerText="MASUK"; }
         }
-
         window.logout = () => { if(confirm("Keluar?")) signOut(auth).then(()=>location.reload()); }
 
-        // TOGGLE SUBMENU (FIXED)
-        window.toggleSubmenu = (id, el) => {
-            const submenu = document.getElementById(id);
-            const icon = el.querySelector('.fa-chevron-down');
-            if (submenu) {
-                if (submenu.classList.contains('show')) {
-                    submenu.classList.remove('show');
-                    if(icon) icon.style.transform = 'rotate(0deg)';
-                } else {
-                    submenu.classList.add('show');
-                    if(icon) icon.style.transform = 'rotate(180deg)';
-                }
-            }
-        }
+        // --- DATA LOADING ---
+        function loadDataForScope(targetUid) {
+            listeners.forEach(unsub => unsub());
+            listeners = [];
+            activeScopeUid = targetUid;
+            rawData = { sm:[], sk:[], keu:[], inv:[], pengurus:[], users: rawData.users }; 
 
-        function setupUIByRole() {
-            const role = currentUser.role;
-            const name = currentUser.name || "User";
-            
-            const headerName = document.querySelector('.header-org-name');
-            const badge = document.getElementById('dashScopeBadge');
-            const menuAdmin = document.getElementById('menu-admin-global');
-            const menuSettings = document.getElementById('menu-settings');
-            const pageTitle = document.getElementById('pageTitle');
-
-            if(headerName) headerName.innerText = name;
-            if(badge) badge.innerText = role === 'admin' ? 'GLOBAL' : name;
-            
-            if(role === 'rayon') {
-                if(menuAdmin) menuAdmin.style.display = 'none';
-                // Di kode sebelumnya, id="menu-settings" ada di <li>. Pastikan HTML-nya benar.
-                if(menuSettings) menuSettings.style.display = 'none'; 
-                
-                currentScope = currentUser.uid;
-                if(pageTitle) pageTitle.innerText = "Dashboard " + name;
-                showSection('dashboard-global'); 
-            } else {
-                if(menuAdmin) menuAdmin.style.display = 'block';
-                if(menuSettings) menuSettings.style.display = 'block';
-                currentScope = 'global';
-            }
-            renderGlobalDashboard();
-        }
-
-        // --- DATA ---
-        function initAppData() {
-            const uid = currentUser.uid;
-            const role = currentUser.role;
             const collections = ['surat_masuk', 'surat_keluar', 'keuangan', 'inventaris', 'susunan_pengurus'];
-            collections.forEach(col => {
-                onSnapshot(collection(db, col), (s) => {
-                    const all = s.docs.map(d => ({id:d.id, ...d.data()}));
-                    if(role === 'admin') {
-                        if(col==='surat_masuk') rawData.sm = all;
-                        if(col==='surat_keluar') rawData.sk = all;
-                        if(col==='keuangan') rawData.keu = all;
-                        if(col==='inventaris') rawData.inv = all;
-                        if(col==='susunan_pengurus') rawData.pengurus = all;
-                    } else {
-                        const filtered = all.filter(x => x.uid === uid);
-                        if(col==='surat_masuk') rawData.sm = filtered;
-                        if(col==='surat_keluar') rawData.sk = filtered;
-                        if(col==='keuangan') rawData.keu = filtered;
-                        if(col==='inventaris') rawData.inv = filtered;
-                        if(col==='susunan_pengurus') rawData.pengurus = filtered;
-                    }
-                    const mainView = document.getElementById('main-view');
-                    const dashView = document.getElementById('dashboard-global');
-                    if(mainView && mainView.classList.contains('active')) refreshView();
-                    if(dashView && dashView.classList.contains('active')) renderGlobalDashboard();
-                    if(col==='susunan_pengurus') renderPengurusTable();
+            collections.forEach(colName => {
+                const colRef = collection(db, "users", targetUid, colName);
+                const unsub = onSnapshot(colRef, (snap) => {
+                    const data = snap.docs.map(d => ({id:d.id, ...d.data()}));
+                    if(colName==='surat_masuk') rawData.sm = data;
+                    if(colName==='surat_keluar') rawData.sk = data;
+                    if(colName==='keuangan') rawData.keu = data;
+                    if(colName==='inventaris') rawData.inv = data;
+                    if(colName==='susunan_pengurus') rawData.pengurus = data;
+                    
+                    renderGlobalDashboard();
+                    refreshView();
                 });
+                listeners.push(unsub);
             });
 
-            // LOAD CONFIG & PIN
-            onSnapshot(doc(db, "users", uid, "config", "auth"), (doc) => { 
+            const lsoUnsub = onSnapshot(collection(db, "users", targetUid, "settings_lso"), (s) => { 
+                listLSO = s.docs.map(d => ({id:d.id, ...d.data()})); 
+                renderLSOMenu(); 
+                renderGlobalDashboard();
+            });
+            listeners.push(lsoUnsub);
+            
+            const cfgUnsub = onSnapshot(doc(db, "users", targetUid, "config", "general"), (doc) => { 
+                if(doc.exists()) applyAppConfig(doc.data()); 
+            });
+            listeners.push(cfgUnsub);
+            
+            // Load PIN
+            const authUnsub = onSnapshot(doc(db, "users", targetUid, "config", "auth"), (doc) => { 
                 if(doc.exists()) {
                     pinData = doc.data(); 
                     ['master','pusat','kopri'].forEach(k => { if(document.getElementById(`pin_${k}`)) document.getElementById(`pin_${k}`).value = pinData[k] || ''; });
                 }
             });
-            onSnapshot(doc(db, "users", uid, "config", "general"), (doc) => { if(doc.exists()) applyAppConfig(doc.data()); });
-            onSnapshot(collection(db, "users", uid, "settings_lso"), (s) => { listLSO = s.docs.map(d => ({id:d.id, ...d.data()})); renderLSOMenu(); renderLSOList(); });
+            listeners.push(authUnsub);
         }
 
-        // --- UI LOGIC ---
+        function loadRayonList() {
+             onSnapshot(collection(db, "users"), (s) => {
+                const ray = s.docs.map(d => ({id:d.id, ...d.data()})).filter(u => u.role === 'rayon');
+                rawData.users = ray; renderRayonMenu(); 
+            });
+        }
+
+        // --- NAVIGATION ---
+        window.switchScope = (scope, el) => {
+            document.querySelectorAll('.sidebar .nav-link').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.submenu a').forEach(n => n.classList.remove('active'));
+            if(el) el.classList.add('active');
+            
+            currentScope = scope; 
+
+            if(scope === 'global') {
+                if(activeScopeUid !== currentUser.uid) loadDataForScope(currentUser.uid);
+                showSection('dashboard-global');
+                setTimeout(renderGlobalDashboard, 100); 
+                return;
+            }
+            
+            let targetUid = currentUser.uid; 
+            let label = currentUser.name;
+
+            const userRayon = rawData.users.find(u => u.id === scope);
+            if (userRayon) {
+                targetUid = userRayon.id;
+                label = userRayon.nama || userRayon.name || "Rayon";
+                
+                // Jika Admin klik Rayon -> Tampilkan Dashboard Rekap Rayon
+                document.getElementById('dashScopeBadge').innerText = label;
+                showSection('dashboard-global');
+                if(targetUid !== activeScopeUid) loadDataForScope(targetUid);
+                return; 
+            }
+
+            showSection('main-view'); 
+            
+            if(scope === 'me' || scope === 'pusat' || scope === 'kopri' || scope.startsWith('lso_')) {
+                label = (scope === 'pusat') ? 'LEMBAGA' : (scope === 'kopri' ? 'BSO KOPRI' : (scope.startsWith('lso_') ? 'LSO' : 'DETAIL'));
+            }
+
+            document.getElementById('pageTitle').innerText = "Data: " + label.toUpperCase();
+
+            if(targetUid !== activeScopeUid) {
+                loadDataForScope(targetUid);
+            } else {
+                refreshView(); 
+            }
+        }
+
+        // --- DASHBOARD RECAP (PERUBAHAN UTAMA: SAMA UNTUK ADMIN & RAYON) ---
+        function renderGlobalDashboard() {
+            const container = document.getElementById('globalSummaryContainer');
+            if(!container || !document.getElementById('dashboard-global').classList.contains('active')) return;
+            
+            let html = '';
+            
+            // Definisikan entitas yang akan direkap (Lembaga, Kopri, + LSO Dinamis)
+            const entities = [
+                {id: 'pusat', name: 'LEMBAGA (INTI)', color: 'primary'},
+                {id: 'kopri', name: 'BSO KOPRI', color: 'warning'},
+                ...listLSO.map(l => ({id: 'lso_'+l.id, name: l.nama, color: 'info'}))
+            ];
+
+            // Header Info
+            html += `<div class="col-12"><div class="alert alert-info shadow-sm border-0">Data Organisasi: <b>${activeScopeUid === currentUser.uid ? currentUser.name : (rawData.users.find(u=>u.id===activeScopeUid)?.nama || 'Unknown')}</b></div></div>`;
+
+            // Loop untuk membuat kartu rekap
+            entities.forEach(ent => {
+                const sm = rawData.sm.filter(x => x.scope === ent.id).length;
+                const sk = rawData.sk.filter(x => x.scope === ent.id).length;
+                const saldo = rawData.keu.filter(x => x.scope === ent.id)
+                    .reduce((a,b) => a + (b.jenis==='Masuk'?b.nom:-b.nom), 0);
+
+                html += `
+                <div class="col-md-4">
+                    <div class="card-modern p-3 border-start border-5 border-${ent.color}">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold text-uppercase text-${ent.color} m-0">${ent.name}</h6>
+                            <i class="fas fa-chart-pie text-${ent.color} opacity-50"></i>
+                        </div>
+                        <div class="d-flex justify-content-between text-center">
+                            <div><small class="text-muted d-block">Masuk</small><h5 class="text-primary fw-bold mb-0">${sm}</h5></div>
+                            <div><small class="text-muted d-block">Keluar</small><h5 class="text-warning fw-bold mb-0">${sk}</h5></div>
+                            <div><small class="text-muted d-block">Saldo</small><h5 class="text-success fw-bold fs-6 mb-0">${fmtRp(saldo)}</h5></div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // --- UI RENDERING DETAIL ---
+        function refreshView() {
+            let filterFn = () => true; 
+            if (currentScope === 'pusat' || currentScope === 'kopri' || currentScope.startsWith('lso_')) {
+                filterFn = (item) => item.scope === currentScope;
+            }
+
+            const s_sm = rawData.sm.filter(filterFn);
+            const s_sk = rawData.sk.filter(filterFn);
+            const s_keu = rawData.keu.filter(filterFn);
+            const s_inv = rawData.inv.filter(filterFn);
+
+            document.getElementById('bodySM').innerHTML = s_sm.map(x=>`<tr><td>${x.no}</td><td>${x.asal}</td><td>${x.tgl_buat}</td><td>${x.tgl_datang}</td><td>${x.hal}</td><td>${x.ket||'-'}</td><td>${x.file!==' - '?`<a href="#" class="text-primary"><i class="fas fa-file-pdf"></i></a>`:'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_masuk','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            document.getElementById('bodySK').innerHTML = s_sk.map(x=>`<tr><td>${x.no}</td><td>${x.tujuan}</td><td>${x.tgl_buat}</td><td>${x.tgl_kirim}</td><td>${x.hal}</td><td>${x.ket||'-'}</td><td>${x.file!==' - '?`<a href="#" class="text-primary"><i class="fas fa-file-pdf"></i></a>`:'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_keluar','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            
+            let balBank=0, balOps=0;
+            document.getElementById('bodyKasBank').innerHTML = s_keu.filter(x=>x.cat==='Bank').sort((a,b)=>new Date(a.tgl)-new Date(b.tgl)).map(x=>{ const d=x.jenis==='Masuk'?x.nom:0, k=x.jenis==='Keluar'?x.nom:0; balBank+=(d-k); return `<tr><td>${x.tgl}</td><td>${x.uraian}</td><td class="text-success">${fmtRp(d)}</td><td class="text-danger">${fmtRp(k)}</td><td class="fw-bold">${fmtRp(balBank)}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('keuangan','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }).join('');
+            document.getElementById('bodyOps').innerHTML = s_keu.filter(x=>x.cat==='Operasional').sort((a,b)=>new Date(a.tgl)-new Date(b.tgl)).map(x=>{ const d=x.jenis==='Masuk'?x.nom:0, k=x.jenis==='Keluar'?x.nom:0; balOps+=(d-k); return `<tr><td>${x.tgl}</td><td>${x.uraian}</td><td>${x.pj||'-'}</td><td>${x.qty||'-'}</td><td>${x.hrg?fmtRp(x.hrg):'-'}</td><td>${x.qty&&x.hrg?fmtRp(x.qty*x.hrg):'-'}</td><td class="text-success">${fmtRp(d)}</td><td class="text-danger">${fmtRp(k)}</td><td class="fw-bold">${fmtRp(balOps)}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('keuangan','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }).join('');
+            
+            document.getElementById('bodyRekap').innerHTML = s_inv.filter(x=>x.type==='Rekap').map(x=>`<tr><td>${x.nama}</td><td>${x.merk||'-'}</td><td>${x.thn||'-'}</td><td>${x.jml}</td><td>${x.cond}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('inventaris','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            document.getElementById('bodyBuku').innerHTML = s_inv.filter(x=>x.type==='Buku').map(x=>`<tr><td>${x.kode||'-'}</td><td>${x.nama}</td><td>${x.jenis||'-'}</td><td>${x.cond}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('inventaris','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+
+            let totalSaldo = 0; s_keu.forEach(k => totalSaldo += (k.jenis === 'Masuk' ? k.nom : -k.nom));
+            document.getElementById('cntSM').innerText = s_sm.length;
+            document.getElementById('cntSK').innerText = s_sk.length;
+            document.getElementById('cntInv').innerText = s_inv.length;
+            document.getElementById('cntUang').innerText = fmtRp(totalSaldo);
+        }
+
+        // --- SAVE DATA ---
+        const v=id=>document.getElementById(id).value;
+        window.saveData = async (e, t) => {
+            e.preventDefault(); 
+            let saveScope = 'pusat'; 
+            if (currentScope === 'kopri' || currentScope.startsWith('lso_')) {
+                saveScope = currentScope;
+            } else if (currentUser.role === 'rayon' && currentScope === 'me') {
+                 // Kalau Rayon di Dashboard/Lembaga, default ke 'pusat' milik rayon itu sendiri
+                 saveScope = 'pusat'; 
+            }
+
+            const d = { createdAt: Date.now(), uid_inputter: currentUser.uid, scope: saveScope }; 
+            const f = e.target.querySelector('input[type="file"]'); 
+            d.file = (f && f.files.length > 0) ? f.files[0].name : '-';
+            
+            let colName = "";
+            if(t==='sm'){ d.cat=v('sm_kat'); d.no=v('sm_no'); d.asal=v('sm_asal'); d.tgl_buat=v('sm_tgl_buat'); d.tgl_datang=v('sm_tgl_datang'); d.hal=v('sm_hal'); d.ket=v('sm_ket'); colName="surat_masuk"; }
+            else if(t==='sk'){ d.cat=v('sk_kat'); d.no=v('sk_no'); d.tujuan=v('sk_tujuan'); d.tgl_buat=v('sk_tgl_buat'); d.tgl_kirim=v('sk_tgl_kirim'); d.hal=v('sk_hal'); d.ket=v('sk_ket'); colName="surat_keluar"; }
+            else if(t==='keu'){ d.cat=v('keu_cat'); d.tgl=v('keu_tgl'); d.uraian=v('keu_uraian'); d.jenis=v('keu_jenis'); d.nom=parseFloat(v('keu_nom')); if(d.cat==='Operasional'){d.pj=v('keu_pj'); d.qty=v('keu_qty'); d.hrg=v('keu_hrg');} colName="keuangan"; }
+            else if(t==='inv'){ d.type=v('inv_type'); d.nama=v('inv_nama'); d.cond=v('inv_cond'); d.ket=v('inv_ket'); if(d.type==='Rekap'){d.merk=v('inv_merk'); d.thn=v('inv_thn'); d.jml=v('inv_jml');} else {d.kode=v('inv_kode'); d.jenis=v('inv_jenis');} colName="inventaris"; }
+
+            if(colName) {
+                await addDoc(collection(db, "users", activeScopeUid, colName), d);
+                bootstrap.Modal.getInstance(document.getElementById(`mdl${t==='keu'?'Keu':(t==='inv'?'Inv':t.toUpperCase())}`)).hide();
+                e.target.reset();
+            }
+        }
+
+        window.del = async (c,i) => { if(confirm('Hapus?')) await deleteDoc(doc(db, "users", activeScopeUid, c, i)); }
+
+        // --- HELPERS ---
+        function setupUIByRole() {
+            const role = currentUser.role;
+            const name = currentUser.name || "User";
+            document.querySelector('.header-org-name').innerText = name;
+            
+            const menuRayon = document.getElementById('menu-admin-rayon');
+            // Menu Settings, Kopri, LSO sekarang visible untuk semua (protected by PIN)
+            
+            if(role === 'rayon') {
+                if(menuRayon) menuRayon.style.display = 'none'; 
+            } else {
+                if(menuRayon) menuRayon.style.display = 'block';
+            }
+        }
+
+        function renderRayonMenu() {
+            const container = document.getElementById('rayonSubmenu');
+            if(container && rawData.users.length > 0) {
+                container.innerHTML = rawData.users.map(u => 
+                    `<li><a onclick="switchScope('${u.id}', this)" class="text-truncate" title="${u.nama || u.name}">
+                        <i class="fas fa-user-tag me-2"></i>${u.nama || u.name || 'Tanpa Nama'}
+                    </a></li>`
+                ).join('');
+            } else if (container) {
+                container.innerHTML = '<li class="text-center py-2 small text-white-50">Belum ada Rayon</li>';
+            }
+        }
+
+        function renderLSOMenu(){ 
+            const lsoMenu = document.getElementById('lsoSubmenu');
+            if(lsoMenu) lsoMenu.innerHTML = listLSO.map(l => `<li><a onclick="switchScope('lso_${l.id}', this)">${l.nama}</a></li>`).join(''); 
+            
+            const lsoList = document.getElementById('listLSO');
+            if(lsoList) lsoList.innerHTML = listLSO.map(l=>`<li class="list-group-item d-flex justify-content-between"><span>${l.nama} <span class="badge bg-secondary">${l.pin}</span></span> <button class="btn btn-sm btn-outline-danger" onclick="delLSO('${l.id}')">x</button></li>`).join(''); 
+        }
+
+        window.toggleSubmenu = (id, el) => {
+            const submenu = document.getElementById(id);
+            const icon = el.querySelector('.fa-chevron-down');
+            if (submenu.classList.contains('show')) {
+                submenu.classList.remove('show'); if(icon) icon.style.transform = 'rotate(0deg)';
+            } else {
+                submenu.classList.add('show'); if(icon) icon.style.transform = 'rotate(180deg)';
+            }
+        }
+        window.showSection = (id, el) => {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active')); 
+            document.getElementById(id).classList.add('active');
+            if(el) { document.querySelectorAll('.sidebar .nav-link').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+            if(window.innerWidth < 992) toggleSidebar();
+        }
+
+        // PIN & CONFIG
+        const pinModalEl = document.getElementById('mdlPin');
+        pinModalInstance = new bootstrap.Modal(pinModalEl);
+        window.requestAccess = (scope, el) => {
+            pendingAction = { scope, el };
+            
+            let correctPin = "1234";
+            if(scope === 'settings') correctPin = pinData['master'];
+            else if(scope === 'pusat') correctPin = pinData['pusat'];
+            else if(scope === 'kopri') correctPin = pinData['kopri'];
+            else if(scope.startsWith('lso_')) {
+               const lsoId = scope.replace('lso_', '');
+               const lso = listLSO.find(l => l.id === lsoId);
+               if(lso) correctPin = lso.pin;
+            }
+
+            document.getElementById('pinTargetName').dataset.correctPin = correctPin || "1234"; 
+            pinModalInstance.show();
+        }
+        window.submitPin = () => {
+             const input = document.getElementById('pinInput').value;
+             const correct = document.getElementById('pinTargetName').dataset.correctPin;
+             if(input === correct || input === pinData['master']) {
+                 pinModalInstance.hide();
+                 if(pendingAction.scope === 'settings') showSection('pengaturan', pendingAction.el);
+                 else switchScope(pendingAction.scope, pendingAction.el);
+             } else {
+                 alert("PIN Salah!"); document.getElementById('pinInput').value = '';
+             }
+        }
+        window.closePinModal = () => pinModalInstance.hide();
+        
         function applyAppConfig(data) {
             if(data.org_name) { 
-                const els = document.querySelectorAll('.header-org-name');
-                els.forEach(el => el.innerText = data.org_name); 
+                document.querySelectorAll('.header-org-name').forEach(el => el.innerText = data.org_name); 
                 if(document.getElementById('set_org_name')) document.getElementById('set_org_name').value = data.org_name; 
             }
             if(data.logo_url) { 
-                const els = document.querySelectorAll('.header-user-logo');
-                els.forEach(el => el.src = data.logo_url); 
+                document.querySelectorAll('.header-user-logo').forEach(el => el.src = data.logo_url); 
                 if(document.getElementById('set_logo_url')) document.getElementById('set_logo_url').value = data.logo_url; 
             }
             if(data.calendar_id) { 
@@ -525,169 +717,10 @@
                 if(document.getElementById('set_link_po')) document.getElementById('set_link_po').value = data.link_po; 
             }
         }
-        window.saveAppConfig = async (k,v) => await setDoc(doc(db, "users", currentUser.uid, "config", "general"), { [k]: v }, { merge: true });
-        window.savePin = async (k, v) => { await setDoc(doc(db, "users", currentUser.uid, "config", "auth"), { [k]: v }, { merge: true }); alert("Tersimpan!"); }
-        window.addLSO = async (e) => { e.preventDefault(); const n=document.getElementById('newLSO').value, p=document.getElementById('newLSOPin').value; if(n&&p){ await addDoc(collection(db, "users", currentUser.uid, "settings_lso"), { nama: n, pin: p }); e.target.reset(); } }
-        window.delLSO = async (id) => { if(confirm("Hapus?")) await deleteDoc(doc(db, "users", currentUser.uid, "settings_lso", id)); }
-
-        // NAVIGATION
-        window.switchScope = (scope, el) => {
-            if(scope === 'global') {
-                currentScope = 'global';
-                showSection('dashboard-global', el);
-                renderGlobalDashboard();
-                return;
-            }
-            currentScope = scope;
-            showSection('main-view', el);
-            let label = '';
-            if(scope === 'pusat') label = 'LEMBAGA';
-            else if(scope === 'kopri') label = 'BSO KOPRI';
-            else if(scope.startsWith('lso_')) { const lso = listLSO.find(x => x.id === scope.replace('lso_', '')); label = lso ? lso.nama : 'LSO'; }
-            else label = currentUser.name; 
-            
-            const pageTitle = document.getElementById('pageTitle');
-            if(pageTitle) pageTitle.innerText = "Dashboard " + label;
-            
-            refreshView();
-        }
-
-        window.showGlobalDashboard = (el) => switchScope('global', el);
-        window.showSection = (id, el) => {
-            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active')); 
-            const sec = document.getElementById(id);
-            if(sec) sec.classList.add('active');
-            
-            if(el) { document.querySelectorAll('.sidebar .nav-link').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
-            if(window.innerWidth < 992) toggleSidebar();
-        }
-
-        // PIN
-        const pinModalEl = document.getElementById('mdlPin');
-        pinModalInstance = new bootstrap.Modal(pinModalEl);
-        pinModalEl.addEventListener('shown.bs.modal', () => { 
-            const input = document.getElementById('pinInput');
-            if(input) { input.value = ''; input.focus(); }
-        });
-        const pinInput = document.getElementById('pinInput');
-        if(pinInput) pinInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') submitPin(); });
-
-        window.requestAccess = (scope, el) => {
-            pendingAction = { scope, el };
-            let reqPin = '1234';
-            if(scope === 'settings') reqPin = pinData['master'];
-            else if(scope === 'pusat') reqPin = pinData['pusat'];
-            else if(scope === 'kopri') reqPin = pinData['kopri'];
-            else if(scope.startsWith('lso_')) { const lso = listLSO.find(x => x.id === scope.replace('lso_', '')); reqPin = lso ? lso.pin : '1234'; }
-            
-            const target = document.getElementById('pinTargetName');
-            if(target) target.dataset.correctPin = reqPin || '1234';
-            if(pinModalInstance) pinModalInstance.show();
-        }
-
-        window.submitPin = () => {
-            const val = document.getElementById('pinInput').value;
-            const correct = document.getElementById('pinTargetName').dataset.correctPin;
-            if(val === correct || val === pinData['master']) { 
-                if(pinModalInstance) pinModalInstance.hide(); 
-                executeAction(); 
-            }
-            else { alert("PIN Salah!"); document.getElementById('pinInput').value = ''; }
-        }
-        window.closePinModal = () => { if(pinModalInstance) pinModalInstance.hide(); pendingAction = null; }
-        function executeAction() {
-            if(!pendingAction) return;
-            const { scope, el } = pendingAction;
-            if(scope === 'settings') showSection('pengaturan', el); else switchScope(scope, el);
-        }
-
-        // RENDERING
-        function refreshView() {
-            if(currentScope === 'global') return;
-            const filterFn = (item) => {
-                if(currentUser.role === 'admin') return item.scope === currentScope;
-                else return true; 
-            };
-            const s_sm = (rawData.sm||[]).filter(filterFn);
-            const s_sk = (rawData.sk||[]).filter(filterFn);
-            const s_keu = (rawData.keu||[]).filter(filterFn);
-            const s_inv = (rawData.inv||[]).filter(filterFn);
-
-            const t_sm = document.getElementById('bodySM');
-            if(t_sm) t_sm.innerHTML = s_sm.map(x=>`<tr><td>${x.no}</td><td>${x.asal}</td><td>${x.tgl_buat}</td><td>${x.tgl_datang}</td><td>${x.hal}</td><td>${x.ket||'-'}</td><td>${x.file!==' - '?`<a href="#" class="text-primary"><i class="fas fa-file-pdf"></i></a>`:'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_masuk','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
-            
-            const t_sk = document.getElementById('bodySK');
-            if(t_sk) t_sk.innerHTML = s_sk.map(x=>`<tr><td>${x.no}</td><td>${x.tujuan}</td><td>${x.tgl_buat}</td><td>${x.tgl_kirim}</td><td>${x.hal}</td><td>${x.ket||'-'}</td><td>${x.file!==' - '?`<a href="#" class="text-primary"><i class="fas fa-file-pdf"></i></a>`:'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_keluar','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
-            
-            let balBank=0, balOps=0;
-            const t_bank = document.getElementById('bodyKasBank');
-            if(t_bank) t_bank.innerHTML = s_keu.filter(x=>x.cat==='Bank').sort((a,b)=>new Date(a.tgl)-new Date(b.tgl)).map(x=>{ const d=x.jenis==='Masuk'?x.nom:0, k=x.jenis==='Keluar'?x.nom:0; balBank+=(d-k); return `<tr><td>${x.tgl}</td><td>${x.uraian}</td><td class="text-success">${fmtRp(d)}</td><td class="text-danger">${fmtRp(k)}</td><td class="fw-bold">${fmtRp(balBank)}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('keuangan','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }).join('');
-            
-            const t_ops = document.getElementById('bodyOps');
-            if(t_ops) t_ops.innerHTML = s_keu.filter(x=>x.cat==='Operasional').sort((a,b)=>new Date(a.tgl)-new Date(b.tgl)).map(x=>{ const d=x.jenis==='Masuk'?x.nom:0, k=x.jenis==='Keluar'?x.nom:0; balOps+=(d-k); return `<tr><td>${x.tgl}</td><td>${x.uraian}</td><td>${x.pj||'-'}</td><td>${x.qty||'-'}</td><td>${x.hrg?fmtRp(x.hrg):'-'}</td><td>${x.qty&&x.hrg?fmtRp(x.qty*x.hrg):'-'}</td><td class="text-success">${fmtRp(d)}</td><td class="text-danger">${fmtRp(k)}</td><td class="fw-bold">${fmtRp(balOps)}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('keuangan','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }).join('');
-            
-            const t_rekap = document.getElementById('bodyRekap');
-            if(t_rekap) t_rekap.innerHTML = s_inv.filter(x=>x.type==='Rekap').map(x=>`<tr><td>${x.nama}</td><td>${x.merk||'-'}</td><td>${x.thn||'-'}</td><td>${x.jml}</td><td>${x.cond}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('inventaris','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
-            
-            const t_buku = document.getElementById('bodyBuku');
-            if(t_buku) t_buku.innerHTML = s_inv.filter(x=>x.type==='Buku').map(x=>`<tr><td>${x.kode||'-'}</td><td>${x.nama}</td><td>${x.jenis||'-'}</td><td>${x.cond}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('inventaris','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
-
-            let totalSaldo = 0; s_keu.forEach(k => totalSaldo += (k.jenis === 'Masuk' ? k.nom : -k.nom));
-            if(document.getElementById('cntSM')) document.getElementById('cntSM').innerText = s_sm.length;
-            if(document.getElementById('cntSK')) document.getElementById('cntSK').innerText = s_sk.length;
-            if(document.getElementById('cntInv')) document.getElementById('cntInv').innerText = s_inv.length;
-            if(document.getElementById('cntUang')) document.getElementById('cntUang').innerText = fmtRp(totalSaldo);
-        }
-
-        window.renderGlobalDashboard = () => {
-            const container = document.getElementById('globalSummaryContainer');
-            if(!container) return;
-            
-            let html = '';
-            if(currentUser.role === 'admin') {
-                const scopes = [{id:'pusat',name:'LEMBAGA'}, {id:'kopri',name:'BSO KOPRI'}, ...listLSO.map(l=>({id:'lso_'+l.id, name:l.nama}))];
-                scopes.forEach(s => {
-                    const sm = (rawData.sm||[]).filter(x => x.scope === s.id).length;
-                    const sk = (rawData.sk||[]).filter(x => x.scope === s.id).length;
-                    const totUang = (rawData.keu||[]).filter(x => x.scope === s.id).reduce((acc,curr)=>acc+(curr.jenis==='Masuk'?curr.nom:-curr.nom),0);
-                    html += `<div class="col-md-4"><div class="card-modern p-3 border-start border-5 border-primary"><h6 class="fw-bold text-uppercase">${s.name}</h6><div class="d-flex justify-content-between mt-3"><div class="text-center"><small>S. Masuk</small><h5 class="text-primary fw-bold">${sm}</h5></div><div class="text-center"><small>S. Keluar</small><h5 class="text-warning fw-bold">${sk}</h5></div><div class="text-center"><small>Saldo</small><h5 class="text-success fw-bold fs-6">${fmtRp(totUang)}</h5></div></div></div></div>`;
-                });
-            } else {
-                const sm = (rawData.sm||[]).length;
-                const sk = (rawData.sk||[]).length;
-                const totUang = (rawData.keu||[]).reduce((acc,curr)=>acc+(curr.jenis==='Masuk'?curr.nom:-curr.nom),0);
-                html += `<div class="col-12"><div class="alert alert-info">Selamat Datang, <b>${currentUser.name}</b>. Berikut ringkasan data Anda.</div></div><div class="col-md-4"><div class="card-modern p-3"><h6 class="text-muted">Total Surat</h6><h2>${sm+sk}</h2></div></div><div class="col-md-4"><div class="card-modern p-3"><h6 class="text-muted">Saldo Kas</h6><h2 class="text-success">${fmtRp(totUang)}</h2></div></div><div class="col-md-4"><div class="card-modern p-3"><h6 class="text-muted">Total Aset</h6><h2>${(rawData.inv||[]).length}</h2></div></div>`;
-            }
-            container.innerHTML = html || '<div class="col-12 text-center text-muted">Belum ada data.</div>';
-        }
-
-        window.renderPengurusTable = () => { 
-            const t = document.getElementById('bodyPengurus');
-            if(t) t.innerHTML = (rawData.pengurus||[]).map((d,i)=>`<tr><td>${i+1}</td><td>${d.nama}</td><td>${d.jabatan}</td><td>${d.rayon}</td><td>${d.wa}</td></tr>`).join(''); 
-        }
-        
-        function renderLSOMenu(){ 
-            const lsoMenu = document.getElementById('lsoSubmenu');
-            if(lsoMenu) lsoMenu.innerHTML = listLSO.map(l=>`<li><a onclick="requestAccess('lso_${l.id}', this)">${l.nama}</a></li>`).join(''); 
-            
-            const lsoList = document.getElementById('listLSO');
-            if(lsoList) lsoList.innerHTML = listLSO.map(l=>`<li class="list-group-item d-flex justify-content-between"><span>${l.nama} <span class="badge bg-secondary">${l.pin}</span></span> <button class="btn btn-sm btn-outline-danger" onclick="delLSO('${l.id}')">x</button></li>`).join(''); 
-        }
-
-        // SAVE
-        const v=id=>document.getElementById(id).value;
-        window.saveData = async (e, t) => {
-            e.preventDefault(); 
-            const d = { createdAt: Date.now(), scope: currentScope, uid: currentUser.uid };
-            const f = e.target.querySelector('input[type="file"]'); 
-            d.file = (f && f.files.length > 0) ? f.files[0].name : '-';
-            if(t==='sm'){ d.cat=v('sm_kat'); d.no=v('sm_no'); d.asal=v('sm_asal'); d.tgl_buat=v('sm_tgl_buat'); d.tgl_datang=v('sm_tgl_datang'); d.hal=v('sm_hal'); d.ket=v('sm_ket'); await addDoc(collection(db,"surat_masuk"),d); bootstrap.Modal.getInstance(document.getElementById('mdlSM')).hide(); }
-            if(t==='sk'){ d.cat=v('sk_kat'); d.no=v('sk_no'); d.tujuan=v('sk_tujuan'); d.tgl_buat=v('sk_tgl_buat'); d.tgl_kirim=v('sk_tgl_kirim'); d.hal=v('sk_hal'); d.ket=v('sk_ket'); await addDoc(collection(db,"surat_keluar"),d); bootstrap.Modal.getInstance(document.getElementById('mdlSK')).hide(); }
-            if(t==='keu'){ d.cat=v('keu_cat'); d.tgl=v('keu_tgl'); d.uraian=v('keu_uraian'); d.jenis=v('keu_jenis'); d.nom=parseFloat(v('keu_nom')); if(d.cat==='Operasional'){d.pj=v('keu_pj'); d.qty=v('keu_qty'); d.hrg=v('keu_hrg');} await addDoc(collection(db,"keuangan"),d); bootstrap.Modal.getInstance(document.getElementById('mdlKeu')).hide(); }
-            if(t==='inv'){ d.type=v('inv_type'); d.nama=v('inv_nama'); d.cond=v('inv_cond'); d.ket=v('inv_ket'); if(d.type==='Rekap'){d.merk=v('inv_merk'); d.thn=v('inv_thn'); d.jml=v('inv_jml');} else {d.kode=v('inv_kode'); d.jenis=v('inv_jenis');} await addDoc(collection(db,"inventaris"),d); bootstrap.Modal.getInstance(document.getElementById('mdlInv')).hide(); }
-            e.target.reset();
-        }
-        window.del = async (c,i) => { if(confirm('Hapus?')) await deleteDoc(doc(db,c,i)); }
+        window.saveAppConfig = async (k,v) => await setDoc(doc(db, "users", activeScopeUid, "config", "general"), { [k]: v }, { merge: true });
+        window.savePin = async (k, v) => { await setDoc(doc(db, "users", activeScopeUid, "config", "auth"), { [k]: v }, { merge: true }); alert("Tersimpan!"); }
+        window.addLSO = async (e) => { e.preventDefault(); const n=document.getElementById('newLSO').value, p=document.getElementById('newLSOPin').value; if(n&&p){ await addDoc(collection(db, "users", activeScopeUid, "settings_lso"), { nama: n, pin: p }); e.target.reset(); } }
+        window.delLSO = async (id) => { if(confirm("Hapus?")) await deleteDoc(doc(db, "users", activeScopeUid, "settings_lso", id)); }
         window.uploadPengurus = () => {
             const file = document.getElementById('excelPengurusInput').files[0];
             if(!file) return alert("Pilih file!");
@@ -697,14 +730,14 @@
                 const workbook = XLSX.read(data, {type: 'array'});
                 const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
                 const batch = writeBatch(db);
-                rows.forEach(r => { const docRef = doc(collection(db, "susunan_pengurus")); batch.set(docRef, { uid: currentUser.uid, nama: r.NAMA||'', nim: r.NIM||'', wa: r.WA||'', rayon: r.RAYON||'', jabatan: r.JABATAN||'' }); });
+                rows.forEach(r => { const docRef = doc(collection(db, "users", activeScopeUid, "susunan_pengurus")); batch.set(docRef, { nama: r.NAMA||'', nim: r.NIM||'', wa: r.WA||'', rayon: r.RAYON||'', jabatan: r.JABATAN||'' }); });
                 await batch.commit(); alert("Selesai!");
             };
             reader.readAsArrayBuffer(file);
         }
 
         const fmtRp = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(n);
-        window.dlExcel = (id,n) => XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById(id),{sheet:"Sheet1"}), `${n}_${currentScope}.xlsx`);
+        window.dlExcel = (id,n) => XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById(id),{sheet:"Sheet1"}), `${n}.xlsx`);
         window.openModalKeu = (c) => { document.getElementById('keu_cat').value=c; document.getElementById('ttlKeu').innerText=`Input ${c}`; document.getElementById('opsFields').className=c==='Operasional'?'d-block':'d-none'; new bootstrap.Modal(document.getElementById('mdlKeu')).show(); }
         window.openModalInv = (t) => { document.getElementById('inv_type').value=t; document.getElementById('ttlInv').innerText=`Input ${t}`; document.getElementById('rekapFields').className=t==='Rekap'?'d-block':'d-none'; document.getElementById('bukuFields').className=t==='Buku'?'d-block':'d-none'; new bootstrap.Modal(document.getElementById('mdlInv')).show(); }
         window.calcTotal = () => { document.getElementById('keu_nom').value = (parseFloat(v('keu_qty'))||0) * (parseFloat(v('keu_hrg'))||0); }
