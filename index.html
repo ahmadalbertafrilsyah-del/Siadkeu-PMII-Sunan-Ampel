@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIADKEU - SYSTEM</title>
+    <title>SIADKEU PMII SUNAN AMPEL MALANG</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Arial@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> 
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
         :root {
@@ -22,7 +20,6 @@
             --accent: #FFCC00; 
             --bg-body: #f1f5f9; 
             --surface: #ffffff; 
-            --surface-secondary: #f8fafc;
             --text-main: #1e293b; 
             --text-heading: #003399; 
             --sidebar-width: 280px; 
@@ -32,15 +29,20 @@
         body.dark-mode { --primary: #3b82f6; --bg-body: #0f172a; --surface: #1e293b; --text-main: #f8fafc; --text-heading: #FFD700; }
         body { font-family: 'Arial', sans-serif; background-color: var(--bg-body); color: var(--text-main); transition: 0.3s; overflow-x: hidden; }
         
-        /* LOGIN */
+        /* LOGIN & ANIMATION */
         #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.5s; }
-        .login-card { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; }
-        .login-logo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 3px solid var(--accent); }
+        .login-card { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; transition: transform 0.3s; }
+        .login-logo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 3px solid var(--accent); transition: all 0.5s; }
+        
+        .logo-loading { animation: pulseLogo 1s infinite; border-color: #fff !important; box-shadow: 0 0 15px var(--accent); }
+        @keyframes pulseLogo { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .fade-out-up { animation: fadeOutUp 0.8s forwards; }
+        @keyframes fadeOutUp { to { opacity: 0; transform: translateY(-50px); } }
 
         /* SIDEBAR */
         .sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0; background: linear-gradient(160deg, #003399 0%, #001a4d 100%); color: white; z-index: 1060; transition: 0.4s; overflow-y: auto; }
         body.dark-mode .sidebar { background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%); border-right: 1px solid #334155; }
-        .sidebar-brand { height: 90px; display: flex; align-items: center; padding: 0 25px; font-size: 1.25rem; justify-content: space-between; overflow: hidden; }
+        .sidebar-brand { height: 90px; display: flex; align-items: center; padding: 0 25px; font-size: 1.25rem; justify-content: start; gap: 15px; }
         .sidebar-logo { width: 45px !important; height: 45px !important; min-width: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
 
         .sidebar-menu { list-style: none; padding: 25px 15px; margin: 0; }
@@ -50,7 +52,6 @@
         
         .submenu { list-style: none; padding-left: 20px; margin-top: 5px; display: none; background: rgba(0,0,0,0.1); border-radius: 10px; }
         .submenu.show { display: block; animation: slideDown 0.3s ease; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .main-header { position: fixed; top: 0; left: var(--sidebar-width); right: 0; height: var(--header-height); background: var(--surface); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 1000; transition: 0.4s; border-bottom: 1px solid #e2e8f0; }
         body.dark-mode .main-header { background: rgba(30, 41, 59, 0.95); border-color: #334155; }
@@ -60,7 +61,6 @@
         body.dark-mode .card-modern { border-color: #334155; }
         .card-header-modern { padding: 20px 25px; border-bottom: 1px solid #e2e8f0; font-weight: 600; display: flex; justify-content: space-between; align-items: center; color: var(--text-heading); }
         .info-box { background: var(--surface); border-radius: var(--radius); padding: 25px; display: flex; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; height: 100%; position: relative; overflow: hidden; }
-        .info-box::after { content: ''; position: absolute; right: 0; top: 0; height: 100%; width: 5px; background: var(--primary); }
         .icon-circle { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-right: 20px; flex-shrink: 0; color: white; }
 
         .bg-gradient-blue { background: linear-gradient(135deg, #003399, #005ce6); }
@@ -72,27 +72,35 @@
         .page-section { display: none; animation: slideUp 0.3s ease-out; } .page-section.active { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
+        /* Mobile Overlay Fix */
+        .mobile-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; display: none; backdrop-filter: blur(2px); }
+        .sidebar.active ~ .mobile-overlay { display: block; }
+
         @media (max-width: 992px) {
             .sidebar { transform: translateX(-100%); } .sidebar.active { transform: translateX(0); }
             .main-header { left: 0; padding: 0 20px; } .content-wrapper { margin-left: 0; padding: 20px; }
             #sidebarToggle { display: block !important; margin-right: 15px; }
+            .btn-close-sidebar { display: none !important; }
         }
         #sidebarToggle { display: none; background: none; border: none; font-size: 1.6rem; color: var(--text-main); }
+        
+        /* Calendar & App */
         .calendar-container { position: relative; padding-bottom: 75%; height: 0; overflow: hidden; border-radius: 12px; }
         .calendar-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
         .ai-app-card { text-decoration: none; color: var(--text-main); display: block; height: 100%; transition: all 0.3s; }
         .ai-app-card:hover { transform: translateY(-5px); }
-        
-        /* PIN MODAL */
-        .pin-display { font-size: 2rem; letter-spacing: 10px; text-align: center; border: none; background: transparent; color: var(--text-heading); font-weight: bold; width: 100%; outline: none; }
+
+        /* Public Attendance */
+        #attendance-public-view { display: none; background: var(--bg-body); min-height: 100vh; padding: 20px; }
+        .attendance-card { max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
-        <div class="login-card">
-            <img src="https://i.ibb.co.com/JWksCfcn/Logo-PMII.png" class="login-logo" alt="Logo">
-            <h4 class="fw-bold mb-1" style="color:var(--primary)">SIADKEU</h4>
+        <div class="login-card" id="loginCard">
+            <img src="https://i.ibb.co.com/7dQM1dKF/LOGO-PMII-SA.jpg" class="login-logo" id="loginLogo" alt="Logo">
+            <h4 class="fw-bold mb-1" style="color:var(--primary)">SIADKEU PMII</h4>
             <p class="text-muted small mb-4">Sistem Administrasi & Keuangan</p>
             <form onsubmit="handleLogin(event)">
                 <div class="mb-3 text-start">
@@ -106,6 +114,33 @@
                 <button type="submit" id="btnLogin" class="btn btn-primary w-100 fw-bold py-2">MASUK</button>
             </form>
             <div id="loginError" class="text-danger small mt-3 fw-bold"></div>
+        </div>
+    </div>
+
+    <div id="attendance-public-view">
+        <div class="attendance-card text-center">
+            <img src="https://i.ibb.co.com/JWksCfcn/Logo-PMII.png" width="60" class="mb-3">
+            <h4 class="fw-bold mb-1">Presensi Kegiatan</h4>
+            <p class="text-muted small mb-4" id="attEventName">Memuat...</p>
+            <form onsubmit="submitPublicAttendance(event)">
+                <input type="hidden" id="attEventId">
+                <div class="mb-3 text-start">
+                    <label class="small fw-bold">Nama Lengkap</label>
+                    <input id="attName" class="form-control" required>
+                </div>
+                <div class="mb-3 text-start">
+                    <label class="small fw-bold">Asal Rayon/Instansi</label>
+                    <input id="attInstansi" class="form-control" required>
+                </div>
+                <div class="mb-4 text-start">
+                    <label class="small fw-bold">No. WhatsApp</label>
+                    <input type="number" id="attWa" class="form-control" placeholder="628..." required>
+                </div>
+                <button class="btn btn-success w-100 fw-bold">Kirim Kehadiran</button>
+            </form>
+            <div id="attSuccessMsg" class="alert alert-success mt-3 d-none">
+                <i class="fas fa-check-circle me-2"></i>Terima kasih! Data terekam.
+            </div>
         </div>
     </div>
 
@@ -127,15 +162,15 @@
     </div>
 
     <div id="app-container" style="display:none;">
-        <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
+        <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
 
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-brand">
-                <div class="d-flex align-items-center">
-                    <img src="https://i.ibb.co.com/JWksCfcn/Logo-PMII.png" alt="Logo" class="sidebar-logo header-user-logo">
-                    <span class="ms-3 fw-bold">SIADKEU</span>
+                <img src="https://i.ibb.co.com/JWksCfcn/Logo-PMII.png" alt="Logo" class="sidebar-logo header-user-logo">
+                <div class="d-flex flex-column">
+                    <span class="fw-bold" style="line-height:1.2">SIADKEU</span>
+                    <span style="font-size:0.8rem; opacity:0.8">PMII Sunan Ampel</span>
                 </div>
-                <button class="btn-close-sidebar text-white d-lg-none" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
             </div>
             <ul class="sidebar-menu">
                 <li class="nav-item"><a class="nav-link active" onclick="switchScope('global', this)"><i class="fas fa-database"></i> <span>Dashboard</span></a></li>
@@ -144,7 +179,7 @@
                     <li class="nav-item"><a class="nav-link" onclick="requestAccess('pusat', this)"><i class="fas fa-home"></i> <span>Lembaga</span></a></li>
                     <li class="nav-item"><a class="nav-link" onclick="requestAccess('kopri', this)"><i class="fas fa-venus"></i> <span>BSO KOPRI</span></a></li>
 
-                    <li class="nav-item">
+                    <li class="nav-item" id="menu-lso-container">
                         <a class="nav-link" onclick="toggleSubmenu('lsoSubmenu', this)">
                             <i class="fas fa-users-cog"></i> <span>Lembaga (LSO)</span> <i class="fas fa-chevron-down ms-auto" style="margin-right:0; transition: transform 0.3s;"></i>
                         </a>
@@ -167,6 +202,7 @@
                 </div>
 
                 <li class="nav-item mt-2 pt-2 border-top"><a class="nav-link" onclick="showSection('proker-view', this)"><i class="fas fa-calendar-alt"></i> <span>Program Kerja</span></a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('presensi-view', this)"><i class="fas fa-qrcode"></i> <span>Intra Presensi</span></a></li>
                 <li class="nav-item"><a class="nav-link" onclick="showSection('pengurus-view', this)"><i class="fas fa-sitemap"></i> <span>Susunan Pengurus</span></a></li>
                 <li class="nav-item"><a class="nav-link" onclick="showSection('asisten-ai', this)"><i class="fas fa-robot"></i> <span>Sistem AI</span></a></li>
                 <li class="nav-item" id="menu-settings"><a class="nav-link" onclick="requestAccess('settings', this)"><i class="fas fa-cog"></i> <span>Pengaturan Web</span></a></li>
@@ -279,8 +315,67 @@
             </div>
 
             <div id="proker-view" class="page-section">
-                <h4 class="fw-bold mb-4">Kalender Program Kerja</h4>
-                <div class="card-modern p-2"><div class="calendar-container"><iframe id="calendarFrame" src="" frameborder="0" scrolling="no"></iframe></div></div>
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <h4 class="fw-bold mb-4">Kalender Program Kerja</h4>
+                        <div class="card-modern p-2"><div class="calendar-container"><iframe id="calendarFrame" src="" frameborder="0" scrolling="no"></iframe></div></div>
+                    </div>
+                    <div class="col-lg-4">
+                        <h4 class="fw-bold mb-4">WhatsApp Blast</h4>
+                        <div class="card-modern p-3">
+                            <p class="small text-muted">Kirim info kegiatan ke banyak nomor sekaligus.</p>
+                            <div class="mb-3">
+                                <label class="small fw-bold">Nomor Tujuan (Pisahkan Koma)</label>
+                                <textarea id="wa_numbers" class="form-control" rows="3" placeholder="62812345, 62899999, ..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="small fw-bold">Pesan</label>
+                                <textarea id="wa_message" class="form-control" rows="3" placeholder="Assalamualaikum, Undangan Rapat..."></textarea>
+                            </div>
+                            <button class="btn btn-success w-100 mb-3" onclick="generateWALinks()"><i class="fab fa-whatsapp"></i> Generate Tombol Kirim</button>
+                            <div id="wa_buttons_container" class="d-flex flex-wrap gap-2" style="max-height: 200px; overflow-y:auto;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="presensi-view" class="page-section">
+                <h4 class="fw-bold mb-4">Intra Presensi Digital</h4>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card-modern p-3 h-100">
+                            <h5 class="fw-bold mb-3">Buat Kegiatan Baru</h5>
+                            <form onsubmit="createPresensi(event)">
+                                <input id="newPresensiName" class="form-control mb-2" placeholder="Nama Kegiatan" required>
+                                <input type="date" id="newPresensiDate" class="form-control mb-2" required>
+                                <button class="btn btn-primary w-100">Buat Presensi</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-modern p-3 h-100">
+                            <h5 class="fw-bold mb-3">Daftar Kegiatan & Link</h5>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead><tr><th>Kegiatan</th><th>Tanggal</th><th>Peserta</th><th>Aksi</th></tr></thead>
+                                    <tbody id="listPresensi"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4" id="presensiDetailContainer" style="display:none;">
+                    <div class="card-modern p-3">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="fw-bold">Data Kehadiran: <span id="detailPresensiTitle"></span></h5>
+                            <button class="btn btn-sm btn-secondary" onclick="document.getElementById('presensiDetailContainer').style.display='none'">Tutup</button>
+                        </div>
+                        <table class="table table-sm mt-3" id="tblPresensiDetail">
+                            <thead><tr><th>Nama</th><th>Instansi</th><th>WA</th><th>Waktu</th></tr></thead>
+                            <tbody id="bodyPresensiDetail"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div id="pengurus-view" class="page-section">
@@ -299,7 +394,11 @@
                             <div class="mb-3"><label class="small fw-bold">Nama Lembaga</label><input type="text" id="set_org_name" class="form-control" onchange="saveAppConfig('org_name', this.value)"></div>
                             <div class="mb-3"><label class="small fw-bold">URL Logo</label><input type="text" id="set_logo_url" class="form-control" onchange="saveAppConfig('logo_url', this.value)"></div>
                             <h5 class="fw-bold mb-3 mt-4">Integrasi</h5>
-                            <div class="mb-3"><label class="small fw-bold">ID Google Calendar</label><input type="text" id="set_calendar_id" class="form-control" onchange="saveAppConfig('calendar_id', this.value)"></div>
+                            <div class="mb-3">
+                                <label class="small fw-bold">ID Google Calendar (Email/ID)</label>
+                                <input type="text" id="set_calendar_id" class="form-control" placeholder="contoh: u49...group.calendar.google.com" onchange="saveAppConfig('calendar_id', this.value)">
+                                <small class="text-muted d-block mt-1">Pastikan kalender di-set ke "Public" di pengaturan Google Calendar.</small>
+                            </div>
                             <div class="mb-3"><label class="small fw-bold">Link Cek PO-PPTA (Gemini)</label><input type="text" id="set_link_po" class="form-control" placeholder="https://gemini.google.com/share/..." onchange="saveAppConfig('link_po', this.value)"></div>
                             <div class="mb-3"><label class="small fw-bold">Update Data Pengurus (Excel)</label><div class="input-group"><input type="file" id="excelPengurusInput" class="form-control" accept=".xlsx, .xls"><button class="btn btn-success" onclick="uploadPengurus()">Upload</button></div><small class="text-muted">Format: NAMA, NIM, WA, RAYON, JABATAN</small></div>
                         </div>
@@ -329,7 +428,7 @@
                 <div class="row g-4">
                     <div class="col-md-6"><div class="card-modern h-100"><a id="linkPoPptaCard" href="https://gemini.google.com/share/71f52c5a6a49" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-blue"><i class="fas fa-robot"></i></div><h5 class="fw-bold m-0">Cek PO-PPTA Lembaga</h5></div><p class="text-muted small">Cek format surat otomatis sesuai PO-PPTA Terbaru.</p></a></div></div>
                     <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/e06bb2f1202e" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-red"><i class="fas fa-file-signature"></i></div><h5 class="fw-bold m-0">Tempel TTD dan Stempel</h5></div><p class="text-muted small">Tanda tangan dan Stempel digital presisi pada PDF.</p></a></div></div>
-                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/52524759fda3" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-yellow"><i class="fas fa-brain"></i></div><h5 class="fw-bold m-0">Generator Renstra</h5></div><p class="text-muted small">Buat Program Kerja, Visi Misi, dan Analisis SWOT instan.</p></a></div></div>
+                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/52524759fda3" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-yellow"><i class="fas fa-brain"></i></div><h5 class="fw-bold m-0">Generator Renstra</h5></div><p class="text-muted small">Buat Program Kerja dan Analisis SWOT instan.</p></a></div></div>
                     <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/705409a52beb" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-green"><i class="fas fa-clipboard-list"></i></div><h5 class="fw-bold m-0">Generator Notulen</h5></div><p class="text-muted small">Ubah foto catatan rapat menjadi teks notulensi rapi.</p></a></div></div>
                     <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/c7d5c59bcb84" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-purple"><i class="fas fa-cut"></i></div><h5 class="fw-bold m-0">PDF Splitter Pro</h5></div><p class="text-muted small">Pisah halaman PDF menjadi file terpisah.</p></a></div></div>
                 </div>
@@ -341,12 +440,12 @@
     <div class="modal fade" id="mdlSK"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'sk')"><div class="modal-header"><h5 class="modal-title">Surat Keluar</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><select id="sk_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select><input id="sk_no" class="form-control mb-2" placeholder="Nomor Surat" required><input id="sk_tujuan" class="form-control mb-2" placeholder="Tujuan" required><div class="row g-2 mb-2"><div class="col"><input type="date" id="sk_tgl_buat" class="form-control" required></div><div class="col"><input type="date" id="sk_tgl_kirim" class="form-control" required></div></div><input id="sk_hal" class="form-control mb-2" placeholder="Perihal" required><textarea id="sk_ket" class="form-control mb-2" placeholder="Keterangan"></textarea><input type="file" class="form-control"></div><div class="modal-footer"><button class="btn btn-warning">Simpan</button></div></form></div></div>
     <div class="modal fade" id="mdlKeu"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'keu')"><div class="modal-header"><h5 class="modal-title" id="ttlKeu">Keuangan</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="keu_cat"><input type="date" id="keu_tgl" class="form-control mb-2" required><input id="keu_uraian" class="form-control mb-2" placeholder="Uraian" required><div id="opsFields" class="d-none"><input id="keu_pj" class="form-control mb-2" placeholder="PJ"><div class="row g-2 mb-2"><div class="col"><input type="number" id="keu_qty" class="form-control" placeholder="Qty" oninput="calcTotal()"></div><div class="col"><input type="number" id="keu_hrg" class="form-control" placeholder="Harga" oninput="calcTotal()"></div></div></div><select id="keu_jenis" class="form-select mb-2"><option value="Masuk">Pemasukan</option><option value="Keluar">Pengeluaran</option></select><input type="number" id="keu_nom" class="form-control" placeholder="Nominal" required></div><div class="modal-footer"><button class="btn btn-info text-white">Simpan</button></div></form></div></div>
     <div class="modal fade" id="mdlInv"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'inv')"><div class="modal-header"><h5 class="modal-title" id="ttlInv">Inventaris</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="inv_type"><input id="inv_nama" class="form-control mb-2" placeholder="Nama Barang" required><div id="rekapFields"><input id="inv_merk" class="form-control mb-2" placeholder="Merk"><div class="row g-2 mb-2"><div class="col"><input type="number" id="inv_thn" class="form-control" placeholder="Tahun"></div><div class="col"><input type="number" id="inv_jml" class="form-control" placeholder="Jumlah"></div></div></div><div id="bukuFields" class="d-none"><input id="inv_kode" class="form-control mb-2" placeholder="Kode"><input id="inv_jenis" class="form-control mb-2" placeholder="Jenis"></div><select id="inv_cond" class="form-select mb-2"><option>Baik</option><option>Kurang Baik</option><option>Rusak</option></select><textarea id="inv_ket" class="form-control" placeholder="Ket"></textarea></div><div class="modal-footer"><button class="btn btn-success">Simpan</button></div></form></div></div>
+    <div class="modal fade" id="mdlQRCode"><div class="modal-dialog modal-sm"><div class="modal-content"><div class="modal-header"><h6 class="modal-title">QR Code Presensi</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><img id="imgQR" class="img-fluid mb-2"><p class="small text-muted mb-0">Scan untuk presensi</p></div></div></div></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, getDoc, setDoc, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, getDoc, setDoc, onSnapshot, writeBatch, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAwsqkpDt01N2U9PpPNfnKFbB2_AqaSFvA",
@@ -362,52 +461,94 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // STATE
         let currentUser = null; 
         let activeScopeUid = null; 
         let currentScope = 'global'; 
         let listeners = [];
         let listLSO = [];
-        let rawData = { sm:[], sk:[], keu:[], inv:[], pengurus:[], users:[] };
+        let rawData = { sm:[], sk:[], keu:[], inv:[], pengurus:[], users:[], presensi:[] };
         let pinData = { master:'1234', pusat:'1234', kopri:'1234' };
         let pinModalInstance = null; 
         let pendingAction = null;
 
-        // --- AUTH ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                try {
-                    const userDocRef = doc(db, "users", user.uid);
-                    const userSnap = await getDoc(userDocRef);
-                    if (userSnap.exists()) {
-                        currentUser = { uid: user.uid, email: user.email, ...userSnap.data() };
-                    } else if(user.email.includes('admin')) {
-                        currentUser = { uid: user.uid, email: user.email, role: 'admin', name: 'Administrator' };
-                    } else {
-                        alert("Akun belum disetting di Firestore."); await signOut(auth); return;
+        // --- 1. HANDLING PUBLIC URL (PRESENSI) BEFORE AUTH ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const attendanceId = urlParams.get('attendance');
+        if(attendanceId) {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('attendance-public-view').style.display = 'block';
+            getDoc(doc(db, "presensi_events", attendanceId)).then(docSnap => {
+                if(docSnap.exists()) {
+                    document.getElementById('attEventName').innerText = docSnap.data().nama + " (" + docSnap.data().tgl + ")";
+                    document.getElementById('attEventId').value = attendanceId;
+                } else {
+                    alert("Kegiatan tidak ditemukan");
+                }
+            });
+        } else {
+            // --- AUTH & AUTO LOGOUT ---
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    // Check Session Timeout (24 Hours)
+                    const lastLogin = localStorage.getItem('lastLoginTime');
+                    const now = Date.now();
+                    if(lastLogin && (now - parseInt(lastLogin) > 24 * 60 * 60 * 1000)) {
+                        alert("Sesi Anda telah habis (24 jam). Silakan login kembali.");
+                        await signOut(auth);
+                        location.reload();
+                        return;
                     }
-                    
-                    setupUIByRole();
-                    loadDataForScope(currentUser.uid); 
-                    
-                    if(currentUser.role === 'admin') loadRayonList();
+                    localStorage.setItem('lastLoginTime', now);
 
-                    document.getElementById('login-overlay').style.display = 'none';
-                    document.getElementById('app-container').style.display = 'block';
+                    try {
+                        const userDocRef = doc(db, "users", user.uid);
+                        const userSnap = await getDoc(userDocRef);
+                        if (userSnap.exists()) {
+                            currentUser = { uid: user.uid, email: user.email, ...userSnap.data() };
+                        } else if(user.email.includes('admin')) {
+                            currentUser = { uid: user.uid, email: user.email, role: 'admin', name: 'Administrator' };
+                        } else {
+                            alert("Akun belum disetting di Firestore."); await signOut(auth); return;
+                        }
+                        
+                        setupUIByRole();
+                        loadDataForScope(currentUser.uid); 
+                        if(currentUser.role === 'admin') loadRayonList();
 
-                } catch (err) { alert("Error: " + err.message); }
-            } else {
-                document.getElementById('app-container').style.display = 'none';
-                document.getElementById('login-overlay').style.display = 'flex';
-            }
-        });
+                        // Animation Out for Login
+                        const overlay = document.getElementById('login-overlay');
+                        overlay.classList.add('fade-out-up');
+                        setTimeout(() => {
+                            overlay.style.display = 'none';
+                            document.getElementById('app-container').style.display = 'block';
+                        }, 600);
+
+                    } catch (err) { alert("Error: " + err.message); }
+                } else {
+                    document.getElementById('app-container').style.display = 'none';
+                    document.getElementById('login-overlay').style.display = 'flex';
+                    document.getElementById('login-overlay').classList.remove('fade-out-up');
+                }
+            });
+        }
 
         window.handleLogin = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnLogin');
-            btn.disabled=true; btn.innerText="Proses...";
-            try { await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPass').value); } 
-            catch (error) { document.getElementById('loginError').innerText = error.message; btn.disabled=false; btn.innerText="MASUK"; }
+            const logo = document.getElementById('loginLogo');
+            btn.disabled=true; btn.innerText="Memuat...";
+            // Animation Trigger
+            logo.classList.add('logo-loading');
+            
+            try { 
+                await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPass').value); 
+                localStorage.setItem('lastLoginTime', Date.now());
+            } 
+            catch (error) { 
+                document.getElementById('loginError').innerText = "Login Gagal: Password Salah / User tidak ditemukan."; 
+                btn.disabled=false; btn.innerText="MASUK"; 
+                logo.classList.remove('logo-loading');
+            }
         }
         window.logout = () => { if(confirm("Keluar?")) signOut(auth).then(()=>location.reload()); }
 
@@ -416,7 +557,7 @@
             listeners.forEach(unsub => unsub());
             listeners = [];
             activeScopeUid = targetUid;
-            rawData = { sm:[], sk:[], keu:[], inv:[], pengurus:[], users: rawData.users }; 
+            rawData = { sm:[], sk:[], keu:[], inv:[], pengurus:[], users: rawData.users, presensi:[] }; 
 
             const collections = ['surat_masuk', 'surat_keluar', 'keuangan', 'inventaris', 'susunan_pengurus'];
             collections.forEach(colName => {
@@ -447,7 +588,6 @@
             });
             listeners.push(cfgUnsub);
             
-            // Load PIN
             const authUnsub = onSnapshot(doc(db, "users", targetUid, "config", "auth"), (doc) => { 
                 if(doc.exists()) {
                     pinData = doc.data(); 
@@ -455,6 +595,15 @@
                 }
             });
             listeners.push(authUnsub);
+
+            // Presensi Events (Global Collection with uid filter)
+            if(currentUser.role === 'admin') {
+                const presUnsub = onSnapshot(query(collection(db, "presensi_events"), where("uid_owner", "==", targetUid)), (s) => {
+                    rawData.presensi = s.docs.map(d => ({id:d.id, ...d.data()}));
+                    renderPresensiList();
+                });
+                listeners.push(presUnsub);
+            }
         }
 
         function loadRayonList() {
@@ -470,11 +619,19 @@
             document.querySelectorAll('.submenu a').forEach(n => n.classList.remove('active'));
             if(el) el.classList.add('active');
             
+            // UX Fix: Force CLOSE Sidebar on Mobile
+            if(window.innerWidth < 992) closeSidebar();
+
             currentScope = scope; 
 
+            // HIDE/SHOW SETTINGS MENU Logic for Admin viewing Rayon
+            const settingsMenu = document.getElementById('menu-settings');
+            const lsoMenu = document.getElementById('menu-lso-container');
+            
             if(scope === 'global') {
-                // ADDED: Reset Badge text to UTAMA
                 document.getElementById('dashScopeBadge').innerText = "UTAMA";
+                if(settingsMenu) settingsMenu.style.display = 'block';
+                if(lsoMenu) lsoMenu.style.display = 'block';
 
                 if(activeScopeUid !== currentUser.uid) loadDataForScope(currentUser.uid);
                 showSection('dashboard-global');
@@ -487,16 +644,19 @@
 
             const userRayon = rawData.users.find(u => u.id === scope);
             if (userRayon) {
+                // If viewing a Rayon, hide Settings & LSO menus
+                if(settingsMenu) settingsMenu.style.display = 'none';
+                if(lsoMenu) lsoMenu.style.display = 'none';
+
                 targetUid = userRayon.id;
                 label = userRayon.nama || userRayon.name || "Rayon";
-                
-                // Jika Admin klik Rayon -> Tampilkan Dashboard Rekap Rayon
                 document.getElementById('dashScopeBadge').innerText = label;
                 showSection('dashboard-global');
                 if(targetUid !== activeScopeUid) loadDataForScope(targetUid);
                 return; 
             }
 
+            // Normal Navigation
             showSection('main-view'); 
             
             if(scope === 'me' || scope === 'pusat' || scope === 'kopri' || scope.startsWith('lso_')) {
@@ -512,24 +672,21 @@
             }
         }
 
-        // --- DASHBOARD RECAP (PERUBAHAN UTAMA: SAMA UNTUK ADMIN & RAYON) ---
+        // --- DASHBOARD RECAP ---
         function renderGlobalDashboard() {
             const container = document.getElementById('globalSummaryContainer');
             if(!container || !document.getElementById('dashboard-global').classList.contains('active')) return;
             
             let html = '';
             
-            // Definisikan entitas yang akan direkap (Lembaga, Kopri, + LSO Dinamis)
             const entities = [
                 {id: 'pusat', name: 'LEMBAGA (INTI)', color: 'primary'},
                 {id: 'kopri', name: 'BSO KOPRI', color: 'warning'},
                 ...listLSO.map(l => ({id: 'lso_'+l.id, name: l.nama, color: 'info'}))
             ];
 
-            // Header Info
             html += `<div class="col-12"><div class="alert alert-info shadow-sm border-0">Data Organisasi: <b>${activeScopeUid === currentUser.uid ? currentUser.name : (rawData.users.find(u=>u.id===activeScopeUid)?.nama || 'Unknown')}</b></div></div>`;
 
-            // Loop untuk membuat kartu rekap
             entities.forEach(ent => {
                 const sm = rawData.sm.filter(x => x.scope === ent.id).length;
                 const sk = rawData.sk.filter(x => x.scope === ent.id).length;
@@ -584,6 +741,102 @@
             document.getElementById('cntUang').innerText = fmtRp(totalSaldo);
         }
 
+        // --- PRESENSI FEATURES (NEW) ---
+        window.createPresensi = async (e) => {
+            e.preventDefault();
+            const nm = document.getElementById('newPresensiName').value;
+            const tg = document.getElementById('newPresensiDate').value;
+            if(nm && tg) {
+                await addDoc(collection(db, "presensi_events"), {
+                    nama: nm, tgl: tg, uid_owner: currentUser.uid, createdAt: Date.now()
+                });
+                e.target.reset();
+            }
+        }
+        
+        function renderPresensiList() {
+            const list = document.getElementById('listPresensi');
+            if(list) {
+                list.innerHTML = rawData.presensi.sort((a,b)=>b.createdAt-a.createdAt).map(p => {
+                    const link = window.location.origin + window.location.pathname + "?attendance=" + p.id;
+                    return `
+                    <tr>
+                        <td><b>${p.nama}</b></td>
+                        <td>${p.tgl}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info text-white me-1" onclick="viewPresensiDetail('${p.id}', '${p.nama}')"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-warning text-white" onclick="showQR('${link}')"><i class="fas fa-qrcode"></i></button>
+                        </td>
+                        <td>
+                             <button class="btn btn-sm btn-outline-primary" onclick="copyToClip('${link}')"><i class="fas fa-copy"></i> Link</button>
+                             <button class="btn btn-sm btn-danger rounded-circle ms-1" onclick="delPresensiEvent('${p.id}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                }).join('');
+            }
+        }
+        
+        window.showQR = (txt) => {
+            const url = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(txt)}`;
+            document.getElementById('imgQR').src = url;
+            new bootstrap.Modal(document.getElementById('mdlQRCode')).show();
+        }
+
+        window.copyToClip = (txt) => { navigator.clipboard.writeText(txt).then(()=>alert("Link disalin!")); }
+        
+        window.delPresensiEvent = async (id) => { if(confirm("Hapus Kegiatan? Data absen juga akan hilang.")) deleteDoc(doc(db, "presensi_events", id)); }
+        
+        window.viewPresensiDetail = (id, name) => {
+            document.getElementById('detailPresensiTitle').innerText = name;
+            document.getElementById('presensiDetailContainer').style.display = 'block';
+            document.getElementById('bodyPresensiDetail').innerHTML = '<tr><td colspan="4" class="text-center">Memuat...</td></tr>';
+            
+            // Realtime listener for attendees
+            onSnapshot(collection(db, "presensi_events", id, "attendees"), (snap) => {
+                const att = snap.docs.map(d => d.data());
+                document.getElementById('bodyPresensiDetail').innerHTML = att.map(a => 
+                    `<tr><td>${a.nama}</td><td>${a.instansi}</td><td>${a.wa}</td><td>${new Date(a.time).toLocaleTimeString()}</td></tr>`
+                ).join('');
+            });
+        }
+
+        // Public Attendance Submit
+        window.submitPublicAttendance = async (e) => {
+            e.preventDefault();
+            const eid = document.getElementById('attEventId').value;
+            const d = {
+                nama: document.getElementById('attName').value,
+                instansi: document.getElementById('attInstansi').value,
+                wa: document.getElementById('attWa').value,
+                time: Date.now()
+            };
+            await addDoc(collection(db, "presensi_events", eid, "attendees"), d);
+            e.target.reset();
+            document.getElementById('attSuccessMsg').classList.remove('d-none');
+            setTimeout(() => document.getElementById('attSuccessMsg').classList.add('d-none'), 3000);
+        }
+
+        // --- WHATSAPP BLAST FEATURE ---
+        window.generateWALinks = () => {
+            const rawNums = document.getElementById('wa_numbers').value;
+            const msg = encodeURIComponent(document.getElementById('wa_message').value);
+            const container = document.getElementById('wa_buttons_container');
+            
+            if(!rawNums) return;
+            
+            const nums = rawNums.split(',').map(n => n.trim()).filter(n => n.length > 5);
+            
+            container.innerHTML = nums.map(n => {
+                // Formatting number: if starts with 08, change to 628
+                let formatted = n;
+                if(n.startsWith('08')) formatted = '62' + n.substring(1);
+                
+                return `<a href="https://api.whatsapp.com/send?phone=${formatted}&text=${msg}" target="_blank" class="btn btn-outline-success btn-sm flex-fill">Kirim: ${n}</a>`;
+            }).join('');
+            
+            if(nums.length === 0) alert("Masukkan nomor dengan benar (pisahkan koma)");
+        }
+
         // --- SAVE DATA ---
         const v=id=>document.getElementById(id).value;
         window.saveData = async (e, t) => {
@@ -592,7 +845,6 @@
             if (currentScope === 'kopri' || currentScope.startsWith('lso_')) {
                 saveScope = currentScope;
             } else if (currentUser.role === 'rayon' && currentScope === 'me') {
-                 // Kalau Rayon di Dashboard/Lembaga, default ke 'pusat' milik rayon itu sendiri
                  saveScope = 'pusat'; 
             }
 
@@ -622,8 +874,6 @@
             document.querySelector('.header-org-name').innerText = name;
             
             const menuRayon = document.getElementById('menu-admin-rayon');
-            // Menu Settings, Kopri, LSO sekarang visible untuk semua (protected by PIN)
-            
             if(role === 'rayon') {
                 if(menuRayon) menuRayon.style.display = 'none'; 
             } else {
@@ -646,7 +896,6 @@
 
         function renderLSOMenu(){ 
             const lsoMenu = document.getElementById('lsoSubmenu');
-            // MODIFIED: Menggunakan requestAccess, bukan switchScope langsung
             if(lsoMenu) lsoMenu.innerHTML = listLSO.map(l => `<li><a onclick="requestAccess('lso_${l.id}', this)">${l.nama}</a></li>`).join(''); 
             
             const lsoList = document.getElementById('listLSO');
@@ -665,14 +914,20 @@
         window.showSection = (id, el) => {
             document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active')); 
             document.getElementById(id).classList.add('active');
-            if(el) { document.querySelectorAll('.sidebar .nav-link').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
-            if(window.innerWidth < 992) toggleSidebar();
+            if(el) { 
+                document.querySelectorAll('.sidebar .nav-link').forEach(n => n.classList.remove('active')); el.classList.add('active'); 
+                // UX Fix: Auto Close Sidebar on Mobile
+                if(window.innerWidth < 992) closeSidebar();
+            }
         }
 
         // PIN & CONFIG
         const pinModalEl = document.getElementById('mdlPin');
         pinModalInstance = new bootstrap.Modal(pinModalEl);
         window.requestAccess = (scope, el) => {
+            // UX Fix: Auto Close Sidebar if already open in mobile
+            if(window.innerWidth < 992 && document.getElementById('sidebar').classList.contains('active')) closeSidebar();
+
             pendingAction = { scope, el };
             
             let correctPin = "1234";
@@ -695,6 +950,7 @@
                  pinModalInstance.hide();
                  if(pendingAction.scope === 'settings') showSection('pengaturan', pendingAction.el);
                  else switchScope(pendingAction.scope, pendingAction.el);
+                 document.getElementById('pinInput').value = '';
              } else {
                  alert("PIN Salah!"); document.getElementById('pinInput').value = '';
              }
@@ -708,6 +964,7 @@
             }
             if(data.logo_url) { 
                 document.querySelectorAll('.header-user-logo').forEach(el => el.src = data.logo_url); 
+                document.getElementById('loginLogo').src = data.logo_url;
                 if(document.getElementById('set_logo_url')) document.getElementById('set_logo_url').value = data.logo_url; 
             }
             if(data.calendar_id) { 
@@ -746,6 +1003,7 @@
         window.openModalInv = (t) => { document.getElementById('inv_type').value=t; document.getElementById('ttlInv').innerText=`Input ${t}`; document.getElementById('rekapFields').className=t==='Rekap'?'d-block':'d-none'; document.getElementById('bukuFields').className=t==='Buku'?'d-block':'d-none'; new bootstrap.Modal(document.getElementById('mdlInv')).show(); }
         window.calcTotal = () => { document.getElementById('keu_nom').value = (parseFloat(v('keu_qty'))||0) * (parseFloat(v('keu_hrg'))||0); }
         window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('active');
+        window.closeSidebar = () => document.getElementById('sidebar').classList.remove('active');
         window.toggleTheme = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode')?'dark':'light'); }
         if(localStorage.getItem('theme')==='dark') toggleTheme();
         setInterval(() => { const n=new Date(); document.getElementById('realtimeClock').innerText=n.toLocaleTimeString(); document.getElementById('realtimeClockDesktop').innerText=n.toLocaleTimeString(); }, 1000);
