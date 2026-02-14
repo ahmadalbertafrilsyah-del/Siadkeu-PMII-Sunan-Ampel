@@ -12,6 +12,9 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
     <style>
         :root {
@@ -31,7 +34,7 @@
         
         /* LOGIN & ANIMATION */
         #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.5s; }
-        .login-card { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; transition: transform 0.3s; }
+        .login-card { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; transition: transform 0.3s; }
         .login-logo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 3px solid var(--accent); transition: all 0.5s; }
         
         .logo-loading { animation: pulseLogo 1s infinite; border-color: #fff !important; box-shadow: 0 0 15px var(--accent); }
@@ -45,23 +48,24 @@
         .sidebar-brand { height: 90px; display: flex; align-items: center; padding: 0 25px; font-size: 1.25rem; justify-content: start; gap: 15px; }
         .sidebar-logo { width: 45px !important; height: 45px !important; min-width: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
 
-        .sidebar-menu { list-style: none; padding: 25px 15px; margin: 0; }
-        .nav-item a { display: flex; align-items: center; padding: 12px 20px; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 12px; transition: 0.3s; cursor: pointer; margin-bottom: 5px; }
+        .sidebar-menu { list-style: none; padding: 20px 15px; margin: 0; }
+        .nav-item a { display: flex; align-items: center; padding: 12px 15px; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 12px; transition: 0.3s; cursor: pointer; margin-bottom: 5px; font-size: 0.95rem; }
         .nav-item a:hover, .nav-item a.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; border-left: 4px solid var(--accent); }
-        .nav-item i { width: 25px; margin-right: 20px; } 
+        .nav-item i { width: 25px; margin-right: 15px; text-align: center; } 
         
-        .submenu { list-style: none; padding-left: 20px; margin-top: 5px; display: none; background: rgba(0,0,0,0.1); border-radius: 10px; }
+        .submenu { list-style: none; padding-left: 10px; margin-top: 5px; display: none; background: rgba(0,0,0,0.1); border-radius: 10px; }
         .submenu.show { display: block; animation: slideDown 0.3s ease; }
 
-        .main-header { position: fixed; top: 0; left: var(--sidebar-width); right: 0; height: var(--header-height); background: var(--surface); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 1000; transition: 0.4s; border-bottom: 1px solid #e2e8f0; }
+        .main-header { position: fixed; top: 0; left: var(--sidebar-width); right: 0; height: var(--header-height); background: var(--surface); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; transition: 0.4s; border-bottom: 1px solid #e2e8f0; }
         body.dark-mode .main-header { background: rgba(30, 41, 59, 0.95); border-color: #334155; }
-        .content-wrapper { margin-top: var(--header-height); margin-left: var(--sidebar-width); padding: 30px; transition: 0.4s; min-height: 100vh; }
+        .content-wrapper { margin-top: var(--header-height); margin-left: var(--sidebar-width); padding: 25px; transition: 0.4s; min-height: 100vh; }
         
         .card-modern { border: 1px solid #e2e8f0; border-radius: var(--radius); background: var(--surface); box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 25px; }
         body.dark-mode .card-modern { border-color: #334155; }
-        .card-header-modern { padding: 20px 25px; border-bottom: 1px solid #e2e8f0; font-weight: 600; display: flex; justify-content: space-between; align-items: center; color: var(--text-heading); }
-        .info-box { background: var(--surface); border-radius: var(--radius); padding: 25px; display: flex; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; height: 100%; position: relative; overflow: hidden; }
-        .icon-circle { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-right: 20px; flex-shrink: 0; color: white; }
+        .card-header-modern { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; display: flex; justify-content: space-between; align-items: center; color: var(--text-heading); }
+        
+        .info-box { background: var(--surface); border-radius: var(--radius); padding: 20px; display: flex; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; height: 100%; position: relative; overflow: hidden; }
+        .icon-circle { width: 50px; height: 50px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-right: 15px; flex-shrink: 0; color: white; }
 
         .bg-gradient-blue { background: linear-gradient(135deg, #003399, #005ce6); }
         .bg-gradient-yellow { background: linear-gradient(135deg, #FFCC00, #ffdb4d); color: #000; }
@@ -73,26 +77,33 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         /* Mobile Overlay Fix */
-        .mobile-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; display: none; backdrop-filter: blur(2px); }
-        .sidebar.active ~ .mobile-overlay { display: block; }
+        .mobile-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1050; display: none; backdrop-filter: blur(2px); }
 
+        /* Responsiveness */
         @media (max-width: 992px) {
             .sidebar { transform: translateX(-100%); } .sidebar.active { transform: translateX(0); }
-            .main-header { left: 0; padding: 0 20px; } .content-wrapper { margin-left: 0; padding: 20px; }
+            .main-header { left: 0; padding: 0 15px; } 
+            .content-wrapper { margin-left: 0; padding: 15px 10px; }
             #sidebarToggle { display: block !important; margin-right: 15px; }
-            .btn-close-sidebar { display: none !important; }
+            .info-box { padding: 15px; }
+            .info-box h3, .info-box h4 { font-size: 1.1rem !important; }
+            .nav-tabs .nav-link { font-size: 0.85rem; padding: 8px 10px; }
         }
-        #sidebarToggle { display: none; background: none; border: none; font-size: 1.6rem; color: var(--text-main); }
+        #sidebarToggle { display: none; background: none; border: none; font-size: 1.4rem; color: var(--text-main); }
         
         /* Calendar & App */
         .calendar-container { position: relative; padding-bottom: 75%; height: 0; overflow: hidden; border-radius: 12px; }
         .calendar-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        @media (max-width: 768px) { .calendar-container { padding-bottom: 120%; } }
+
         .ai-app-card { text-decoration: none; color: var(--text-main); display: block; height: 100%; transition: all 0.3s; }
         .ai-app-card:hover { transform: translateY(-5px); }
 
         /* Public Attendance */
-        #attendance-public-view { display: none; background: var(--bg-body); min-height: 100vh; padding: 20px; }
-        .attendance-card { max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        #attendance-public-view { display: none; background: var(--bg-body); min-height: 100vh; padding: 15px; }
+        .attendance-card { max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        #camera-container { position: relative; border-radius: 10px; overflow: hidden; background: #000; width: 100%; aspect-ratio: 4/3; }
+        #camera-stream { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body>
@@ -120,26 +131,42 @@
     <div id="attendance-public-view">
         <div class="attendance-card text-center">
             <img src="https://i.ibb.co.com/JWksCfcn/Logo-PMII.png" width="60" class="mb-3">
-            <h4 class="fw-bold mb-1">Presensi Kegiatan</h4>
-            <p class="text-muted small mb-4" id="attEventName">Memuat...</p>
-            <form onsubmit="submitPublicAttendance(event)">
+            <h5 class="fw-bold mb-1">Presensi Kehadiran</h5>
+            <p class="text-primary small fw-bold mb-3" id="attEventName">Memuat...</p>
+            
+            <form onsubmit="submitPublicAttendance(event)" id="formPresensi">
                 <input type="hidden" id="attEventId">
+                <input type="hidden" id="attPhotoData" required>
+                
+                <div class="mb-3">
+                    <label class="small fw-bold d-block text-start mb-1">Foto Selfi Di Tempat <span class="text-danger">*</span></label>
+                    <div id="camera-container">
+                        <video id="camera-stream" autoplay playsinline></video>
+                        <canvas id="camera-canvas" style="display:none;"></canvas>
+                        <img id="photo-preview" style="display:none; width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <div class="mt-2 d-flex justify-content-center gap-2">
+                        <button type="button" id="btnCapture" class="btn btn-sm btn-primary" onclick="capturePhoto()"><i class="fas fa-camera"></i> Ambil Foto</button>
+                        <button type="button" id="btnRetake" class="btn btn-sm btn-warning" style="display:none;" onclick="retakePhoto()"><i class="fas fa-redo"></i> Ulangi</button>
+                    </div>
+                </div>
+
                 <div class="mb-3 text-start">
                     <label class="small fw-bold">Nama Lengkap</label>
-                    <input id="attName" class="form-control" required>
+                    <input id="attName" class="form-control" placeholder="Tulis nama lengkap..." required>
                 </div>
                 <div class="mb-3 text-start">
-                    <label class="small fw-bold">Asal Rayon/Instansi</label>
-                    <input id="attInstansi" class="form-control" required>
+                    <label class="small fw-bold">Asal Rayon / Instansi</label>
+                    <input id="attInstansi" class="form-control" placeholder="Contoh: Rayon Fakultas..." required>
                 </div>
                 <div class="mb-4 text-start">
                     <label class="small fw-bold">No. WhatsApp</label>
                     <input type="number" id="attWa" class="form-control" placeholder="628..." required>
                 </div>
-                <button class="btn btn-success w-100 fw-bold">Kirim Kehadiran</button>
+                <button type="submit" id="btnSubmitPresensi" class="btn btn-success w-100 fw-bold">Kirim Kehadiran</button>
             </form>
             <div id="attSuccessMsg" class="alert alert-success mt-3 d-none">
-                <i class="fas fa-check-circle me-2"></i>Terima kasih! Data terekam.
+                <i class="fas fa-check-circle me-2"></i>Terima kasih! Data & foto berhasil terekam.
             </div>
         </div>
     </div>
@@ -161,9 +188,19 @@
         </div>
     </div>
 
-    <div id="app-container" style="display:none;">
-        <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+    <div class="modal fade" id="mdlViewPhoto">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-body text-center position-relative p-0">
+                    <button type="button" class="btn-close bg-white position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" style="z-index:10"></button>
+                    <img id="fullPhotoView" class="img-fluid rounded shadow-lg" src="">
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <div id="app-container" style="display:none;">
+        
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-brand">
                 <img src="https://i.ibb.co.com/JWksCfcn/Logo-PMII.png" alt="Logo" class="sidebar-logo header-user-logo">
@@ -176,7 +213,7 @@
                 <li class="nav-item"><a class="nav-link active" onclick="switchScope('global', this)"><i class="fas fa-database"></i> <span>Dashboard</span></a></li>
                 
                 <div id="menu-admin-global">
-                    <li class="nav-item"><a class="nav-link" onclick="requestAccess('pusat', this)"><i class="fas fa-home"></i> <span>Lembaga</span></a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="requestAccess('pusat', this)"><i class="fas fa-home"></i> <span>Lembaga Inti</span></a></li>
                     <li class="nav-item"><a class="nav-link" onclick="requestAccess('kopri', this)"><i class="fas fa-venus"></i> <span>BSO KOPRI</span></a></li>
 
                     <li class="nav-item" id="menu-lso-container">
@@ -210,6 +247,8 @@
             </ul>
         </aside>
 
+        <div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+
         <header class="main-header">
             <div class="d-flex align-items-center">
                 <button id="sidebarToggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
@@ -226,7 +265,7 @@
         <div class="content-wrapper">
             <div id="dashboard-global" class="page-section active">
                 <h4 class="fw-bold mb-4">Dashboard <span id="dashScopeBadge" class="badge bg-secondary">UTAMA</span></h4>
-                <div class="row g-4" id="globalSummaryContainer">
+                <div class="row g-3" id="globalSummaryContainer">
                     <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>
                 </div>
             </div>
@@ -235,17 +274,17 @@
                 <h4 class="fw-bold mb-4" id="pageTitle">Detail Data</h4>
                 <ul class="nav nav-tabs mb-4" id="modulTabs">
                     <li class="nav-item"><button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#tabDash">Info</button></li>
-                    <li class="nav-item"><button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tabSurat">Persuratan</button></li>
+                    <li class="nav-item"><button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tabSurat">Surat</button></li>
                     <li class="nav-item"><button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tabKeu">Keuangan</button></li>
                     <li class="nav-item"><button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tabInv">Inventaris</button></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="tabDash">
-                        <div class="row g-4">
-                            <div class="col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-blue"><i class="fas fa-inbox"></i></div><div><small>SURAT MASUK</small><h3 id="cntSM">0</h3></div></div></div>
-                            <div class="col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-yellow"><i class="fas fa-paper-plane"></i></div><div><small>SURAT KELUAR</small><h3 id="cntSK">0</h3></div></div></div>
-                            <div class="col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-green"><i class="fas fa-wallet"></i></div><div><small>SALDO</small><h4 id="cntUang" class="fs-6">Rp 0</h4></div></div></div>
-                            <div class="col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-red"><i class="fas fa-box"></i></div><div><small>ASET</small><h3 id="cntInv">0</h3></div></div></div>
+                        <div class="row g-3">
+                            <div class="col-6 col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-blue"><i class="fas fa-inbox"></i></div><div><small>MASUK</small><h4 id="cntSM">0</h4></div></div></div>
+                            <div class="col-6 col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-yellow"><i class="fas fa-paper-plane"></i></div><div><small>KELUAR</small><h4 id="cntSK">0</h4></div></div></div>
+                            <div class="col-12 col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-green"><i class="fas fa-wallet"></i></div><div><small>SALDO</small><h4 id="cntUang">Rp 0</h4></div></div></div>
+                            <div class="col-12 col-md-3"><div class="info-box"><div class="icon-circle bg-gradient-red"><i class="fas fa-box"></i></div><div><small>ASET</small><h4 id="cntInv">0</h4></div></div></div>
                         </div>
                     </div>
                     
@@ -258,13 +297,13 @@
                             <div class="tab-pane fade show active" id="subSM">
                                 <div class="card-modern p-3">
                                     <div class="card-header-modern"><span>Tabel Surat Masuk</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblSM','Surat_Masuk')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#mdlSM"><i class="fas fa-plus"></i></button></div></div>
-                                    <div class="table-responsive"><table class="table" id="tblSM"><thead><tr><th>No</th><th>Asal</th><th>Tgl Buat</th><th>Tgl Terima</th><th>Perihal</th><th>Ket</th><th>File</th><th>Aksi</th></tr></thead><tbody id="bodySM"></tbody></table></div>
+                                    <div class="table-responsive"><table class="table text-nowrap" id="tblSM"><thead><tr><th>No</th><th>Asal</th><th>Tgl Buat</th><th>Tgl Terima</th><th>Perihal</th><th>Ket</th><th>Aksi</th></tr></thead><tbody id="bodySM"></tbody></table></div>
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="subSK">
                                 <div class="card-modern p-3">
                                     <div class="card-header-modern"><span>Tabel Surat Keluar</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblSK','Surat_Keluar')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#mdlSK"><i class="fas fa-plus"></i></button></div></div>
-                                    <div class="table-responsive"><table class="table" id="tblSK"><thead><tr><th>No</th><th>Tujuan</th><th>Tgl Buat</th><th>Tgl Kirim</th><th>Perihal</th><th>Ket</th><th>File</th><th>Aksi</th></tr></thead><tbody id="bodySK"></tbody></table></div>
+                                    <div class="table-responsive"><table class="table text-nowrap" id="tblSK"><thead><tr><th>No</th><th>Tujuan</th><th>Tgl Buat</th><th>Tgl Kirim</th><th>Perihal</th><th>Ket</th><th>Aksi</th></tr></thead><tbody id="bodySK"></tbody></table></div>
                                 </div>
                             </div>
                         </div>
@@ -279,13 +318,13 @@
                             <div class="tab-pane fade show active" id="tabKasBank">
                                 <div class="card-modern p-3">
                                     <div class="card-header-modern"><span>Kas Bank</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblKasBank','Kas')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-info text-white" onclick="openModalKeu('Bank')"><i class="fas fa-plus"></i></button></div></div>
-                                    <div class="table-responsive"><table class="table table-bordered" id="tblKasBank"><thead><tr><th>Tgl</th><th>Uraian</th><th>Debit</th><th>Kredit</th><th>Saldo</th><th>Aksi</th></tr></thead><tbody id="bodyKasBank"></tbody></table></div>
+                                    <div class="table-responsive"><table class="table table-bordered text-nowrap" id="tblKasBank"><thead><tr><th>Tgl</th><th>Uraian</th><th>Debit</th><th>Kredit</th><th>Saldo</th><th>Aksi</th></tr></thead><tbody id="bodyKasBank"></tbody></table></div>
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="tabOps">
                                 <div class="card-modern p-3">
                                     <div class="card-header-modern"><span>Laporan Operasional</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblOps','Ops')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-warning text-white" onclick="openModalKeu('Operasional')"><i class="fas fa-plus"></i></button></div></div>
-                                    <div class="table-responsive"><table class="table table-bordered" id="tblOps"><thead><tr><th>Tgl</th><th>Uraian</th><th>PJ</th><th>Qty</th><th>Harga</th><th>Total</th><th>Debit</th><th>Kredit</th><th>Saldo</th><th>Aksi</th></tr></thead><tbody id="bodyOps"></tbody><tfoot id="footOps"></tfoot></table></div>
+                                    <div class="table-responsive"><table class="table table-bordered text-nowrap" id="tblOps"><thead><tr><th>Tgl</th><th>Uraian</th><th>PJ</th><th>Qty</th><th>Harga</th><th>Total</th><th>Debit</th><th>Kredit</th><th>Saldo</th><th>Aksi</th></tr></thead><tbody id="bodyOps"></tbody><tfoot id="footOps"></tfoot></table></div>
                                 </div>
                             </div>
                         </div>
@@ -300,13 +339,13 @@
                             <div class="tab-pane fade show active" id="tabRekap">
                                 <div class="card-modern p-3">
                                     <div class="card-header-modern"><span>Rekapitulasi</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblRekap','Rekap')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-primary" onclick="openModalInv('Rekap')"><i class="fas fa-plus"></i></button></div></div>
-                                    <div class="table-responsive"><table class="table" id="tblRekap"><thead><tr><th>Barang</th><th>Merk</th><th>Tahun</th><th>Jml</th><th>Kondisi</th><th>Ket</th><th>Aksi</th></tr></thead><tbody id="bodyRekap"></tbody></table></div>
+                                    <div class="table-responsive"><table class="table text-nowrap" id="tblRekap"><thead><tr><th>Barang</th><th>Merk</th><th>Tahun</th><th>Jml</th><th>Kondisi</th><th>Ket</th><th>Aksi</th></tr></thead><tbody id="bodyRekap"></tbody></table></div>
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="tabBuku">
                                 <div class="card-modern p-3">
                                     <div class="card-header-modern"><span>Buku Inventaris</span><div class="d-flex gap-2"><button class="btn btn-sm btn-success text-white" onclick="dlExcel('tblBuku','Buku')"><i class="fas fa-file-excel"></i></button><button class="btn btn-sm btn-primary" onclick="openModalInv('Buku')"><i class="fas fa-plus"></i></button></div></div>
-                                    <div class="table-responsive"><table class="table" id="tblBuku"><thead><tr><th>Kode</th><th>Barang</th><th>Jenis</th><th>Kondisi</th><th>Ket</th><th>Aksi</th></tr></thead><tbody id="bodyBuku"></tbody></table></div>
+                                    <div class="table-responsive"><table class="table text-nowrap" id="tblBuku"><thead><tr><th>Kode</th><th>Barang</th><th>Jenis</th><th>Kondisi</th><th>Ket</th><th>Aksi</th></tr></thead><tbody id="bodyBuku"></tbody></table></div>
                                 </div>
                             </div>
                         </div>
@@ -318,7 +357,14 @@
                 <div class="row g-4">
                     <div class="col-lg-8">
                         <h4 class="fw-bold mb-4">Kalender Program Kerja</h4>
-                        <div class="card-modern p-2"><div class="calendar-container"><iframe id="calendarFrame" src="" frameborder="0" scrolling="no"></iframe></div></div>
+                        <div class="card-modern p-2">
+                            <div class="calendar-container" id="calContainer">
+                                <iframe id="calendarFrame" src="" frameborder="0" scrolling="no"></iframe>
+                            </div>
+                            <div class="text-center mt-2 small text-muted">
+                                *Jika kalender tidak muncul, pastikan pengaturan Google Calendar Anda telah di-set <b>"Make available to public"</b>.
+                            </div>
+                        </div>
                     </div>
                     <div class="col-lg-4">
                         <h4 class="fw-bold mb-4">WhatsApp Blast</h4>
@@ -356,8 +402,8 @@
                         <div class="card-modern p-3 h-100">
                             <h5 class="fw-bold mb-3">Daftar Kegiatan & Link</h5>
                             <div class="table-responsive">
-                                <table class="table">
-                                    <thead><tr><th>Kegiatan</th><th>Tanggal</th><th>Peserta</th><th>Aksi</th></tr></thead>
+                                <table class="table text-nowrap">
+                                    <thead><tr><th>Kegiatan</th><th>Tanggal</th><th>Akses</th><th>Aksi</th></tr></thead>
                                     <tbody id="listPresensi"></tbody>
                                 </table>
                             </div>
@@ -366,14 +412,16 @@
                 </div>
                 <div class="mt-4" id="presensiDetailContainer" style="display:none;">
                     <div class="card-modern p-3">
-                        <div class="d-flex justify-content-between">
-                            <h5 class="fw-bold">Data Kehadiran: <span id="detailPresensiTitle"></span></h5>
-                            <button class="btn btn-sm btn-secondary" onclick="document.getElementById('presensiDetailContainer').style.display='none'">Tutup</button>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold m-0 text-primary">Data Kehadiran: <span id="detailPresensiTitle" class="text-dark"></span></h5>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('presensiDetailContainer').style.display='none'">Tutup</button>
                         </div>
-                        <table class="table table-sm mt-3" id="tblPresensiDetail">
-                            <thead><tr><th>Nama</th><th>Instansi</th><th>WA</th><th>Waktu</th></tr></thead>
-                            <tbody id="bodyPresensiDetail"></tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle text-nowrap" id="tblPresensiDetail">
+                                <thead class="table-light"><tr><th>Foto</th><th>Nama</th><th>Instansi</th><th>WA</th><th>Waktu</th></tr></thead>
+                                <tbody id="bodyPresensiDetail"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -382,7 +430,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="fw-bold m-0">Susunan Pengurus</h4>
                 </div>
-                <div class="card-modern p-3"><div class="table-responsive"><table id="tblPengurus" class="table table-hover w-100"><thead><tr><th>No</th><th>Nama</th><th>Jabatan</th><th>Rayon</th><th>WA</th></tr></thead><tbody id="bodyPengurus"></tbody></table></div></div>
+                <div class="card-modern p-3"><div class="table-responsive"><table id="tblPengurus" class="table table-hover text-nowrap w-100"><thead><tr><th>No</th><th>Nama</th><th>Jabatan</th><th>Rayon</th><th>WA</th></tr></thead><tbody id="bodyPengurus"></tbody></table></div></div>
             </div>
 
             <div id="pengaturan" class="page-section">
@@ -393,11 +441,12 @@
                             <h5 class="fw-bold mb-3">Tampilan & Header</h5>
                             <div class="mb-3"><label class="small fw-bold">Nama Lembaga</label><input type="text" id="set_org_name" class="form-control" onchange="saveAppConfig('org_name', this.value)"></div>
                             <div class="mb-3"><label class="small fw-bold">URL Logo</label><input type="text" id="set_logo_url" class="form-control" onchange="saveAppConfig('logo_url', this.value)"></div>
+                            
                             <h5 class="fw-bold mb-3 mt-4">Integrasi</h5>
                             <div class="mb-3">
-                                <label class="small fw-bold">ID Google Calendar (Email/ID)</label>
-                                <input type="text" id="set_calendar_id" class="form-control" placeholder="contoh: u49...group.calendar.google.com" onchange="saveAppConfig('calendar_id', this.value)">
-                                <small class="text-muted d-block mt-1">Pastikan kalender di-set ke "Public" di pengaturan Google Calendar.</small>
+                                <label class="small fw-bold">ID Google Calendar</label>
+                                <input type="text" id="set_calendar_id" class="form-control" placeholder="contoh: email@gmail.com atau id@group.calendar..." onchange="saveAppConfig('calendar_id', this.value)">
+                                <small class="text-muted d-block mt-1">Pastikan pengaturan kalender di-set ke "Make available to public".</small>
                             </div>
                             <div class="mb-3"><label class="small fw-bold">Link Cek PO-PPTA (Gemini)</label><input type="text" id="set_link_po" class="form-control" placeholder="https://gemini.google.com/share/..." onchange="saveAppConfig('link_po', this.value)"></div>
                             <div class="mb-3"><label class="small fw-bold">Update Data Pengurus (Excel)</label><div class="input-group"><input type="file" id="excelPengurusInput" class="form-control" accept=".xlsx, .xls"><button class="btn btn-success" onclick="uploadPengurus()">Upload</button></div><small class="text-muted">Format: NAMA, NIM, WA, RAYON, JABATAN</small></div>
@@ -407,7 +456,7 @@
                         <div class="card-modern p-4 h-100">
                             <h5 class="fw-bold mb-3">Keamanan (PIN)</h5>
                             <div class="mb-3"><label class="small fw-bold">PIN Master (Pengaturan)</label><input type="text" id="pin_master" class="form-control" onchange="savePin('master', this.value)"></div>
-                            <div class="mb-3"><label class="small fw-bold">PIN Lembaga (Pusat)</label><input type="text" id="pin_pusat" class="form-control" onchange="savePin('pusat', this.value)"></div>
+                            <div class="mb-3"><label class="small fw-bold">PIN Lembaga Inti</label><input type="text" id="pin_pusat" class="form-control" onchange="savePin('pusat', this.value)"></div>
                             <div class="mb-3"><label class="small fw-bold">PIN KOPRI</label><input type="text" id="pin_kopri" class="form-control" onchange="savePin('kopri', this.value)"></div>
                             
                             <h5 class="fw-bold mb-3 mt-4">Manajemen LSO</h5>
@@ -436,11 +485,51 @@
         </div>
     </div>
 
-    <div class="modal fade" id="mdlSM"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'sm')"><div class="modal-header"><h5 class="modal-title">Surat Masuk</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><select id="sm_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select><input id="sm_no" class="form-control mb-2" placeholder="Nomor Surat" required><input id="sm_asal" class="form-control mb-2" placeholder="Asal Surat" required><div class="row g-2 mb-2"><div class="col"><input type="date" id="sm_tgl_buat" class="form-control" required></div><div class="col"><input type="date" id="sm_tgl_datang" class="form-control" required></div></div><input id="sm_hal" class="form-control mb-2" placeholder="Perihal" required><textarea id="sm_ket" class="form-control mb-2" placeholder="Keterangan"></textarea><input type="file" class="form-control"></div><div class="modal-footer"><button class="btn btn-primary">Simpan</button></div></form></div></div>
-    <div class="modal fade" id="mdlSK"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'sk')"><div class="modal-header"><h5 class="modal-title">Surat Keluar</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><select id="sk_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select><input id="sk_no" class="form-control mb-2" placeholder="Nomor Surat" required><input id="sk_tujuan" class="form-control mb-2" placeholder="Tujuan" required><div class="row g-2 mb-2"><div class="col"><input type="date" id="sk_tgl_buat" class="form-control" required></div><div class="col"><input type="date" id="sk_tgl_kirim" class="form-control" required></div></div><input id="sk_hal" class="form-control mb-2" placeholder="Perihal" required><textarea id="sk_ket" class="form-control mb-2" placeholder="Keterangan"></textarea><input type="file" class="form-control"></div><div class="modal-footer"><button class="btn btn-warning">Simpan</button></div></form></div></div>
+    <div class="modal fade" id="mdlSM">
+        <div class="modal-dialog">
+            <form class="modal-content" onsubmit="saveData(event, 'sm')">
+                <div class="modal-header"><h5 class="modal-title">Surat Masuk</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <label class="small fw-bold">File Dokumen (PDF/JPG)</label>
+                    <input type="file" id="sm_file" class="form-control mb-2" accept=".pdf, image/*">
+                    <button type="button" class="btn btn-sm btn-info text-white w-100 mb-3 fw-bold shadow-sm" onclick="autoScanDokumen('sm', this)"><i class="fas fa-magic"></i> Scan Otomatis (AI)</button>
+
+                    <select id="sm_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select>
+                    <input id="sm_no" class="form-control mb-2" placeholder="Nomor Surat" required>
+                    <input id="sm_asal" class="form-control mb-2" placeholder="Asal Surat" required>
+                    <div class="row g-2 mb-2"><div class="col"><label class="small text-muted">Tgl Buat</label><input type="date" id="sm_tgl_buat" class="form-control" required></div><div class="col"><label class="small text-muted">Tgl Terima</label><input type="date" id="sm_tgl_datang" class="form-control" required></div></div>
+                    <input id="sm_hal" class="form-control mb-2" placeholder="Perihal" required>
+                    <textarea id="sm_ket" class="form-control mb-2" placeholder="Keterangan"></textarea>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">Simpan</button></div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="mdlSK">
+        <div class="modal-dialog">
+            <form class="modal-content" onsubmit="saveData(event, 'sk')">
+                <div class="modal-header"><h5 class="modal-title">Surat Keluar</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <label class="small fw-bold">File Dokumen (PDF/JPG)</label>
+                    <input type="file" id="sk_file" class="form-control mb-2" accept=".pdf, image/*">
+                    <button type="button" class="btn btn-sm btn-info text-white w-100 mb-3 fw-bold shadow-sm" onclick="autoScanDokumen('sk', this)"><i class="fas fa-magic"></i> Scan Otomatis (AI)</button>
+
+                    <select id="sk_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select>
+                    <input id="sk_no" class="form-control mb-2" placeholder="Nomor Surat" required>
+                    <input id="sk_tujuan" class="form-control mb-2" placeholder="Tujuan" required>
+                    <div class="row g-2 mb-2"><div class="col"><label class="small text-muted">Tgl Buat</label><input type="date" id="sk_tgl_buat" class="form-control" required></div><div class="col"><label class="small text-muted">Tgl Kirim</label><input type="date" id="sk_tgl_kirim" class="form-control" required></div></div>
+                    <input id="sk_hal" class="form-control mb-2" placeholder="Perihal" required>
+                    <textarea id="sk_ket" class="form-control mb-2" placeholder="Keterangan"></textarea>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-warning">Simpan</button></div>
+            </form>
+        </div>
+    </div>
+
     <div class="modal fade" id="mdlKeu"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'keu')"><div class="modal-header"><h5 class="modal-title" id="ttlKeu">Keuangan</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="keu_cat"><input type="date" id="keu_tgl" class="form-control mb-2" required><input id="keu_uraian" class="form-control mb-2" placeholder="Uraian" required><div id="opsFields" class="d-none"><input id="keu_pj" class="form-control mb-2" placeholder="PJ"><div class="row g-2 mb-2"><div class="col"><input type="number" id="keu_qty" class="form-control" placeholder="Qty" oninput="calcTotal()"></div><div class="col"><input type="number" id="keu_hrg" class="form-control" placeholder="Harga" oninput="calcTotal()"></div></div></div><select id="keu_jenis" class="form-select mb-2"><option value="Masuk">Pemasukan</option><option value="Keluar">Pengeluaran</option></select><input type="number" id="keu_nom" class="form-control" placeholder="Nominal" required></div><div class="modal-footer"><button class="btn btn-info text-white">Simpan</button></div></form></div></div>
     <div class="modal fade" id="mdlInv"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'inv')"><div class="modal-header"><h5 class="modal-title" id="ttlInv">Inventaris</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="inv_type"><input id="inv_nama" class="form-control mb-2" placeholder="Nama Barang" required><div id="rekapFields"><input id="inv_merk" class="form-control mb-2" placeholder="Merk"><div class="row g-2 mb-2"><div class="col"><input type="number" id="inv_thn" class="form-control" placeholder="Tahun"></div><div class="col"><input type="number" id="inv_jml" class="form-control" placeholder="Jumlah"></div></div></div><div id="bukuFields" class="d-none"><input id="inv_kode" class="form-control mb-2" placeholder="Kode"><input id="inv_jenis" class="form-control mb-2" placeholder="Jenis"></div><select id="inv_cond" class="form-select mb-2"><option>Baik</option><option>Kurang Baik</option><option>Rusak</option></select><textarea id="inv_ket" class="form-control" placeholder="Ket"></textarea></div><div class="modal-footer"><button class="btn btn-success">Simpan</button></div></form></div></div>
-    <div class="modal fade" id="mdlQRCode"><div class="modal-dialog modal-sm"><div class="modal-content"><div class="modal-header"><h6 class="modal-title">QR Code Presensi</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><img id="imgQR" class="img-fluid mb-2"><p class="small text-muted mb-0">Scan untuk presensi</p></div></div></div></div>
+    <div class="modal fade" id="mdlQRCode"><div class="modal-dialog modal-sm"><div class="modal-content"><div class="modal-header"><h6 class="modal-title">QR Code Presensi</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><img id="imgQR" class="img-fluid mb-2"><p class="small text-muted mb-0">Scan / Bagikan link untuk absen</p></div></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -470,6 +559,7 @@
         let pinData = { master:'1234', pusat:'1234', kopri:'1234' };
         let pinModalInstance = null; 
         let pendingAction = null;
+        let videoStream = null;
 
         // --- 1. HANDLING PUBLIC URL (PRESENSI) BEFORE AUTH ---
         const urlParams = new URLSearchParams(window.location.search);
@@ -477,10 +567,12 @@
         if(attendanceId) {
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('attendance-public-view').style.display = 'block';
+            
             getDoc(doc(db, "presensi_events", attendanceId)).then(docSnap => {
                 if(docSnap.exists()) {
                     document.getElementById('attEventName').innerText = docSnap.data().nama + " (" + docSnap.data().tgl + ")";
                     document.getElementById('attEventId').value = attendanceId;
+                    startCamera(); // Start camera for selfie
                 } else {
                     alert("Kegiatan tidak ditemukan");
                 }
@@ -489,7 +581,6 @@
             // --- AUTH & AUTO LOGOUT ---
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    // Check Session Timeout (24 Hours)
                     const lastLogin = localStorage.getItem('lastLoginTime');
                     const now = Date.now();
                     if(lastLogin && (now - parseInt(lastLogin) > 24 * 60 * 60 * 1000)) {
@@ -515,7 +606,6 @@
                         loadDataForScope(currentUser.uid); 
                         if(currentUser.role === 'admin') loadRayonList();
 
-                        // Animation Out for Login
                         const overlay = document.getElementById('login-overlay');
                         overlay.classList.add('fade-out-up');
                         setTimeout(() => {
@@ -537,7 +627,6 @@
             const btn = document.getElementById('btnLogin');
             const logo = document.getElementById('loginLogo');
             btn.disabled=true; btn.innerText="Memuat...";
-            // Animation Trigger
             logo.classList.add('logo-loading');
             
             try { 
@@ -596,7 +685,6 @@
             });
             listeners.push(authUnsub);
 
-            // Presensi Events (Global Collection with uid filter)
             if(currentUser.role === 'admin') {
                 const presUnsub = onSnapshot(query(collection(db, "presensi_events"), where("uid_owner", "==", targetUid)), (s) => {
                     rawData.presensi = s.docs.map(d => ({id:d.id, ...d.data()}));
@@ -619,12 +707,10 @@
             document.querySelectorAll('.submenu a').forEach(n => n.classList.remove('active'));
             if(el) el.classList.add('active');
             
-            // UX Fix: Force CLOSE Sidebar on Mobile
             if(window.innerWidth < 992) closeSidebar();
 
             currentScope = scope; 
 
-            // HIDE/SHOW SETTINGS MENU Logic for Admin viewing Rayon
             const settingsMenu = document.getElementById('menu-settings');
             const lsoMenu = document.getElementById('menu-lso-container');
             
@@ -644,7 +730,6 @@
 
             const userRayon = rawData.users.find(u => u.id === scope);
             if (userRayon) {
-                // If viewing a Rayon, hide Settings & LSO menus
                 if(settingsMenu) settingsMenu.style.display = 'none';
                 if(lsoMenu) lsoMenu.style.display = 'none';
 
@@ -656,7 +741,6 @@
                 return; 
             }
 
-            // Normal Navigation
             showSection('main-view'); 
             
             if(scope === 'me' || scope === 'pusat' || scope === 'kopri' || scope.startsWith('lso_')) {
@@ -678,7 +762,6 @@
             if(!container || !document.getElementById('dashboard-global').classList.contains('active')) return;
             
             let html = '';
-            
             const entities = [
                 {id: 'pusat', name: 'LEMBAGA (INTI)', color: 'primary'},
                 {id: 'kopri', name: 'BSO KOPRI', color: 'warning'},
@@ -690,8 +773,7 @@
             entities.forEach(ent => {
                 const sm = rawData.sm.filter(x => x.scope === ent.id).length;
                 const sk = rawData.sk.filter(x => x.scope === ent.id).length;
-                const saldo = rawData.keu.filter(x => x.scope === ent.id)
-                    .reduce((a,b) => a + (b.jenis==='Masuk'?b.nom:-b.nom), 0);
+                const saldo = rawData.keu.filter(x => x.scope === ent.id).reduce((a,b) => a + (b.jenis==='Masuk'?b.nom:-b.nom), 0);
 
                 html += `
                 <div class="col-md-4">
@@ -708,7 +790,6 @@
                     </div>
                 </div>`;
             });
-            
             container.innerHTML = html;
         }
 
@@ -724,8 +805,8 @@
             const s_keu = rawData.keu.filter(filterFn);
             const s_inv = rawData.inv.filter(filterFn);
 
-            document.getElementById('bodySM').innerHTML = s_sm.map(x=>`<tr><td>${x.no}</td><td>${x.asal}</td><td>${x.tgl_buat}</td><td>${x.tgl_datang}</td><td>${x.hal}</td><td>${x.ket||'-'}</td><td>${x.file!==' - '?`<a href="#" class="text-primary"><i class="fas fa-file-pdf"></i></a>`:'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_masuk','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
-            document.getElementById('bodySK').innerHTML = s_sk.map(x=>`<tr><td>${x.no}</td><td>${x.tujuan}</td><td>${x.tgl_buat}</td><td>${x.tgl_kirim}</td><td>${x.hal}</td><td>${x.ket||'-'}</td><td>${x.file!==' - '?`<a href="#" class="text-primary"><i class="fas fa-file-pdf"></i></a>`:'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_keluar','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            document.getElementById('bodySM').innerHTML = s_sm.map(x=>`<tr><td>${x.no}</td><td>${x.asal}</td><td>${x.tgl_buat}</td><td>${x.tgl_datang}</td><td>${x.hal}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_masuk','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            document.getElementById('bodySK').innerHTML = s_sk.map(x=>`<tr><td>${x.no}</td><td>${x.tujuan}</td><td>${x.tgl_buat}</td><td>${x.tgl_kirim}</td><td>${x.hal}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_keluar','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
             
             let balBank=0, balOps=0;
             document.getElementById('bodyKasBank').innerHTML = s_keu.filter(x=>x.cat==='Bank').sort((a,b)=>new Date(a.tgl)-new Date(b.tgl)).map(x=>{ const d=x.jenis==='Masuk'?x.nom:0, k=x.jenis==='Keluar'?x.nom:0; balBank+=(d-k); return `<tr><td>${x.tgl}</td><td>${x.uraian}</td><td class="text-success">${fmtRp(d)}</td><td class="text-danger">${fmtRp(k)}</td><td class="fw-bold">${fmtRp(balBank)}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('keuangan','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }).join('');
@@ -741,7 +822,138 @@
             document.getElementById('cntUang').innerText = fmtRp(totalSaldo);
         }
 
-        // --- PRESENSI FEATURES (NEW) ---
+        // --- PRESENSI SELFI CAMERA LOGIC ---
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+            .then(stream => {
+                videoStream = stream;
+                document.getElementById('camera-stream').srcObject = stream;
+                document.getElementById('camera-stream').style.display = 'block';
+            }).catch(err => {
+                alert("Gagal mengakses kamera. Pastikan browser diizinkan menggunakan kamera.");
+            });
+        }
+        window.capturePhoto = () => {
+            const video = document.getElementById('camera-stream');
+            const canvas = document.getElementById('camera-canvas');
+            if(!videoStream) return alert("Kamera belum siap!");
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            // Kompres gambar agar db ringan
+            const photoData = canvas.toDataURL('image/jpeg', 0.6); 
+            document.getElementById('attPhotoData').value = photoData;
+            document.getElementById('photo-preview').src = photoData;
+            document.getElementById('photo-preview').style.display = 'block';
+            video.style.display = 'none';
+            document.getElementById('btnCapture').style.display = 'none';
+            document.getElementById('btnRetake').style.display = 'inline-block';
+        }
+        window.retakePhoto = () => {
+            document.getElementById('attPhotoData').value = "";
+            document.getElementById('photo-preview').style.display = 'none';
+            document.getElementById('camera-stream').style.display = 'block';
+            document.getElementById('btnCapture').style.display = 'inline-block';
+            document.getElementById('btnRetake').style.display = 'none';
+        }
+
+        // Public Attendance Submit
+        window.submitPublicAttendance = async (e) => {
+            e.preventDefault();
+            const photoData = document.getElementById('attPhotoData').value;
+            if(!photoData) return alert("Silakan ambil foto selfi terlebih dahulu!");
+
+            const eid = document.getElementById('attEventId').value;
+            const btn = document.getElementById('btnSubmitPresensi');
+            btn.disabled = true; btn.innerText = "Mengirim...";
+
+            const d = {
+                nama: document.getElementById('attName').value,
+                instansi: document.getElementById('attInstansi').value,
+                wa: document.getElementById('attWa').value,
+                foto: photoData,
+                time: Date.now()
+            };
+            
+            try {
+                await addDoc(collection(db, "presensi_events", eid, "attendees"), d);
+                e.target.reset();
+                document.getElementById('attPhotoData').value = "";
+                if(videoStream) videoStream.getTracks().forEach(track => track.stop()); // Matikan kamera
+                
+                document.getElementById('camera-container').style.display = 'none';
+                document.getElementById('btnCapture').style.display = 'none';
+                document.getElementById('btnRetake').style.display = 'none';
+                
+                document.getElementById('attSuccessMsg').classList.remove('d-none');
+                btn.style.display = 'none';
+            } catch (err) {
+                alert("Gagal kirim: " + err.message);
+                btn.disabled = false; btn.innerText = "Kirim Kehadiran";
+            }
+        }
+
+        // --- OCR / AUTO SCAN DOKUMEN ---
+        window.autoScanDokumen = async (tipe, btnElement) => {
+            const fileInput = document.getElementById(`${tipe}_file`);
+            if(!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                return alert("Tolong pilih/upload file dokumen (PDF atau JPG/PNG) terlebih dahulu.");
+            }
+            
+            const file = fileInput.files[0];
+            const originalText = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membaca Data...';
+            btnElement.disabled = true;
+
+            try {
+                let extractedText = "";
+                if(file.type === "application/pdf") {
+                    // Pakai PDF.js
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+                    const page = await pdf.getPage(1);
+                    const textContent = await page.getTextContent();
+                    extractedText = textContent.items.map(item => item.str).join(" ");
+                } else if(file.type.startsWith("image/")) {
+                    // Pakai Tesseract.js
+                    const result = await Tesseract.recognize(file, 'ind');
+                    extractedText = result.data.text;
+                } else {
+                    throw new Error("Format hanya mendukung PDF atau Gambar.");
+                }
+
+                // Proses Text Heuristics (NLP Sederhana Regex)
+                const text = extractedText.replace(/\n/g, ' ');
+                
+                // Cari Nomor
+                const matchNo = text.match(/Nomor\s*[:;]?\s*([A-Za-z0-9\/\-\.]+)/i);
+                if(matchNo && document.getElementById(`${tipe}_no`)) {
+                    document.getElementById(`${tipe}_no`).value = matchNo[1].trim();
+                }
+
+                // Cari Perihal / Hal
+                const matchHal = text.match(/(?:Hal|Perihal)\s*[:;]?\s*([A-Za-z0-9\s]+?)(?=(Lampiran|Yth|Kepada|Di|Dengan|\n|$))/i);
+                if(matchHal && document.getElementById(`${tipe}_hal`)) {
+                    document.getElementById(`${tipe}_hal`).value = matchHal[1].trim();
+                }
+
+                // Isi Tanggal Buat default dengan hari ini agar memudahkan
+                document.getElementById(`${tipe}_tgl_buat`).value = new Date().toISOString().split('T')[0];
+
+                alert("Selesai! Data berhasil dibaca. Silakan periksa kembali isiannya.");
+            } catch (err) {
+                alert("Gagal membaca dokumen: " + err.message);
+            } finally {
+                btnElement.innerHTML = originalText;
+                btnElement.disabled = false;
+            }
+        }
+
+        // --- PRESENSI ADMIN LOGIC ---
         window.createPresensi = async (e) => {
             e.preventDefault();
             const nm = document.getElementById('newPresensiName').value;
@@ -764,7 +976,7 @@
                         <td><b>${p.nama}</b></td>
                         <td>${p.tgl}</td>
                         <td>
-                            <button class="btn btn-sm btn-info text-white me-1" onclick="viewPresensiDetail('${p.id}', '${p.nama}')"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-info text-white me-1" onclick="viewPresensiDetail('${p.id}', '${p.nama}')"><i class="fas fa-eye"></i> Data</button>
                             <button class="btn btn-sm btn-warning text-white" onclick="showQR('${link}')"><i class="fas fa-qrcode"></i></button>
                         </td>
                         <td>
@@ -783,37 +995,27 @@
         }
 
         window.copyToClip = (txt) => { navigator.clipboard.writeText(txt).then(()=>alert("Link disalin!")); }
-        
         window.delPresensiEvent = async (id) => { if(confirm("Hapus Kegiatan? Data absen juga akan hilang.")) deleteDoc(doc(db, "presensi_events", id)); }
-        
+        window.showFullImage = (src) => { document.getElementById('fullPhotoView').src = src; new bootstrap.Modal(document.getElementById('mdlViewPhoto')).show(); }
+
         window.viewPresensiDetail = (id, name) => {
             document.getElementById('detailPresensiTitle').innerText = name;
             document.getElementById('presensiDetailContainer').style.display = 'block';
-            document.getElementById('bodyPresensiDetail').innerHTML = '<tr><td colspan="4" class="text-center">Memuat...</td></tr>';
+            document.getElementById('bodyPresensiDetail').innerHTML = '<tr><td colspan="5" class="text-center">Memuat...</td></tr>';
             
-            // Realtime listener for attendees
             onSnapshot(collection(db, "presensi_events", id, "attendees"), (snap) => {
                 const att = snap.docs.map(d => d.data());
-                document.getElementById('bodyPresensiDetail').innerHTML = att.map(a => 
-                    `<tr><td>${a.nama}</td><td>${a.instansi}</td><td>${a.wa}</td><td>${new Date(a.time).toLocaleTimeString()}</td></tr>`
+                document.getElementById('bodyPresensiDetail').innerHTML = att.sort((a,b)=>b.time-a.time).map(a => 
+                    `<tr>
+                        <td><img src="${a.foto || 'https://via.placeholder.com/50'}" width="50" height="50" style="object-fit:cover; border-radius:8px; cursor:pointer;" onclick="showFullImage(this.src)"></td>
+                        <td><span class="fw-bold">${a.nama}</span></td>
+                        <td>${a.instansi}</td>
+                        <td><a href="https://wa.me/${a.wa}" target="_blank" class="text-success text-decoration-none"><i class="fab fa-whatsapp"></i> ${a.wa}</a></td>
+                        <td class="small text-muted">${new Date(a.time).toLocaleTimeString()}</td>
+                    </tr>`
                 ).join('');
             });
-        }
-
-        // Public Attendance Submit
-        window.submitPublicAttendance = async (e) => {
-            e.preventDefault();
-            const eid = document.getElementById('attEventId').value;
-            const d = {
-                nama: document.getElementById('attName').value,
-                instansi: document.getElementById('attInstansi').value,
-                wa: document.getElementById('attWa').value,
-                time: Date.now()
-            };
-            await addDoc(collection(db, "presensi_events", eid, "attendees"), d);
-            e.target.reset();
-            document.getElementById('attSuccessMsg').classList.remove('d-none');
-            setTimeout(() => document.getElementById('attSuccessMsg').classList.add('d-none'), 3000);
+            setTimeout(() => { document.getElementById('presensiDetailContainer').scrollIntoView({behavior: 'smooth'}); }, 300);
         }
 
         // --- WHATSAPP BLAST FEATURE ---
@@ -823,14 +1025,11 @@
             const container = document.getElementById('wa_buttons_container');
             
             if(!rawNums) return;
-            
             const nums = rawNums.split(',').map(n => n.trim()).filter(n => n.length > 5);
             
             container.innerHTML = nums.map(n => {
-                // Formatting number: if starts with 08, change to 628
                 let formatted = n;
                 if(n.startsWith('08')) formatted = '62' + n.substring(1);
-                
                 return `<a href="https://api.whatsapp.com/send?phone=${formatted}&text=${msg}" target="_blank" class="btn btn-outline-success btn-sm flex-fill">Kirim: ${n}</a>`;
             }).join('');
             
@@ -849,8 +1048,8 @@
             }
 
             const d = { createdAt: Date.now(), uid_inputter: currentUser.uid, scope: saveScope }; 
-            const f = e.target.querySelector('input[type="file"]'); 
-            d.file = (f && f.files.length > 0) ? f.files[0].name : '-';
+            const f = document.getElementById(`${t}_file`) || e.target.querySelector('input[type="file"]'); 
+            d.file = (f && f.files && f.files.length > 0) ? f.files[0].name : '-';
             
             let colName = "";
             if(t==='sm'){ d.cat=v('sm_kat'); d.no=v('sm_no'); d.asal=v('sm_asal'); d.tgl_buat=v('sm_tgl_buat'); d.tgl_datang=v('sm_tgl_datang'); d.hal=v('sm_hal'); d.ket=v('sm_ket'); colName="surat_masuk"; }
@@ -874,30 +1073,20 @@
             document.querySelector('.header-org-name').innerText = name;
             
             const menuRayon = document.getElementById('menu-admin-rayon');
-            if(role === 'rayon') {
-                if(menuRayon) menuRayon.style.display = 'none'; 
-            } else {
-                if(menuRayon) menuRayon.style.display = 'block';
-            }
+            if(role === 'rayon') { if(menuRayon) menuRayon.style.display = 'none'; } 
+            else { if(menuRayon) menuRayon.style.display = 'block'; }
         }
 
         function renderRayonMenu() {
             const container = document.getElementById('rayonSubmenu');
             if(container && rawData.users.length > 0) {
-                container.innerHTML = rawData.users.map(u => 
-                    `<li><a onclick="switchScope('${u.id}', this)" class="text-truncate" title="${u.nama || u.name}">
-                        <i class="fas fa-user-tag me-2"></i>${u.nama || u.name || 'Tanpa Nama'}
-                    </a></li>`
-                ).join('');
-            } else if (container) {
-                container.innerHTML = '<li class="text-center py-2 small text-white-50">Belum ada Rayon</li>';
-            }
+                container.innerHTML = rawData.users.map(u => `<li><a onclick="switchScope('${u.id}', this)" class="text-truncate" title="${u.nama || u.name}"><i class="fas fa-user-tag me-2"></i>${u.nama || u.name || 'Tanpa Nama'}</a></li>`).join('');
+            } else if (container) { container.innerHTML = '<li class="text-center py-2 small text-white-50">Belum ada Rayon</li>'; }
         }
 
         function renderLSOMenu(){ 
             const lsoMenu = document.getElementById('lsoSubmenu');
             if(lsoMenu) lsoMenu.innerHTML = listLSO.map(l => `<li><a onclick="requestAccess('lso_${l.id}', this)">${l.nama}</a></li>`).join(''); 
-            
             const lsoList = document.getElementById('listLSO');
             if(lsoList) lsoList.innerHTML = listLSO.map(l=>`<li class="list-group-item d-flex justify-content-between"><span>${l.nama} <span class="badge bg-secondary">${l.pin}</span></span> <button class="btn btn-sm btn-outline-danger" onclick="delLSO('${l.id}')">x</button></li>`).join(''); 
         }
@@ -916,7 +1105,6 @@
             document.getElementById(id).classList.add('active');
             if(el) { 
                 document.querySelectorAll('.sidebar .nav-link').forEach(n => n.classList.remove('active')); el.classList.add('active'); 
-                // UX Fix: Auto Close Sidebar on Mobile
                 if(window.innerWidth < 992) closeSidebar();
             }
         }
@@ -925,9 +1113,7 @@
         const pinModalEl = document.getElementById('mdlPin');
         pinModalInstance = new bootstrap.Modal(pinModalEl);
         window.requestAccess = (scope, el) => {
-            // UX Fix: Auto Close Sidebar if already open in mobile
             if(window.innerWidth < 992 && document.getElementById('sidebar').classList.contains('active')) closeSidebar();
-
             pendingAction = { scope, el };
             
             let correctPin = "1234";
@@ -969,7 +1155,8 @@
             }
             if(data.calendar_id) { 
                 const frame = document.getElementById('calendarFrame');
-                if(frame) frame.src = `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(data.calendar_id)}&ctz=Asia%2FJakarta&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0`; 
+                let calId = encodeURIComponent(data.calendar_id.trim());
+                if(frame) frame.src = `https://calendar.google.com/calendar/embed?src=${calId}&ctz=Asia%2FJakarta&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0`; 
                 if(document.getElementById('set_calendar_id')) document.getElementById('set_calendar_id').value = data.calendar_id; 
             }
             if(data.link_po) { 
