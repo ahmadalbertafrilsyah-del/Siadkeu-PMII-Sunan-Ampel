@@ -166,8 +166,8 @@
                     <input id="attName" class="form-control" placeholder="Tulis nama lengkap..." required>
                 </div>
                 <div class="mb-3 text-start">
-                    <label class="small fw-bold">Jabatan / Delegasi</label>
-                    <input id="attJabatan" class="form-control" placeholder="Contoh: Rayon Fakultas..." required>
+                    <label class="small fw-bold">Jabatan</label>
+                    <input id="attJabatan" class="form-control" placeholder="Jabatannya di pmii apa nihh..." required>
                 </div>
                 <div class="mb-3 text-start">
                     <label class="small fw-bold">No. WhatsApp</label>
@@ -893,6 +893,7 @@
                 field.label = "Formulir Pemesanan";
                 field.items = "Jas Laki-Laki S : 150000\nJas Perempuan S : 150000"; // Format default
                 field.wa_admin = "";
+                field.wa_template = "Halo Admin, saya baru saja memesan: [BARANG]. Mohon petunjuk pembayarannya.";
                 field.url_qris = ""; // URL ATAU String QRIS Mentah
                 field.bank_info = "BCA 12345678 a.n PMII";
             }
@@ -946,9 +947,18 @@
                         <label class="small fw-bold text-primary">Daftar Barang & Harga (Baris Baru = Barang Baru)</label>
                         <textarea class="form-control form-control-sm mb-2" rows="3" placeholder="Contoh:\\nJas Laki Laki : 150000\\nJas Perempuan : 160000" onchange="updateFieldData('${f.id}', 'items', this.value)">${f.items || ''}</textarea>
                         
-                        <label class="small fw-bold text-success">Nomor WA Admin (Tujuan Cash)</label>
-                        <input type="number" class="form-control form-control-sm mb-2" placeholder="628..." value="${f.wa_admin || ''}" onchange="updateFieldData('${f.id}', 'wa_admin', this.value)">
-                        
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-5">
+                                <label class="small fw-bold text-success">Nomor WA Admin (Untuk opsi Cash)</label>
+                                <input type="number" class="form-control form-control-sm" placeholder="628..." value="${f.wa_admin || ''}" onchange="updateFieldData('${f.id}', 'wa_admin', this.value)">
+                            </div>
+                            <div class="col-md-7">
+                                <label class="small fw-bold text-success">Template Pesan WhatsApp</label>
+                                <textarea class="form-control form-control-sm" rows="2" placeholder="Gunakan [BARANG] untuk menyisipkan nama barang." onchange="updateFieldData('${f.id}', 'wa_template', this.value)">${f.wa_template || ''}</textarea>
+                                <small class="text-muted" style="font-size:0.7rem;">Gunakan tag <b>[BARANG]</b> agar diganti otomatis.</small>
+                            </div>
+                        </div>
+
                         <label class="small fw-bold text-info">String Data QRIS / Link Gambar QRIS</label>
                         <input type="text" class="form-control form-control-sm mb-1" placeholder="000201010211266... ATAU https://..." value="${f.url_qris || ''}" onchange="updateFieldData('${f.id}', 'url_qris', this.value)">
                         <small class="text-muted d-block mb-2" style="font-size:0.7rem;">*Jika diisi string panjang QRIS asli dari Bank, sistem akan otomatis menyesuaikan harga barcode saat scan. Jika diisi link http, sistem tampilkan foto statis.</small>
@@ -1214,6 +1224,7 @@
                         inputHtml = `
                             <div class="bg-light p-3 border rounded">
                                 <input type="hidden" id="wa_admin_${f.id}" value="${f.wa_admin || ''}">
+                                <input type="hidden" id="wa_template_${f.id}" value="${f.wa_template || ''}">
                                 <input type="hidden" id="qris_data_${f.id}" value="${f.url_qris || ''}">
                                 
                                 <label class="small fw-bold">Pilih Pesanan</label>
@@ -1297,9 +1308,18 @@
                     // Cek jika cash, siapkan redirect WA
                     if(method === 'Cash') {
                         const waNum = document.getElementById(`wa_admin_${f.id}`).value;
+                        let waTemplate = document.getElementById(`wa_template_${f.id}`).value;
+                        
                         if(waNum) {
                             let formattedWa = waNum.startsWith('0') ? '62' + waNum.substring(1) : waNum;
-                            let msg = `Halo Admin, saya baru saja mengisi formulir pemesanan untuk:\n\n*Barang*: ${item}\n*Metode*: CASH\n\nMohon petunjuk selanjutnya.`;
+                            // Ganti tag [BARANG] dengan item yang dipilih
+                            let msg = waTemplate.replace(/\[BARANG\]/g, item);
+                            
+                            // Jika template kosong, fallback ke pesan default
+                            if(!msg.trim()) {
+                                msg = `Halo Admin, saya baru saja memesan: ${item}. Mohon petunjuk pembayarannya.`;
+                            }
+
                             redirectWA = `https://api.whatsapp.com/send?phone=${formattedWa}&text=${encodeURIComponent(msg)}`;
                         }
                     }
