@@ -43,7 +43,7 @@
         @keyframes fadeOutUp { to { opacity: 0; transform: translateY(-50px); } }
 
         /* SIDEBAR */
-        .sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0; background: linear-gradient(160deg, #003399 0%, #001a4d 100%); color: white; z-index: 1060; transition: 0.4s; overflow-y: auto; }
+        .sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0; background: linear-gradient(160deg, #003399 0%, #001a4d 100%); color: white; z-index: 1040; transition: 0.4s; overflow-y: auto; }
         body.dark-mode .sidebar { background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%); border-right: 1px solid #334155; }
         .sidebar-brand { height: 90px; display: flex; align-items: center; padding: 0 25px; font-size: 1.25rem; justify-content: start; gap: 15px; }
         .sidebar-logo { width: 45px !important; height: 45px !important; min-width: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
@@ -76,8 +76,7 @@
         .page-section { display: none; animation: slideUp 0.3s ease-out; } .page-section.active { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Mobile Overlay Fix */
-        .mobile-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1050; display: none; backdrop-filter: blur(2px); }
+        .mobile-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1030; display: none; backdrop-filter: blur(2px); }
 
         /* Responsiveness */
         @media (max-width: 992px) {
@@ -88,6 +87,7 @@
             .info-box { padding: 15px; }
             .info-box h3, .info-box h4 { font-size: 1.1rem !important; }
             .nav-tabs .nav-link { font-size: 0.85rem; padding: 8px 10px; }
+            .sidebar.active ~ .mobile-overlay { display: block; } 
         }
         #sidebarToggle { display: none; background: none; border: none; font-size: 1.4rem; color: var(--text-main); }
         
@@ -99,11 +99,20 @@
         .ai-app-card { text-decoration: none; color: var(--text-main); display: block; height: 100%; transition: all 0.3s; }
         .ai-app-card:hover { transform: translateY(-5px); }
 
-        /* Public Attendance */
-        #attendance-public-view { display: none; background: var(--bg-body); min-height: 100vh; padding: 15px; }
-        .attendance-card { max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        /* Public Views (Attendance & Custom Forms) */
+        .public-view-container { display: none; background: var(--bg-body); min-height: 100vh; padding: 15px; }
+        .public-card { max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        
         #camera-container { position: relative; border-radius: 10px; overflow: hidden; background: #000; width: 100%; aspect-ratio: 4/3; }
         #camera-stream { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Signature Canvas Styles */
+        .signature-container { border: 1px solid #ced4da; border-radius: 8px; background: #f8f9fa; overflow: hidden; position: relative; }
+        #signature-canvas { width: 100%; height: 150px; cursor: crosshair; touch-action: none; }
+        
+        /* Dynamic Form Builder Styles */
+        .form-builder-field { border: 1px dashed #cbd5e1; padding: 15px; margin-bottom: 15px; border-radius: 8px; position: relative; background: #f8fafc;}
+        .form-builder-field .del-btn { position: absolute; top: 10px; right: 10px; cursor: pointer; color: #ef4444; }
     </style>
 </head>
 <body>
@@ -128,8 +137,8 @@
         </div>
     </div>
 
-    <div id="attendance-public-view">
-        <div class="attendance-card text-center">
+    <div id="attendance-public-view" class="public-view-container">
+        <div class="public-card text-center">
             <img src="https://i.ibb.co.com/JWksCfcn/Logo-PMII.png" width="60" class="mb-3">
             <h5 class="fw-bold mb-1">Presensi Kehadiran</h5>
             <p class="text-primary small fw-bold mb-3" id="attEventName">Memuat...</p>
@@ -137,6 +146,7 @@
             <form onsubmit="submitPublicAttendance(event)" id="formPresensi">
                 <input type="hidden" id="attEventId">
                 <input type="hidden" id="attPhotoData" required>
+                <input type="hidden" id="attSignatureData" required>
                 
                 <div class="mb-3">
                     <label class="small fw-bold d-block text-start mb-1">Foto Selfi Di Tempat <span class="text-danger">*</span></label>
@@ -159,14 +169,41 @@
                     <label class="small fw-bold">Asal Rayon / Instansi</label>
                     <input id="attInstansi" class="form-control" placeholder="Contoh: Rayon Fakultas..." required>
                 </div>
-                <div class="mb-4 text-start">
+                <div class="mb-3 text-start">
                     <label class="small fw-bold">No. WhatsApp</label>
                     <input type="number" id="attWa" class="form-control" placeholder="628..." required>
                 </div>
+                
+                <div class="mb-4 text-start">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="small fw-bold m-0">Tanda Tangan Kehadiran <span class="text-danger">*</span></label>
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0" style="font-size: 0.75rem;" onclick="clearSignature()">Hapus / Ulang</button>
+                    </div>
+                    <div class="signature-container">
+                        <canvas id="signature-canvas"></canvas>
+                    </div>
+                    <small class="text-muted" style="font-size: 0.7rem;">Coret pada kotak di atas untuk tanda tangan.</small>
+                </div>
+
                 <button type="submit" id="btnSubmitPresensi" class="btn btn-success w-100 fw-bold">Kirim Kehadiran</button>
             </form>
             <div id="attSuccessMsg" class="alert alert-success mt-3 d-none">
-                <i class="fas fa-check-circle me-2"></i>Terima kasih! Data & foto berhasil terekam.
+                <i class="fas fa-check-circle me-2"></i>Terima kasih! Data, foto, dan tanda tangan berhasil terekam.
+            </div>
+        </div>
+    </div>
+
+    <div id="customform-public-view" class="public-view-container">
+        <div class="public-card">
+            <div class="text-center mb-4">
+                <img src="https://i.ibb.co.com/JWksCfcn/Logo-PMII.png" width="60" class="mb-3">
+                <h4 class="fw-bold mb-1" id="pubFormTitle">Memuat Formulir...</h4>
+                <p class="text-muted small" id="pubFormDesc"></p>
+            </div>
+            <form id="pubFormElement" onsubmit="submitCustomForm(event)"></form>
+            <div id="pubFormSuccessMsg" class="alert alert-success mt-3 d-none text-center">
+                <i class="fas fa-check-circle fa-2x mb-2"></i><br>
+                Terima kasih! Tanggapan Anda telah berhasil direkam.
             </div>
         </div>
     </div>
@@ -239,9 +276,12 @@
                 </div>
 
                 <li class="nav-item mt-2 pt-2 border-top"><a class="nav-link" onclick="showSection('proker-view', this)"><i class="fas fa-calendar-alt"></i> <span>Program Kerja</span></a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showSection('presensi-view', this)"><i class="fas fa-qrcode"></i> <span>Intra Presensi</span></a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('presensi-view', this)"><i class="fas fa-qrcode"></i> <span>Daftar Hadir</span></a></li>
+                
+                <li class="nav-item"><a class="nav-link" onclick="showSection('formulir-view', this)"><i class="fas fa-wpforms"></i> <span>Formulir</span></a></li>
+                
                 <li class="nav-item"><a class="nav-link" onclick="showSection('pengurus-view', this)"><i class="fas fa-sitemap"></i> <span>Susunan Pengurus</span></a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showSection('asisten-ai', this)"><i class="fas fa-robot"></i> <span>Sistem AI</span></a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('asisten-ai', this)"><i class="fas fa-robot"></i> <span>Asisten AI</span></a></li>
                 <li class="nav-item" id="menu-settings"><a class="nav-link" onclick="requestAccess('settings', this)"><i class="fas fa-cog"></i> <span>Pengaturan Web</span></a></li>
                 <li class="nav-item mt-4"><a class="nav-link text-warning" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Keluar</span></a></li>
             </ul>
@@ -267,6 +307,23 @@
                 <h4 class="fw-bold mb-4">Dashboard <span id="dashScopeBadge" class="badge bg-secondary">UTAMA</span></h4>
                 <div class="row g-3" id="globalSummaryContainer">
                     <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>
+                </div>
+            </div>
+
+            <div id="formulir-view" class="page-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold m-0">Formulir Dinamis</h4>
+                    <button class="btn btn-primary fw-bold" onclick="openModalFormBuilder()"><i class="fas fa-plus"></i> Buat Formulir</button>
+                </div>
+                <div class="card-modern p-3">
+                    <div class="table-responsive">
+                        <table class="table text-nowrap align-middle w-100">
+                            <thead class="table-light"><tr><th>Judul Formulir</th><th>Dibuat Tgl</th><th>Total Respon</th><th>Aksi</th></tr></thead>
+                            <tbody id="listCustomForms">
+                                <tr><td colspan="4" class="text-center py-3">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -361,9 +418,6 @@
                             <div class="calendar-container" id="calContainer">
                                 <iframe id="calendarFrame" src="" frameborder="0" scrolling="no"></iframe>
                             </div>
-                            <div class="text-center mt-2 small text-muted">
-                                *Jika kalender tidak muncul, pastikan pengaturan Google Calendar Anda telah di-set <b>"Make available to public"</b>.
-                            </div>
                         </div>
                     </div>
                     <div class="col-lg-4">
@@ -414,11 +468,14 @@
                     <div class="card-modern p-3">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="fw-bold m-0 text-primary">Data Kehadiran: <span id="detailPresensiTitle" class="text-dark"></span></h5>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('presensiDetailContainer').style.display='none'">Tutup</button>
+                            <div>
+                                <button class="btn btn-sm btn-success me-2" onclick="dlExcel('tblPresensiDetail','Data_Kehadiran')"><i class="fas fa-file-excel"></i> Download Excel</button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('presensiDetailContainer').style.display='none'">Tutup</button>
+                            </div>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle text-nowrap" id="tblPresensiDetail">
-                                <thead class="table-light"><tr><th>Foto</th><th>Nama</th><th>Instansi</th><th>WA</th><th>Waktu</th></tr></thead>
+                                <thead class="table-light"><tr><th>Foto</th><th>Waktu</th><th>Nama</th><th>Instansi</th><th>No. WA</th><th>Tanda Tangan</th></tr></thead>
                                 <tbody id="bodyPresensiDetail"></tbody>
                             </table>
                         </div>
@@ -475,66 +532,78 @@
             <div id="asisten-ai" class="page-section">
                 <h4 class="mb-4 fw-bold">Sistem AI</h4>
                 <div class="row g-4">
-                    <div class="col-md-6"><div class="card-modern h-100"><a id="linkPoPptaCard" href="https://gemini.google.com/share/71f52c5a6a49" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-blue"><i class="fas fa-robot"></i></div><h5 class="fw-bold m-0">Cek PO-PPTA Lembaga</h5></div><p class="text-muted small">Cek format surat otomatis sesuai PO-PPTA Terbaru.</p></a></div></div>
-                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/e06bb2f1202e" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-red"><i class="fas fa-file-signature"></i></div><h5 class="fw-bold m-0">Tempel TTD dan Stempel</h5></div><p class="text-muted small">Tanda tangan dan Stempel digital presisi pada PDF.</p></a></div></div>
-                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/52524759fda3" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-yellow"><i class="fas fa-brain"></i></div><h5 class="fw-bold m-0">Generator Renstra</h5></div><p class="text-muted small">Buat Program Kerja dan Analisis SWOT instan.</p></a></div></div>
-                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/705409a52beb" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-green"><i class="fas fa-clipboard-list"></i></div><h5 class="fw-bold m-0">Generator Notulen</h5></div><p class="text-muted small">Ubah foto catatan rapat menjadi teks notulensi rapi.</p></a></div></div>
-                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/c7d5c59bcb84" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-purple"><i class="fas fa-cut"></i></div><h5 class="fw-bold m-0">PDF Splitter Pro</h5></div><p class="text-muted small">Pisah halaman PDF menjadi file terpisah.</p></a></div></div>
+                    <div class="col-md-6 col-lg-4"><div class="card-modern h-100"><a id="linkPoPptaCard" href="https://gemini.google.com/share/71f52c5a6a49" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-blue"><i class="fas fa-robot"></i></div><h5 class="fw-bold m-0">Cek PO-PPTA Lembaga</h5></div><p class="text-muted small">Cek format surat otomatis sesuai PO-PPTA Terbaru.</p></a></div></div>
+                    <div class="col-md-6 col-lg-4"><div class="card-modern h-100"><a href="https://gemini.google.com/share/e06bb2f1202e" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-red"><i class="fas fa-file-signature"></i></div><h5 class="fw-bold m-0">Tempel TTD dan Stempel</h5></div><p class="text-muted small">Tanda tangan dan Stempel digital presisi pada PDF.</p></a></div></div>
+                    <div class="col-md-6 col-lg-4"><div class="card-modern h-100"><a href="https://gemini.google.com/share/52524759fda3" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-yellow"><i class="fas fa-brain"></i></div><h5 class="fw-bold m-0">Generator Renstra</h5></div><p class="text-muted small">Buat Program Kerja dan Analisis SWOT instan.</p></a></div></div>
+                    <div class="col-md-6 col-lg-4"><div class="card-modern h-100"><a href="https://gemini.google.com/share/705409a52beb" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-green"><i class="fas fa-clipboard-list"></i></div><h5 class="fw-bold m-0">Generator Notulen</h5></div><p class="text-muted small">Ubah foto catatan rapat menjadi teks notulensi rapi.</p></a></div></div>
+                    <div class="col-md-6 col-lg-4"><div class="card-modern h-100"><a href="https://gemini.google.com/share/c7d5c59bcb84" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-purple"><i class="fas fa-cut"></i></div><h5 class="fw-bold m-0">PDF Splitter Pro</h5></div><p class="text-muted small">Pisah halaman PDF menjadi file terpisah.</p></a></div></div>
+                    <div class="col-md-6 col-lg-4"><div class="card-modern h-100"><a href="https://gemini.google.com/share/4dd7a451e13b" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle" style="background: linear-gradient(135deg, #f97316, #ea580c);"><i class="fas fa-magic"></i></div><h5 class="fw-bold m-0">Scanner Surat Pro</h5></div><p class="text-muted small">Scan Dokumen Surat dan otomatis melihat data rekapan surat sesuai dengan ketentuan (File JPG saja).</p></a></div></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="mdlSM">
-        <div class="modal-dialog">
-            <form class="modal-content" onsubmit="saveData(event, 'sm')">
-                <div class="modal-header"><h5 class="modal-title">Surat Masuk</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body">
-                    <label class="small fw-bold">File Dokumen (PDF/JPG)</label>
-                    <input type="file" id="sm_file" class="form-control mb-2" accept=".pdf, image/*">
-                    <button type="button" class="btn btn-sm btn-info text-white w-100 mb-3 fw-bold shadow-sm" onclick="autoScanDokumen('sm', this)"><i class="fas fa-magic"></i> Scan Otomatis (AI)</button>
-
-                    <select id="sm_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select>
-                    <input id="sm_no" class="form-control mb-2" placeholder="Nomor Surat" required>
-                    <input id="sm_asal" class="form-control mb-2" placeholder="Asal Surat" required>
-                    <div class="row g-2 mb-2"><div class="col"><label class="small text-muted">Tgl Buat</label><input type="date" id="sm_tgl_buat" class="form-control" required></div><div class="col"><label class="small text-muted">Tgl Terima</label><input type="date" id="sm_tgl_datang" class="form-control" required></div></div>
-                    <input id="sm_hal" class="form-control mb-2" placeholder="Perihal" required>
-                    <textarea id="sm_ket" class="form-control mb-2" placeholder="Keterangan"></textarea>
+    <div class="modal fade" id="mdlFormBuilder" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Buat Formulir Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-footer"><button type="submit" class="btn btn-primary">Simpan</button></div>
-            </form>
-        </div>
-    </div>
-    
-    <div class="modal fade" id="mdlSK">
-        <div class="modal-dialog">
-            <form class="modal-content" onsubmit="saveData(event, 'sk')">
-                <div class="modal-header"><h5 class="modal-title">Surat Keluar</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body">
-                    <label class="small fw-bold">File Dokumen (PDF/JPG)</label>
-                    <input type="file" id="sk_file" class="form-control mb-2" accept=".pdf, image/*">
-                    <button type="button" class="btn btn-sm btn-info text-white w-100 mb-3 fw-bold shadow-sm" onclick="autoScanDokumen('sk', this)"><i class="fas fa-magic"></i> Scan Otomatis (AI)</button>
-
-                    <select id="sk_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select>
-                    <input id="sk_no" class="form-control mb-2" placeholder="Nomor Surat" required>
-                    <input id="sk_tujuan" class="form-control mb-2" placeholder="Tujuan" required>
-                    <div class="row g-2 mb-2"><div class="col"><label class="small text-muted">Tgl Buat</label><input type="date" id="sk_tgl_buat" class="form-control" required></div><div class="col"><label class="small text-muted">Tgl Kirim</label><input type="date" id="sk_tgl_kirim" class="form-control" required></div></div>
-                    <input id="sk_hal" class="form-control mb-2" placeholder="Perihal" required>
-                    <textarea id="sk_ket" class="form-control mb-2" placeholder="Keterangan"></textarea>
+                <div class="modal-body bg-light">
+                    <div class="card p-3 mb-4 shadow-sm border-0">
+                        <input type="text" id="fbTitle" class="form-control fw-bold fs-5 mb-2 border-0 border-bottom rounded-0" placeholder="Judul Formulir" required>
+                        <textarea id="fbDesc" class="form-control border-0 border-bottom rounded-0" placeholder="Deskripsi Formulir (opsional)" rows="2"></textarea>
+                    </div>
+                    
+                    <div id="fbFieldsContainer"></div>
+                    
+                    <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+                        <button class="btn btn-outline-primary btn-sm" onclick="addFormField('text')"><i class="fas fa-align-left"></i> Teks Pendek</button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="addFormField('textarea')"><i class="fas fa-align-justify"></i> Paragraf</button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="addFormField('radio')"><i class="fas fa-dot-circle"></i> Pilihan Ganda</button>
+                    </div>
                 </div>
-                <div class="modal-footer"><button type="submit" class="btn btn-warning">Simpan</button></div>
-            </form>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn btn-success fw-bold" onclick="saveBuiltForm()"><i class="fas fa-save"></i> Simpan Formulir</button>
+                </div>
+            </div>
         </div>
     </div>
 
+    <div class="modal fade" id="mdlViewResponses">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Jawaban Formulir: <span id="vrTitle" class="text-primary"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <button class="btn btn-success btn-sm" onclick="dlExcel('tblResponses','Respon_Formulir')"><i class="fas fa-file-excel"></i> Download Excel</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover text-nowrap w-100" id="tblResponses">
+                            <thead class="table-light" id="vrTableHead"></thead>
+                            <tbody id="vrTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mdlSM"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'sm')"><div class="modal-header"><h5 class="modal-title">Surat Masuk</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="small fw-bold">File (PDF/JPG)</label><input type="file" id="sm_file" class="form-control mb-2" accept=".pdf, image/*"><button type="button" class="btn btn-sm btn-info text-white w-100 mb-3 fw-bold shadow-sm" onclick="autoScanDokumen('sm', this)"><i class="fas fa-magic"></i> Scan Otomatis</button><select id="sm_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select><input id="sm_no" class="form-control mb-2" placeholder="Nomor Surat" required><input id="sm_asal" class="form-control mb-2" placeholder="Asal Surat" required><div class="row g-2 mb-2"><div class="col"><label class="small text-muted">Tgl Buat</label><input type="date" id="sm_tgl_buat" class="form-control" required></div><div class="col"><label class="small text-muted">Tgl Terima</label><input type="date" id="sm_tgl_datang" class="form-control" required></div></div><input id="sm_hal" class="form-control mb-2" placeholder="Perihal" required><textarea id="sm_ket" class="form-control mb-2" placeholder="Keterangan"></textarea></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Simpan</button></div></form></div></div>
+    <div class="modal fade" id="mdlSK"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'sk')"><div class="modal-header"><h5 class="modal-title">Surat Keluar</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="small fw-bold">File (PDF/JPG)</label><input type="file" id="sk_file" class="form-control mb-2" accept=".pdf, image/*"><button type="button" class="btn btn-sm btn-info text-white w-100 mb-3 fw-bold shadow-sm" onclick="autoScanDokumen('sk', this)"><i class="fas fa-magic"></i> Scan Otomatis</button><select id="sk_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select><input id="sk_no" class="form-control mb-2" placeholder="Nomor Surat" required><input id="sk_tujuan" class="form-control mb-2" placeholder="Tujuan" required><div class="row g-2 mb-2"><div class="col"><label class="small text-muted">Tgl Buat</label><input type="date" id="sk_tgl_buat" class="form-control" required></div><div class="col"><label class="small text-muted">Tgl Kirim</label><input type="date" id="sk_tgl_kirim" class="form-control" required></div></div><input id="sk_hal" class="form-control mb-2" placeholder="Perihal" required><textarea id="sk_ket" class="form-control mb-2" placeholder="Keterangan"></textarea></div><div class="modal-footer"><button type="submit" class="btn btn-warning">Simpan</button></div></form></div></div>
     <div class="modal fade" id="mdlKeu"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'keu')"><div class="modal-header"><h5 class="modal-title" id="ttlKeu">Keuangan</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="keu_cat"><input type="date" id="keu_tgl" class="form-control mb-2" required><input id="keu_uraian" class="form-control mb-2" placeholder="Uraian" required><div id="opsFields" class="d-none"><input id="keu_pj" class="form-control mb-2" placeholder="PJ"><div class="row g-2 mb-2"><div class="col"><input type="number" id="keu_qty" class="form-control" placeholder="Qty" oninput="calcTotal()"></div><div class="col"><input type="number" id="keu_hrg" class="form-control" placeholder="Harga" oninput="calcTotal()"></div></div></div><select id="keu_jenis" class="form-select mb-2"><option value="Masuk">Pemasukan</option><option value="Keluar">Pengeluaran</option></select><input type="number" id="keu_nom" class="form-control" placeholder="Nominal" required></div><div class="modal-footer"><button class="btn btn-info text-white">Simpan</button></div></form></div></div>
     <div class="modal fade" id="mdlInv"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'inv')"><div class="modal-header"><h5 class="modal-title" id="ttlInv">Inventaris</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="inv_type"><input id="inv_nama" class="form-control mb-2" placeholder="Nama Barang" required><div id="rekapFields"><input id="inv_merk" class="form-control mb-2" placeholder="Merk"><div class="row g-2 mb-2"><div class="col"><input type="number" id="inv_thn" class="form-control" placeholder="Tahun"></div><div class="col"><input type="number" id="inv_jml" class="form-control" placeholder="Jumlah"></div></div></div><div id="bukuFields" class="d-none"><input id="inv_kode" class="form-control mb-2" placeholder="Kode"><input id="inv_jenis" class="form-control mb-2" placeholder="Jenis"></div><select id="inv_cond" class="form-select mb-2"><option>Baik</option><option>Kurang Baik</option><option>Rusak</option></select><textarea id="inv_ket" class="form-control" placeholder="Ket"></textarea></div><div class="modal-footer"><button class="btn btn-success">Simpan</button></div></form></div></div>
-    <div class="modal fade" id="mdlQRCode"><div class="modal-dialog modal-sm"><div class="modal-content"><div class="modal-header"><h6 class="modal-title">QR Code Presensi</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><img id="imgQR" class="img-fluid mb-2"><p class="small text-muted mb-0">Scan / Bagikan link untuk absen</p></div></div></div></div>
+    <div class="modal fade" id="mdlQRCode"><div class="modal-dialog modal-sm"><div class="modal-content"><div class="modal-header"><h6 class="modal-title">QR Code Link</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><img id="imgQR" class="img-fluid mb-2"><p class="small text-muted mb-0">Scan / Bagikan link ini</p></div></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, getDoc, setDoc, onSnapshot, writeBatch, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, getDoc, setDoc, onSnapshot, writeBatch, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAwsqkpDt01N2U9PpPNfnKFbB2_AqaSFvA",
@@ -555,39 +624,123 @@
         let currentScope = 'global'; 
         let listeners = [];
         let listLSO = [];
-        let rawData = { sm:[], sk:[], keu:[], inv:[], pengurus:[], users:[], presensi:[] };
+        let rawData = { sm:[], sk:[], keu:[], inv:[], pengurus:[], users:[], presensi:[], customForms:[] };
         let pinData = { master:'1234', pusat:'1234', kopri:'1234' };
         let pinModalInstance = null; 
         let pendingAction = null;
+        
+        // Kamera & Signature variabel
         let videoStream = null;
+        let sigCanvas = null;
+        let sigCtx = null;
+        let isDrawing = false;
+        
+        // Form Builder Variables
+        let currentFormFields = [];
+        let loadedFormToFill = null;
 
-        // --- 1. HANDLING PUBLIC URL (PRESENSI) BEFORE AUTH ---
         const urlParams = new URLSearchParams(window.location.search);
         const attendanceId = urlParams.get('attendance');
+        const customFormId = urlParams.get('form');
+
+        // =====================================
+        // SIGNATURE CANVAS LOGIC (TANDA TANGAN)
+        // =====================================
+        function initSignatureCanvas() {
+            sigCanvas = document.getElementById('signature-canvas');
+            if(!sigCanvas) return;
+            sigCtx = sigCanvas.getContext('2d');
+            
+            // Atur resolusi kanvas agar tidak pecah (retina display support)
+            const rect = sigCanvas.parentElement.getBoundingClientRect();
+            sigCanvas.width = rect.width;
+            sigCanvas.height = 150; // Tinggi tetap 150px
+            
+            // Set style coretan
+            sigCtx.lineWidth = 3;
+            sigCtx.lineCap = 'round';
+            sigCtx.strokeStyle = '#000000';
+
+            // Event Mouse (Desktop)
+            sigCanvas.addEventListener('mousedown', startPosition);
+            sigCanvas.addEventListener('mouseup', endPosition);
+            sigCanvas.addEventListener('mousemove', draw);
+
+            // Event Touch (Mobile)
+            sigCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); startPosition(e.touches[0]); });
+            sigCanvas.addEventListener('touchend', (e) => { e.preventDefault(); endPosition(); });
+            sigCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
+        }
+
+        function getMousePos(evt) {
+            const rect = sigCanvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+
+        function startPosition(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function endPosition() {
+            isDrawing = false;
+            sigCtx.beginPath();
+            
+            // Otomatis simpan data Base64 ke input hidden setiap kali selesai goresan
+            if(sigCanvas) {
+                // Pastikan kanvas tidak kosong melompong (cek logika ini bisa dikembangkan, sementara simpan langsung)
+                document.getElementById('attSignatureData').value = sigCanvas.toDataURL("image/png");
+            }
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const pos = getMousePos(e);
+            
+            sigCtx.lineTo(pos.x, pos.y);
+            sigCtx.stroke();
+            sigCtx.beginPath();
+            sigCtx.moveTo(pos.x, pos.y);
+        }
+
+        window.clearSignature = () => {
+            if(sigCtx && sigCanvas) {
+                sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+                document.getElementById('attSignatureData').value = "";
+            }
+        }
+
+
         if(attendanceId) {
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('attendance-public-view').style.display = 'block';
-            
             getDoc(doc(db, "presensi_events", attendanceId)).then(docSnap => {
                 if(docSnap.exists()) {
                     document.getElementById('attEventName').innerText = docSnap.data().nama + " (" + docSnap.data().tgl + ")";
                     document.getElementById('attEventId').value = attendanceId;
-                    startCamera(); // Start camera for selfie
-                } else {
-                    alert("Kegiatan tidak ditemukan");
-                }
+                    startCamera(); 
+                    
+                    // Inisiasi kanvas tanda tangan dengan sedikit penundaan agar render DOM selesai
+                    setTimeout(initSignatureCanvas, 500);
+                } else alert("Kegiatan tidak ditemukan");
             });
-        } else {
-            // --- AUTH & AUTO LOGOUT ---
+        } 
+        else if (customFormId) {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('customform-public-view').style.display = 'block';
+            loadPublicCustomForm(customFormId);
+        }
+        else {
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     const lastLogin = localStorage.getItem('lastLoginTime');
                     const now = Date.now();
                     if(lastLogin && (now - parseInt(lastLogin) > 24 * 60 * 60 * 1000)) {
-                        alert("Sesi Anda telah habis (24 jam). Silakan login kembali.");
-                        await signOut(auth);
-                        location.reload();
-                        return;
+                        alert("Sesi Anda telah habis. Silakan login kembali.");
+                        await signOut(auth); location.reload(); return;
                     }
                     localStorage.setItem('lastLoginTime', now);
 
@@ -599,7 +752,7 @@
                         } else if(user.email.includes('admin')) {
                             currentUser = { uid: user.uid, email: user.email, role: 'admin', name: 'Administrator' };
                         } else {
-                            alert("Akun belum disetting di Firestore."); await signOut(auth); return;
+                            alert("Akun belum disetting."); await signOut(auth); return;
                         }
                         
                         setupUIByRole();
@@ -612,7 +765,6 @@
                             overlay.style.display = 'none';
                             document.getElementById('app-container').style.display = 'block';
                         }, 600);
-
                     } catch (err) { alert("Error: " + err.message); }
                 } else {
                     document.getElementById('app-container').style.display = 'none';
@@ -626,27 +778,23 @@
             e.preventDefault();
             const btn = document.getElementById('btnLogin');
             const logo = document.getElementById('loginLogo');
-            btn.disabled=true; btn.innerText="Memuat...";
-            logo.classList.add('logo-loading');
-            
+            btn.disabled=true; btn.innerText="Memuat..."; logo.classList.add('logo-loading');
             try { 
                 await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPass').value); 
                 localStorage.setItem('lastLoginTime', Date.now());
             } 
             catch (error) { 
                 document.getElementById('loginError').innerText = "Login Gagal: Password Salah / User tidak ditemukan."; 
-                btn.disabled=false; btn.innerText="MASUK"; 
-                logo.classList.remove('logo-loading');
+                btn.disabled=false; btn.innerText="MASUK"; logo.classList.remove('logo-loading');
             }
         }
         window.logout = () => { if(confirm("Keluar?")) signOut(auth).then(()=>location.reload()); }
 
-        // --- DATA LOADING ---
         function loadDataForScope(targetUid) {
             listeners.forEach(unsub => unsub());
             listeners = [];
             activeScopeUid = targetUid;
-            rawData = { sm:[], sk:[], keu:[], inv:[], pengurus:[], users: rawData.users, presensi:[] }; 
+            rawData = { sm:[], sk:[], keu:[], inv:[], pengurus:[], users: rawData.users, presensi:[], customForms:[] }; 
 
             const collections = ['surat_masuk', 'surat_keluar', 'keuangan', 'inventaris', 'susunan_pengurus'];
             collections.forEach(colName => {
@@ -658,39 +806,37 @@
                     if(colName==='keuangan') rawData.keu = data;
                     if(colName==='inventaris') rawData.inv = data;
                     if(colName==='susunan_pengurus') rawData.pengurus = data;
-                    
-                    renderGlobalDashboard();
-                    refreshView();
+                    renderGlobalDashboard(); refreshView();
                 });
                 listeners.push(unsub);
             });
 
             const lsoUnsub = onSnapshot(collection(db, "users", targetUid, "settings_lso"), (s) => { 
                 listLSO = s.docs.map(d => ({id:d.id, ...d.data()})); 
-                renderLSOMenu(); 
-                renderGlobalDashboard();
-            });
-            listeners.push(lsoUnsub);
+                renderLSOMenu(); renderGlobalDashboard();
+            }); listeners.push(lsoUnsub);
             
             const cfgUnsub = onSnapshot(doc(db, "users", targetUid, "config", "general"), (doc) => { 
                 if(doc.exists()) applyAppConfig(doc.data()); 
-            });
-            listeners.push(cfgUnsub);
+            }); listeners.push(cfgUnsub);
             
             const authUnsub = onSnapshot(doc(db, "users", targetUid, "config", "auth"), (doc) => { 
                 if(doc.exists()) {
                     pinData = doc.data(); 
                     ['master','pusat','kopri'].forEach(k => { if(document.getElementById(`pin_${k}`)) document.getElementById(`pin_${k}`).value = pinData[k] || ''; });
                 }
-            });
-            listeners.push(authUnsub);
+            }); listeners.push(authUnsub);
 
             if(currentUser.role === 'admin') {
                 const presUnsub = onSnapshot(query(collection(db, "presensi_events"), where("uid_owner", "==", targetUid)), (s) => {
                     rawData.presensi = s.docs.map(d => ({id:d.id, ...d.data()}));
                     renderPresensiList();
-                });
-                listeners.push(presUnsub);
+                }); listeners.push(presUnsub);
+
+                const formUnsub = onSnapshot(query(collection(db, "dynamic_forms"), where("uid_owner", "==", targetUid)), (s) => {
+                    rawData.customForms = s.docs.map(d => ({id:d.id, ...d.data()}));
+                    renderCustomFormList();
+                }); listeners.push(formUnsub);
             }
         }
 
@@ -700,15 +846,280 @@
                 rawData.users = ray; renderRayonMenu(); 
             });
         }
+        
+        window.openModalFormBuilder = () => {
+            document.getElementById('fbTitle').value = "";
+            document.getElementById('fbDesc').value = "";
+            currentFormFields = [];
+            renderFormBuilderFields();
+            new bootstrap.Modal(document.getElementById('mdlFormBuilder')).show();
+        }
 
-        // --- NAVIGATION ---
+        window.addFormField = (type) => {
+            const id = 'f_' + Date.now();
+            let field = { id: id, type: type, label: 'Pertanyaan Baru', required: true, imageUrl: '' };
+            if(type === 'radio') field.options = "Opsi 1, Opsi 2";
+            currentFormFields.push(field);
+            renderFormBuilderFields();
+        }
+
+        window.removeFormField = (id) => {
+            currentFormFields = currentFormFields.filter(f => f.id !== id);
+            renderFormBuilderFields();
+        }
+
+        window.updateFieldData = (id, key, value) => {
+            const field = currentFormFields.find(f => f.id === id);
+            if(field) field[key] = value;
+        }
+
+        const fileToBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
+        window.handleFieldImageUpload = async (id, inputEl) => {
+            if(inputEl.files && inputEl.files[0]) {
+                const b64 = await fileToBase64(inputEl.files[0]);
+                updateFieldData(id, 'imageUrl', b64);
+                renderFormBuilderFields();
+            }
+        }
+
+        window.removeFieldImage = (id) => {
+            updateFieldData(id, 'imageUrl', '');
+            renderFormBuilderFields();
+        }
+
+        function renderFormBuilderFields() {
+            const container = document.getElementById('fbFieldsContainer');
+            container.innerHTML = currentFormFields.map((f, index) => {
+                let optionsHtml = '';
+                if(f.type === 'radio') {
+                    optionsHtml = `<input type="text" class="form-control form-control-sm mt-2" placeholder="Opsi jawaban pisahkan dengan koma" value="${f.options}" onchange="updateFieldData('${f.id}', 'options', this.value)">
+                                   <small class="text-muted">Contoh: Laki-laki, Perempuan</small>`;
+                }
+
+                let imageHtml = `
+                    <div class="mt-2">
+                        ${f.imageUrl ? `
+                            <div class="mb-2 position-relative d-inline-block">
+                                <img src="${f.imageUrl}" height="80" class="rounded border">
+                                <button class="btn btn-sm btn-danger position-absolute top-0 end-0" style="padding:0 5px;" onclick="removeFieldImage('${f.id}')">&times;</button>
+                            </div>
+                        ` : `
+                            <label class="btn btn-sm btn-outline-secondary"><i class="fas fa-image"></i> Sisipkan Gambar <input type="file" hidden accept="image/*" onchange="handleFieldImageUpload('${f.id}', this)"></label>
+                        `}
+                    </div>
+                `;
+
+                let typeLabel = f.type === 'text' ? 'Teks Pendek' : (f.type === 'textarea' ? 'Paragraf' : 'Pilihan Ganda');
+
+                return `
+                <div class="form-builder-field shadow-sm">
+                    <span class="badge bg-secondary mb-2">${index + 1}. ${typeLabel}</span>
+                    <i class="fas fa-trash del-btn" onclick="removeFormField('${f.id}')" title="Hapus"></i>
+                    
+                    <input type="text" class="form-control fw-bold" value="${f.label}" onchange="updateFieldData('${f.id}', 'label', this.value)" placeholder="Tulis pertanyaan disini...">
+                    
+                    ${imageHtml}
+                    ${optionsHtml}
+                    
+                    <div class="form-check form-switch mt-3">
+                        <input class="form-check-input" type="checkbox" ${f.required ? 'checked' : ''} onchange="updateFieldData('${f.id}', 'required', this.checked)">
+                        <label class="form-check-label small text-muted">Wajib Diisi</label>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        window.saveBuiltForm = async () => {
+            const title = document.getElementById('fbTitle').value;
+            const desc = document.getElementById('fbDesc').value;
+            
+            if(!title) return alert("Judul wajib diisi!");
+            if(currentFormFields.length === 0) return alert("Tambahkan minimal 1 pertanyaan!");
+
+            const formData = {
+                title: title,
+                desc: desc,
+                fields: currentFormFields,
+                uid_owner: currentUser.uid,
+                createdAt: Date.now()
+            };
+
+            try {
+                await addDoc(collection(db, "dynamic_forms"), formData);
+                bootstrap.Modal.getInstance(document.getElementById('mdlFormBuilder')).hide();
+                alert("Formulir berhasil dibuat!");
+            } catch(e) { alert("Error: " + e.message); }
+        }
+
+        function renderCustomFormList() {
+            const tbody = document.getElementById('listCustomForms');
+            if(!tbody) return;
+            
+            if(rawData.customForms.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Belum ada formulir.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = rawData.customForms.sort((a,b)=>b.createdAt-a.createdAt).map(f => {
+                const date = new Date(f.createdAt).toLocaleDateString('id-ID');
+                const link = window.location.origin + window.location.pathname + "?form=" + f.id;
+                
+                getDocs(collection(db, "dynamic_forms", f.id, "responses")).then(snap => {
+                    const cntEl = document.getElementById('resp_cnt_'+f.id);
+                    if(cntEl) cntEl.innerText = snap.size;
+                });
+
+                return `
+                <tr>
+                    <td><span class="fw-bold text-primary">${f.title}</span></td>
+                    <td>${date}</td>
+                    <td><span class="badge bg-info text-dark" id="resp_cnt_${f.id}">...</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="copyToClip('${link}')"><i class="fas fa-copy"></i> Link</button>
+                        <button class="btn btn-sm btn-warning text-white" onclick="showQR('${link}')"><i class="fas fa-qrcode"></i></button>
+                        <button class="btn btn-sm btn-success" onclick="viewFormResponses('${f.id}', '${f.title}')"><i class="fas fa-eye"></i> Jawaban</button>
+                        <button class="btn btn-sm btn-danger rounded-circle ms-2" onclick="delCustomForm('${f.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        window.delCustomForm = async (id) => {
+            if(confirm("Hapus formulir ini? Semua jawaban juga akan hilang (tidak bisa dipulihkan).")) {
+                await deleteDoc(doc(db, "dynamic_forms", id));
+            }
+        }
+
+        window.viewFormResponses = async (formId, title) => {
+            document.getElementById('vrTitle').innerText = title;
+            document.getElementById('vrTableHead').innerHTML = "<tr><th>Loading...</th></tr>";
+            document.getElementById('vrTableBody').innerHTML = "";
+            new bootstrap.Modal(document.getElementById('mdlViewResponses')).show();
+
+            try {
+                const formDoc = await getDoc(doc(db, "dynamic_forms", formId));
+                if(!formDoc.exists()) return alert("Form tidak ditemukan");
+                const fields = formDoc.data().fields;
+
+                let headHtml = "<tr><th>Waktu Submit</th>";
+                fields.forEach(f => headHtml += `<th>${f.label}</th>`);
+                headHtml += "</tr>";
+                document.getElementById('vrTableHead').innerHTML = headHtml;
+
+                const respSnap = await getDocs(collection(db, "dynamic_forms", formId, "responses"));
+                const responses = respSnap.docs.map(d => d.data()).sort((a,b)=>b.submittedAt-a.submittedAt);
+                
+                if(responses.length === 0) {
+                    document.getElementById('vrTableBody').innerHTML = `<tr><td colspan="${fields.length + 1}" class="text-center py-4 text-muted">Belum ada jawaban</td></tr>`;
+                    return;
+                }
+
+                let bodyHtml = "";
+                responses.forEach(r => {
+                    const time = new Date(r.submittedAt).toLocaleString('id-ID');
+                    let row = `<tr><td class="text-muted small">${time}</td>`;
+                    fields.forEach(f => {
+                        row += `<td>${r.answers[f.id] || '-'}</td>`;
+                    });
+                    row += "</tr>";
+                    bodyHtml += row;
+                });
+                document.getElementById('vrTableBody').innerHTML = bodyHtml;
+
+            } catch(e) { console.error(e); alert("Gagal memuat jawaban."); }
+        }
+
+        async function loadPublicCustomForm(formId) {
+            try {
+                const docSnap = await getDoc(doc(db, "dynamic_forms", formId));
+                if(!docSnap.exists()) {
+                    document.getElementById('pubFormTitle').innerText = "Formulir Tidak Ditemukan";
+                    return;
+                }
+                
+                loadedFormToFill = { id: formId, ...docSnap.data() };
+                
+                document.getElementById('pubFormTitle').innerText = loadedFormToFill.title;
+                document.getElementById('pubFormDesc').innerText = loadedFormToFill.desc || "";
+
+                const formEl = document.getElementById('pubFormElement');
+                let html = "";
+
+                loadedFormToFill.fields.forEach(f => {
+                    let inputHtml = "";
+                    let imgHtml = f.imageUrl ? `<div class="mb-2"><img src="${f.imageUrl}" class="img-fluid rounded border" style="max-height: 200px;"></div>` : "";
+                    const reqTxt = f.required ? 'required' : '';
+                    const reqStar = f.required ? '<span class="text-danger">*</span>' : '';
+
+                    if(f.type === 'text') {
+                        inputHtml = `<input type="text" name="${f.id}" class="form-control" placeholder="Jawaban Anda" ${reqTxt}>`;
+                    } else if (f.type === 'textarea') {
+                        inputHtml = `<textarea name="${f.id}" class="form-control" rows="3" placeholder="Jawaban Anda" ${reqTxt}></textarea>`;
+                    } else if (f.type === 'radio') {
+                        const opts = f.options.split(',').map(o => o.trim());
+                        inputHtml = opts.map(o => `
+                            <div class="form-check text-start">
+                                <input class="form-check-input" type="radio" name="${f.id}" value="${o}" id="${f.id}_${o}" ${reqTxt}>
+                                <label class="form-check-label" for="${f.id}_${o}">${o}</label>
+                            </div>
+                        `).join('');
+                    }
+
+                    html += `
+                    <div class="mb-4 text-start">
+                        <label class="form-label fw-bold">${f.label} ${reqStar}</label>
+                        ${imgHtml}
+                        ${inputHtml}
+                    </div>`;
+                });
+
+                html += `<button type="submit" class="btn btn-primary w-100 fw-bold py-2 shadow-sm" id="btnSubmitCustomForm">KIRIM JAWABAN</button>`;
+                formEl.innerHTML = html;
+
+            } catch(e) { console.error(e); alert("Gagal memuat formulir."); }
+        }
+
+        window.submitCustomForm = async (e) => {
+            e.preventDefault();
+            if(!loadedFormToFill) return;
+
+            const btn = document.getElementById('btnSubmitCustomForm');
+            btn.disabled = true; btn.innerText = "Mengirim...";
+
+            const formElement = document.getElementById('pubFormElement');
+            const formData = new FormData(formElement);
+            
+            let answers = {};
+            loadedFormToFill.fields.forEach(f => {
+                answers[f.id] = formData.get(f.id) || "";
+            });
+
+            try {
+                await addDoc(collection(db, "dynamic_forms", loadedFormToFill.id, "responses"), {
+                    submittedAt: Date.now(),
+                    answers: answers
+                });
+                
+                formElement.style.display = 'none';
+                document.getElementById('pubFormSuccessMsg').classList.remove('d-none');
+            } catch(err) {
+                alert("Gagal mengirim: " + err.message);
+                btn.disabled = false; btn.innerText = "KIRIM JAWABAN";
+            }
+        }
+
         window.switchScope = (scope, el) => {
             document.querySelectorAll('.sidebar .nav-link').forEach(n => n.classList.remove('active'));
             document.querySelectorAll('.submenu a').forEach(n => n.classList.remove('active'));
             if(el) el.classList.add('active');
-            
             if(window.innerWidth < 992) closeSidebar();
-
             currentScope = scope; 
 
             const settingsMenu = document.getElementById('menu-settings');
@@ -718,23 +1129,17 @@
                 document.getElementById('dashScopeBadge').innerText = "UTAMA";
                 if(settingsMenu) settingsMenu.style.display = 'block';
                 if(lsoMenu) lsoMenu.style.display = 'block';
-
                 if(activeScopeUid !== currentUser.uid) loadDataForScope(currentUser.uid);
-                showSection('dashboard-global');
-                setTimeout(renderGlobalDashboard, 100); 
+                showSection('dashboard-global'); setTimeout(renderGlobalDashboard, 100); 
                 return;
             }
             
-            let targetUid = currentUser.uid; 
-            let label = currentUser.name;
-
+            let targetUid = currentUser.uid; let label = currentUser.name;
             const userRayon = rawData.users.find(u => u.id === scope);
             if (userRayon) {
                 if(settingsMenu) settingsMenu.style.display = 'none';
                 if(lsoMenu) lsoMenu.style.display = 'none';
-
-                targetUid = userRayon.id;
-                label = userRayon.nama || userRayon.name || "Rayon";
+                targetUid = userRayon.id; label = userRayon.nama || userRayon.name || "Rayon";
                 document.getElementById('dashScopeBadge').innerText = label;
                 showSection('dashboard-global');
                 if(targetUid !== activeScopeUid) loadDataForScope(targetUid);
@@ -742,39 +1147,27 @@
             }
 
             showSection('main-view'); 
-            
             if(scope === 'me' || scope === 'pusat' || scope === 'kopri' || scope.startsWith('lso_')) {
                 label = (scope === 'pusat') ? 'LEMBAGA' : (scope === 'kopri' ? 'BSO KOPRI' : (scope.startsWith('lso_') ? 'LSO' : 'DETAIL'));
             }
-
             document.getElementById('pageTitle').innerText = "Data: " + label.toUpperCase();
-
-            if(targetUid !== activeScopeUid) {
-                loadDataForScope(targetUid);
-            } else {
-                refreshView(); 
-            }
+            if(targetUid !== activeScopeUid) loadDataForScope(targetUid); else refreshView(); 
         }
 
-        // --- DASHBOARD RECAP ---
         function renderGlobalDashboard() {
             const container = document.getElementById('globalSummaryContainer');
             if(!container || !document.getElementById('dashboard-global').classList.contains('active')) return;
-            
             let html = '';
             const entities = [
                 {id: 'pusat', name: 'LEMBAGA (INTI)', color: 'primary'},
                 {id: 'kopri', name: 'BSO KOPRI', color: 'warning'},
                 ...listLSO.map(l => ({id: 'lso_'+l.id, name: l.nama, color: 'info'}))
             ];
-
             html += `<div class="col-12"><div class="alert alert-info shadow-sm border-0">Data Organisasi: <b>${activeScopeUid === currentUser.uid ? currentUser.name : (rawData.users.find(u=>u.id===activeScopeUid)?.nama || 'Unknown')}</b></div></div>`;
-
             entities.forEach(ent => {
                 const sm = rawData.sm.filter(x => x.scope === ent.id).length;
                 const sk = rawData.sk.filter(x => x.scope === ent.id).length;
                 const saldo = rawData.keu.filter(x => x.scope === ent.id).reduce((a,b) => a + (b.jenis==='Masuk'?b.nom:-b.nom), 0);
-
                 html += `
                 <div class="col-md-4">
                     <div class="card-modern p-3 border-start border-5 border-${ent.color}">
@@ -793,17 +1186,10 @@
             container.innerHTML = html;
         }
 
-        // --- UI RENDERING DETAIL ---
         function refreshView() {
             let filterFn = () => true; 
-            if (currentScope === 'pusat' || currentScope === 'kopri' || currentScope.startsWith('lso_')) {
-                filterFn = (item) => item.scope === currentScope;
-            }
-
-            const s_sm = rawData.sm.filter(filterFn);
-            const s_sk = rawData.sk.filter(filterFn);
-            const s_keu = rawData.keu.filter(filterFn);
-            const s_inv = rawData.inv.filter(filterFn);
+            if (currentScope === 'pusat' || currentScope === 'kopri' || currentScope.startsWith('lso_')) filterFn = (item) => item.scope === currentScope;
+            const s_sm = rawData.sm.filter(filterFn); const s_sk = rawData.sk.filter(filterFn); const s_keu = rawData.keu.filter(filterFn); const s_inv = rawData.inv.filter(filterFn);
 
             document.getElementById('bodySM').innerHTML = s_sm.map(x=>`<tr><td>${x.no}</td><td>${x.asal}</td><td>${x.tgl_buat}</td><td>${x.tgl_datang}</td><td>${x.hal}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_masuk','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
             document.getElementById('bodySK').innerHTML = s_sk.map(x=>`<tr><td>${x.no}</td><td>${x.tujuan}</td><td>${x.tgl_buat}</td><td>${x.tgl_kirim}</td><td>${x.hal}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('surat_keluar','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
@@ -816,154 +1202,68 @@
             document.getElementById('bodyBuku').innerHTML = s_inv.filter(x=>x.type==='Buku').map(x=>`<tr><td>${x.kode||'-'}</td><td>${x.nama}</td><td>${x.jenis||'-'}</td><td>${x.cond}</td><td>${x.ket||'-'}</td><td><button class="btn btn-sm btn-danger rounded-circle" onclick="del('inventaris','${x.id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
 
             let totalSaldo = 0; s_keu.forEach(k => totalSaldo += (k.jenis === 'Masuk' ? k.nom : -k.nom));
-            document.getElementById('cntSM').innerText = s_sm.length;
-            document.getElementById('cntSK').innerText = s_sk.length;
-            document.getElementById('cntInv').innerText = s_inv.length;
-            document.getElementById('cntUang').innerText = fmtRp(totalSaldo);
+            document.getElementById('cntSM').innerText = s_sm.length; document.getElementById('cntSK').innerText = s_sk.length;
+            document.getElementById('cntInv').innerText = s_inv.length; document.getElementById('cntUang').innerText = fmtRp(totalSaldo);
+            
+            if(document.getElementById('bodyPengurus')) document.getElementById('bodyPengurus').innerHTML = rawData.pengurus.map((p,i)=>`<tr><td>${i+1}</td><td>${p.nama}</td><td>${p.jabatan}</td><td>${p.rayon}</td><td><a href="https://wa.me/${p.wa}" target="_blank">${p.wa}</a></td></tr>`).join('');
         }
 
         // --- PRESENSI SELFI CAMERA LOGIC ---
         function startCamera() {
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
             .then(stream => {
-                videoStream = stream;
-                document.getElementById('camera-stream').srcObject = stream;
-                document.getElementById('camera-stream').style.display = 'block';
-            }).catch(err => {
-                alert("Gagal mengakses kamera. Pastikan browser diizinkan menggunakan kamera.");
-            });
+                videoStream = stream; document.getElementById('camera-stream').srcObject = stream; document.getElementById('camera-stream').style.display = 'block';
+            }).catch(err => { alert("Gagal mengakses kamera."); });
         }
         window.capturePhoto = () => {
-            const video = document.getElementById('camera-stream');
-            const canvas = document.getElementById('camera-canvas');
+            const video = document.getElementById('camera-stream'); const canvas = document.getElementById('camera-canvas');
             if(!videoStream) return alert("Kamera belum siap!");
-            
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            
-            // Kompres gambar agar db ringan
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight; canvas.getContext('2d').drawImage(video, 0, 0);
             const photoData = canvas.toDataURL('image/jpeg', 0.6); 
-            document.getElementById('attPhotoData').value = photoData;
-            document.getElementById('photo-preview').src = photoData;
-            document.getElementById('photo-preview').style.display = 'block';
-            video.style.display = 'none';
-            document.getElementById('btnCapture').style.display = 'none';
-            document.getElementById('btnRetake').style.display = 'inline-block';
+            document.getElementById('attPhotoData').value = photoData; document.getElementById('photo-preview').src = photoData;
+            document.getElementById('photo-preview').style.display = 'block'; video.style.display = 'none';
+            document.getElementById('btnCapture').style.display = 'none'; document.getElementById('btnRetake').style.display = 'inline-block';
         }
         window.retakePhoto = () => {
-            document.getElementById('attPhotoData').value = "";
-            document.getElementById('photo-preview').style.display = 'none';
-            document.getElementById('camera-stream').style.display = 'block';
-            document.getElementById('btnCapture').style.display = 'inline-block';
-            document.getElementById('btnRetake').style.display = 'none';
+            document.getElementById('attPhotoData').value = ""; document.getElementById('photo-preview').style.display = 'none';
+            document.getElementById('camera-stream').style.display = 'block'; document.getElementById('btnCapture').style.display = 'inline-block'; document.getElementById('btnRetake').style.display = 'none';
         }
 
-        // Public Attendance Submit
         window.submitPublicAttendance = async (e) => {
-            e.preventDefault();
+            e.preventDefault(); 
             const photoData = document.getElementById('attPhotoData').value;
+            const signatureData = document.getElementById('attSignatureData').value;
+            
             if(!photoData) return alert("Silakan ambil foto selfi terlebih dahulu!");
+            if(!signatureData) return alert("Tanda tangan wajib diisi!");
 
-            const eid = document.getElementById('attEventId').value;
-            const btn = document.getElementById('btnSubmitPresensi');
+            const eid = document.getElementById('attEventId').value; const btn = document.getElementById('btnSubmitPresensi');
             btn.disabled = true; btn.innerText = "Mengirim...";
-
-            const d = {
-                nama: document.getElementById('attName').value,
-                instansi: document.getElementById('attInstansi').value,
-                wa: document.getElementById('attWa').value,
-                foto: photoData,
-                time: Date.now()
+            
+            const d = { 
+                nama: document.getElementById('attName').value, 
+                instansi: document.getElementById('attInstansi').value, 
+                wa: document.getElementById('attWa').value, 
+                foto: photoData, 
+                signature: signatureData,
+                time: Date.now() 
             };
             
             try {
                 await addDoc(collection(db, "presensi_events", eid, "attendees"), d);
-                e.target.reset();
+                e.target.reset(); 
                 document.getElementById('attPhotoData').value = "";
-                if(videoStream) videoStream.getTracks().forEach(track => track.stop()); // Matikan kamera
-                
-                document.getElementById('camera-container').style.display = 'none';
-                document.getElementById('btnCapture').style.display = 'none';
-                document.getElementById('btnRetake').style.display = 'none';
-                
-                document.getElementById('attSuccessMsg').classList.remove('d-none');
-                btn.style.display = 'none';
-            } catch (err) {
-                alert("Gagal kirim: " + err.message);
-                btn.disabled = false; btn.innerText = "Kirim Kehadiran";
-            }
+                window.clearSignature(); // Bersihkan kanvas tanda tangan
+
+                if(videoStream) videoStream.getTracks().forEach(track => track.stop()); 
+                document.getElementById('camera-container').style.display = 'none'; document.getElementById('btnCapture').style.display = 'none'; document.getElementById('btnRetake').style.display = 'none';
+                document.getElementById('attSuccessMsg').classList.remove('d-none'); btn.style.display = 'none';
+            } catch (err) { alert("Gagal kirim: " + err.message); btn.disabled = false; btn.innerText = "Kirim Kehadiran"; }
         }
 
-        // --- OCR / AUTO SCAN DOKUMEN ---
-        window.autoScanDokumen = async (tipe, btnElement) => {
-            const fileInput = document.getElementById(`${tipe}_file`);
-            if(!fileInput || !fileInput.files || fileInput.files.length === 0) {
-                return alert("Tolong pilih/upload file dokumen (PDF atau JPG/PNG) terlebih dahulu.");
-            }
-            
-            const file = fileInput.files[0];
-            const originalText = btnElement.innerHTML;
-            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membaca Data...';
-            btnElement.disabled = true;
-
-            try {
-                let extractedText = "";
-                if(file.type === "application/pdf") {
-                    // Pakai PDF.js
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdfjsLib = window['pdfjs-dist/build/pdf'];
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-                    const page = await pdf.getPage(1);
-                    const textContent = await page.getTextContent();
-                    extractedText = textContent.items.map(item => item.str).join(" ");
-                } else if(file.type.startsWith("image/")) {
-                    // Pakai Tesseract.js
-                    const result = await Tesseract.recognize(file, 'ind');
-                    extractedText = result.data.text;
-                } else {
-                    throw new Error("Format hanya mendukung PDF atau Gambar.");
-                }
-
-                // Proses Text Heuristics (NLP Sederhana Regex)
-                const text = extractedText.replace(/\n/g, ' ');
-                
-                // Cari Nomor
-                const matchNo = text.match(/Nomor\s*[:;]?\s*([A-Za-z0-9\/\-\.]+)/i);
-                if(matchNo && document.getElementById(`${tipe}_no`)) {
-                    document.getElementById(`${tipe}_no`).value = matchNo[1].trim();
-                }
-
-                // Cari Perihal / Hal
-                const matchHal = text.match(/(?:Hal|Perihal)\s*[:;]?\s*([A-Za-z0-9\s]+?)(?=(Lampiran|Yth|Kepada|Di|Dengan|\n|$))/i);
-                if(matchHal && document.getElementById(`${tipe}_hal`)) {
-                    document.getElementById(`${tipe}_hal`).value = matchHal[1].trim();
-                }
-
-                // Isi Tanggal Buat default dengan hari ini agar memudahkan
-                document.getElementById(`${tipe}_tgl_buat`).value = new Date().toISOString().split('T')[0];
-
-                alert("Selesai! Data berhasil dibaca. Silakan periksa kembali isiannya.");
-            } catch (err) {
-                alert("Gagal membaca dokumen: " + err.message);
-            } finally {
-                btnElement.innerHTML = originalText;
-                btnElement.disabled = false;
-            }
-        }
-
-        // --- PRESENSI ADMIN LOGIC ---
         window.createPresensi = async (e) => {
-            e.preventDefault();
-            const nm = document.getElementById('newPresensiName').value;
-            const tg = document.getElementById('newPresensiDate').value;
-            if(nm && tg) {
-                await addDoc(collection(db, "presensi_events"), {
-                    nama: nm, tgl: tg, uid_owner: currentUser.uid, createdAt: Date.now()
-                });
-                e.target.reset();
-            }
+            e.preventDefault(); const nm = document.getElementById('newPresensiName').value; const tg = document.getElementById('newPresensiDate').value;
+            if(nm && tg) { await addDoc(collection(db, "presensi_events"), { nama: nm, tgl: tg, uid_owner: currentUser.uid, createdAt: Date.now() }); e.target.reset(); }
         }
         
         function renderPresensiList() {
@@ -971,221 +1271,139 @@
             if(list) {
                 list.innerHTML = rawData.presensi.sort((a,b)=>b.createdAt-a.createdAt).map(p => {
                     const link = window.location.origin + window.location.pathname + "?attendance=" + p.id;
-                    return `
-                    <tr>
-                        <td><b>${p.nama}</b></td>
-                        <td>${p.tgl}</td>
-                        <td>
-                            <button class="btn btn-sm btn-info text-white me-1" onclick="viewPresensiDetail('${p.id}', '${p.nama}')"><i class="fas fa-eye"></i> Data</button>
-                            <button class="btn btn-sm btn-warning text-white" onclick="showQR('${link}')"><i class="fas fa-qrcode"></i></button>
-                        </td>
-                        <td>
-                             <button class="btn btn-sm btn-outline-primary" onclick="copyToClip('${link}')"><i class="fas fa-copy"></i> Link</button>
-                             <button class="btn btn-sm btn-danger rounded-circle ms-1" onclick="delPresensiEvent('${p.id}')"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>`;
+                    return `<tr><td><b>${p.nama}</b></td><td>${p.tgl}</td><td><button class="btn btn-sm btn-info text-white me-1" onclick="viewPresensiDetail('${p.id}', '${p.nama}')"><i class="fas fa-eye"></i> Data</button><button class="btn btn-sm btn-warning text-white" onclick="showQR('${link}')"><i class="fas fa-qrcode"></i></button></td><td><button class="btn btn-sm btn-outline-primary" onclick="copyToClip('${link}')"><i class="fas fa-copy"></i> Link</button><button class="btn btn-sm btn-danger rounded-circle ms-1" onclick="delPresensiEvent('${p.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
                 }).join('');
             }
         }
         
         window.showQR = (txt) => {
             const url = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(txt)}`;
-            document.getElementById('imgQR').src = url;
-            new bootstrap.Modal(document.getElementById('mdlQRCode')).show();
+            document.getElementById('imgQR').src = url; new bootstrap.Modal(document.getElementById('mdlQRCode')).show();
         }
-
         window.copyToClip = (txt) => { navigator.clipboard.writeText(txt).then(()=>alert("Link disalin!")); }
         window.delPresensiEvent = async (id) => { if(confirm("Hapus Kegiatan? Data absen juga akan hilang.")) deleteDoc(doc(db, "presensi_events", id)); }
         window.showFullImage = (src) => { document.getElementById('fullPhotoView').src = src; new bootstrap.Modal(document.getElementById('mdlViewPhoto')).show(); }
 
         window.viewPresensiDetail = (id, name) => {
-            document.getElementById('detailPresensiTitle').innerText = name;
-            document.getElementById('presensiDetailContainer').style.display = 'block';
-            document.getElementById('bodyPresensiDetail').innerHTML = '<tr><td colspan="5" class="text-center">Memuat...</td></tr>';
+            document.getElementById('detailPresensiTitle').innerText = name; 
+            document.getElementById('presensiDetailContainer').style.display = 'block'; 
+            document.getElementById('bodyPresensiDetail').innerHTML = '<tr><td colspan="6" class="text-center">Memuat...</td></tr>';
             
             onSnapshot(collection(db, "presensi_events", id, "attendees"), (snap) => {
                 const att = snap.docs.map(d => d.data());
-                document.getElementById('bodyPresensiDetail').innerHTML = att.sort((a,b)=>b.time-a.time).map(a => 
-                    `<tr>
+                document.getElementById('bodyPresensiDetail').innerHTML = att.sort((a,b)=>b.time-a.time).map(a => `
+                    <tr>
                         <td><img src="${a.foto || 'https://via.placeholder.com/50'}" width="50" height="50" style="object-fit:cover; border-radius:8px; cursor:pointer;" onclick="showFullImage(this.src)"></td>
+                        <td class="small text-muted">${new Date(a.time).toLocaleTimeString()}</td>
                         <td><span class="fw-bold">${a.nama}</span></td>
                         <td>${a.instansi}</td>
                         <td><a href="https://wa.me/${a.wa}" target="_blank" class="text-success text-decoration-none"><i class="fab fa-whatsapp"></i> ${a.wa}</a></td>
-                        <td class="small text-muted">${new Date(a.time).toLocaleTimeString()}</td>
-                    </tr>`
-                ).join('');
+                        <td>${a.signature ? `<img src="${a.signature}" height="40" style="background:#fff; border:1px solid #ddd; cursor:pointer;" onclick="showFullImage(this.src)">` : '-'}</td>
+                    </tr>
+                `).join('');
             });
             setTimeout(() => { document.getElementById('presensiDetailContainer').scrollIntoView({behavior: 'smooth'}); }, 300);
         }
 
-        // --- WHATSAPP BLAST FEATURE ---
         window.generateWALinks = () => {
-            const rawNums = document.getElementById('wa_numbers').value;
-            const msg = encodeURIComponent(document.getElementById('wa_message').value);
-            const container = document.getElementById('wa_buttons_container');
-            
-            if(!rawNums) return;
-            const nums = rawNums.split(',').map(n => n.trim()).filter(n => n.length > 5);
-            
-            container.innerHTML = nums.map(n => {
-                let formatted = n;
-                if(n.startsWith('08')) formatted = '62' + n.substring(1);
-                return `<a href="https://api.whatsapp.com/send?phone=${formatted}&text=${msg}" target="_blank" class="btn btn-outline-success btn-sm flex-fill">Kirim: ${n}</a>`;
-            }).join('');
-            
+            const rawNums = document.getElementById('wa_numbers').value; const msg = encodeURIComponent(document.getElementById('wa_message').value); const container = document.getElementById('wa_buttons_container');
+            if(!rawNums) return; const nums = rawNums.split(',').map(n => n.trim()).filter(n => n.length > 5);
+            container.innerHTML = nums.map(n => { let formatted = n; if(n.startsWith('08')) formatted = '62' + n.substring(1); return `<a href="https://api.whatsapp.com/send?phone=${formatted}&text=${msg}" target="_blank" class="btn btn-outline-success btn-sm flex-fill">Kirim: ${n}</a>`; }).join('');
             if(nums.length === 0) alert("Masukkan nomor dengan benar (pisahkan koma)");
         }
 
-        // --- SAVE DATA ---
         const v=id=>document.getElementById(id).value;
         window.saveData = async (e, t) => {
-            e.preventDefault(); 
-            let saveScope = 'pusat'; 
-            if (currentScope === 'kopri' || currentScope.startsWith('lso_')) {
-                saveScope = currentScope;
-            } else if (currentUser.role === 'rayon' && currentScope === 'me') {
-                 saveScope = 'pusat'; 
-            }
-
+            e.preventDefault(); let saveScope = 'pusat'; 
+            if (currentScope === 'kopri' || currentScope.startsWith('lso_')) saveScope = currentScope; else if (currentUser.role === 'rayon' && currentScope === 'me') saveScope = 'pusat'; 
             const d = { createdAt: Date.now(), uid_inputter: currentUser.uid, scope: saveScope }; 
-            const f = document.getElementById(`${t}_file`) || e.target.querySelector('input[type="file"]'); 
-            d.file = (f && f.files && f.files.length > 0) ? f.files[0].name : '-';
-            
+            const f = document.getElementById(`${t}_file`) || e.target.querySelector('input[type="file"]'); d.file = (f && f.files && f.files.length > 0) ? f.files[0].name : '-';
             let colName = "";
             if(t==='sm'){ d.cat=v('sm_kat'); d.no=v('sm_no'); d.asal=v('sm_asal'); d.tgl_buat=v('sm_tgl_buat'); d.tgl_datang=v('sm_tgl_datang'); d.hal=v('sm_hal'); d.ket=v('sm_ket'); colName="surat_masuk"; }
             else if(t==='sk'){ d.cat=v('sk_kat'); d.no=v('sk_no'); d.tujuan=v('sk_tujuan'); d.tgl_buat=v('sk_tgl_buat'); d.tgl_kirim=v('sk_tgl_kirim'); d.hal=v('sk_hal'); d.ket=v('sk_ket'); colName="surat_keluar"; }
             else if(t==='keu'){ d.cat=v('keu_cat'); d.tgl=v('keu_tgl'); d.uraian=v('keu_uraian'); d.jenis=v('keu_jenis'); d.nom=parseFloat(v('keu_nom')); if(d.cat==='Operasional'){d.pj=v('keu_pj'); d.qty=v('keu_qty'); d.hrg=v('keu_hrg');} colName="keuangan"; }
             else if(t==='inv'){ d.type=v('inv_type'); d.nama=v('inv_nama'); d.cond=v('inv_cond'); d.ket=v('inv_ket'); if(d.type==='Rekap'){d.merk=v('inv_merk'); d.thn=v('inv_thn'); d.jml=v('inv_jml');} else {d.kode=v('inv_kode'); d.jenis=v('inv_jenis');} colName="inventaris"; }
-
-            if(colName) {
-                await addDoc(collection(db, "users", activeScopeUid, colName), d);
-                bootstrap.Modal.getInstance(document.getElementById(`mdl${t==='keu'?'Keu':(t==='inv'?'Inv':t.toUpperCase())}`)).hide();
-                e.target.reset();
-            }
+            if(colName) { await addDoc(collection(db, "users", activeScopeUid, colName), d); bootstrap.Modal.getInstance(document.getElementById(`mdl${t==='keu'?'Keu':(t==='inv'?'Inv':t.toUpperCase())}`)).hide(); e.target.reset(); }
         }
-
         window.del = async (c,i) => { if(confirm('Hapus?')) await deleteDoc(doc(db, "users", activeScopeUid, c, i)); }
 
-        // --- HELPERS ---
         function setupUIByRole() {
-            const role = currentUser.role;
-            const name = currentUser.name || "User";
-            document.querySelector('.header-org-name').innerText = name;
-            
-            const menuRayon = document.getElementById('menu-admin-rayon');
-            if(role === 'rayon') { if(menuRayon) menuRayon.style.display = 'none'; } 
-            else { if(menuRayon) menuRayon.style.display = 'block'; }
+            const role = currentUser.role; document.querySelector('.header-org-name').innerText = currentUser.name || "User";
+            const menuRayon = document.getElementById('menu-admin-rayon'); if(role === 'rayon') { if(menuRayon) menuRayon.style.display = 'none'; } else { if(menuRayon) menuRayon.style.display = 'block'; }
         }
-
         function renderRayonMenu() {
             const container = document.getElementById('rayonSubmenu');
-            if(container && rawData.users.length > 0) {
-                container.innerHTML = rawData.users.map(u => `<li><a onclick="switchScope('${u.id}', this)" class="text-truncate" title="${u.nama || u.name}"><i class="fas fa-user-tag me-2"></i>${u.nama || u.name || 'Tanpa Nama'}</a></li>`).join('');
-            } else if (container) { container.innerHTML = '<li class="text-center py-2 small text-white-50">Belum ada Rayon</li>'; }
+            if(container && rawData.users.length > 0) container.innerHTML = rawData.users.map(u => `<li><a onclick="switchScope('${u.id}', this)" class="text-truncate" title="${u.nama || u.name}"><i class="fas fa-user-tag me-2"></i>${u.nama || u.name || 'Tanpa Nama'}</a></li>`).join('');
+            else if (container) container.innerHTML = '<li class="text-center py-2 small text-white-50">Belum ada Rayon</li>';
         }
-
         function renderLSOMenu(){ 
-            const lsoMenu = document.getElementById('lsoSubmenu');
-            if(lsoMenu) lsoMenu.innerHTML = listLSO.map(l => `<li><a onclick="requestAccess('lso_${l.id}', this)">${l.nama}</a></li>`).join(''); 
-            const lsoList = document.getElementById('listLSO');
-            if(lsoList) lsoList.innerHTML = listLSO.map(l=>`<li class="list-group-item d-flex justify-content-between"><span>${l.nama} <span class="badge bg-secondary">${l.pin}</span></span> <button class="btn btn-sm btn-outline-danger" onclick="delLSO('${l.id}')">x</button></li>`).join(''); 
+            const lsoMenu = document.getElementById('lsoSubmenu'); if(lsoMenu) lsoMenu.innerHTML = listLSO.map(l => `<li><a onclick="requestAccess('lso_${l.id}', this)">${l.nama}</a></li>`).join(''); 
+            const lsoList = document.getElementById('listLSO'); if(lsoList) lsoList.innerHTML = listLSO.map(l=>`<li class="list-group-item d-flex justify-content-between"><span>${l.nama} <span class="badge bg-secondary">${l.pin}</span></span> <button class="btn btn-sm btn-outline-danger" onclick="delLSO('${l.id}')">x</button></li>`).join(''); 
         }
 
         window.toggleSubmenu = (id, el) => {
-            const submenu = document.getElementById(id);
-            const icon = el.querySelector('.fa-chevron-down');
-            if (submenu.classList.contains('show')) {
-                submenu.classList.remove('show'); if(icon) icon.style.transform = 'rotate(0deg)';
-            } else {
-                submenu.classList.add('show'); if(icon) icon.style.transform = 'rotate(180deg)';
-            }
+            const submenu = document.getElementById(id); const icon = el.querySelector('.fa-chevron-down');
+            if (submenu.classList.contains('show')) { submenu.classList.remove('show'); if(icon) icon.style.transform = 'rotate(0deg)'; } 
+            else { submenu.classList.add('show'); if(icon) icon.style.transform = 'rotate(180deg)'; }
         }
         window.showSection = (id, el) => {
-            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active')); 
-            document.getElementById(id).classList.add('active');
-            if(el) { 
-                document.querySelectorAll('.sidebar .nav-link').forEach(n => n.classList.remove('active')); el.classList.add('active'); 
-                if(window.innerWidth < 992) closeSidebar();
-            }
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active');
+            if(el) { document.querySelectorAll('.sidebar .nav-link').forEach(n => n.classList.remove('active')); el.classList.add('active'); if(window.innerWidth < 992) closeSidebar(); }
         }
 
-        // PIN & CONFIG
-        const pinModalEl = document.getElementById('mdlPin');
-        pinModalInstance = new bootstrap.Modal(pinModalEl);
+        pinModalInstance = new bootstrap.Modal(document.getElementById('mdlPin'));
         window.requestAccess = (scope, el) => {
             if(window.innerWidth < 992 && document.getElementById('sidebar').classList.contains('active')) closeSidebar();
-            pendingAction = { scope, el };
-            
-            let correctPin = "1234";
-            if(scope === 'settings') correctPin = pinData['master'];
-            else if(scope === 'pusat') correctPin = pinData['pusat'];
-            else if(scope === 'kopri') correctPin = pinData['kopri'];
-            else if(scope.startsWith('lso_')) {
-               const lsoId = scope.replace('lso_', '');
-               const lso = listLSO.find(l => l.id === lsoId);
-               if(lso) correctPin = lso.pin;
-            }
-
-            document.getElementById('pinTargetName').dataset.correctPin = correctPin || "1234"; 
-            pinModalInstance.show();
+            pendingAction = { scope, el }; let correctPin = "1234";
+            if(scope === 'settings') correctPin = pinData['master']; else if(scope === 'pusat') correctPin = pinData['pusat']; else if(scope === 'kopri') correctPin = pinData['kopri']; else if(scope.startsWith('lso_')) { const lsoId = scope.replace('lso_', ''); const lso = listLSO.find(l => l.id === lsoId); if(lso) correctPin = lso.pin; }
+            document.getElementById('pinTargetName').dataset.correctPin = correctPin || "1234"; pinModalInstance.show();
         }
         window.submitPin = () => {
-             const input = document.getElementById('pinInput').value;
-             const correct = document.getElementById('pinTargetName').dataset.correctPin;
-             if(input === correct || input === pinData['master']) {
-                 pinModalInstance.hide();
-                 if(pendingAction.scope === 'settings') showSection('pengaturan', pendingAction.el);
-                 else switchScope(pendingAction.scope, pendingAction.el);
-                 document.getElementById('pinInput').value = '';
-             } else {
-                 alert("PIN Salah!"); document.getElementById('pinInput').value = '';
-             }
+             const input = document.getElementById('pinInput').value; const correct = document.getElementById('pinTargetName').dataset.correctPin;
+             if(input === correct || input === pinData['master']) { pinModalInstance.hide(); if(pendingAction.scope === 'settings') showSection('pengaturan', pendingAction.el); else switchScope(pendingAction.scope, pendingAction.el); document.getElementById('pinInput').value = ''; } 
+             else { alert("PIN Salah!"); document.getElementById('pinInput').value = ''; }
         }
         window.closePinModal = () => pinModalInstance.hide();
         
         function applyAppConfig(data) {
-            if(data.org_name) { 
-                document.querySelectorAll('.header-org-name').forEach(el => el.innerText = data.org_name); 
-                if(document.getElementById('set_org_name')) document.getElementById('set_org_name').value = data.org_name; 
-            }
-            if(data.logo_url) { 
-                document.querySelectorAll('.header-user-logo').forEach(el => el.src = data.logo_url); 
-                document.getElementById('loginLogo').src = data.logo_url;
-                if(document.getElementById('set_logo_url')) document.getElementById('set_logo_url').value = data.logo_url; 
-            }
-            if(data.calendar_id) { 
-                const frame = document.getElementById('calendarFrame');
-                let calId = encodeURIComponent(data.calendar_id.trim());
-                if(frame) frame.src = `https://calendar.google.com/calendar/embed?src=${calId}&ctz=Asia%2FJakarta&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0`; 
-                if(document.getElementById('set_calendar_id')) document.getElementById('set_calendar_id').value = data.calendar_id; 
-            }
-            if(data.link_po) { 
-                const link = document.getElementById('linkPoPptaCard');
-                if(link) link.href = data.link_po; 
-                if(document.getElementById('set_link_po')) document.getElementById('set_link_po').value = data.link_po; 
-            }
+            if(data.org_name) { document.querySelectorAll('.header-org-name').forEach(el => el.innerText = data.org_name); if(document.getElementById('set_org_name')) document.getElementById('set_org_name').value = data.org_name; }
+            if(data.logo_url) { document.querySelectorAll('.header-user-logo').forEach(el => el.src = data.logo_url); document.getElementById('loginLogo').src = data.logo_url; if(document.getElementById('set_logo_url')) document.getElementById('set_logo_url').value = data.logo_url; }
+            if(data.calendar_id) { const frame = document.getElementById('calendarFrame'); let calId = encodeURIComponent(data.calendar_id.trim()); if(frame) frame.src = `https://calendar.google.com/calendar/embed?src=${calId}&ctz=Asia%2FJakarta&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0`; if(document.getElementById('set_calendar_id')) document.getElementById('set_calendar_id').value = data.calendar_id; }
+            if(data.link_po) { const link = document.getElementById('linkPoPptaCard'); if(link) link.href = data.link_po; if(document.getElementById('set_link_po')) document.getElementById('set_link_po').value = data.link_po; }
         }
         window.saveAppConfig = async (k,v) => await setDoc(doc(db, "users", activeScopeUid, "config", "general"), { [k]: v }, { merge: true });
         window.savePin = async (k, v) => { await setDoc(doc(db, "users", activeScopeUid, "config", "auth"), { [k]: v }, { merge: true }); alert("Tersimpan!"); }
         window.addLSO = async (e) => { e.preventDefault(); const n=document.getElementById('newLSO').value, p=document.getElementById('newLSOPin').value; if(n&&p){ await addDoc(collection(db, "users", activeScopeUid, "settings_lso"), { nama: n, pin: p }); e.target.reset(); } }
         window.delLSO = async (id) => { if(confirm("Hapus?")) await deleteDoc(doc(db, "users", activeScopeUid, "settings_lso", id)); }
         window.uploadPengurus = () => {
-            const file = document.getElementById('excelPengurusInput').files[0];
-            if(!file) return alert("Pilih file!");
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                const batch = writeBatch(db);
+            const file = document.getElementById('excelPengurusInput').files[0]; if(!file) return alert("Pilih file!");
+            const reader = new FileReader(); reader.onload = async (e) => {
+                const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]); const batch = writeBatch(db);
                 rows.forEach(r => { const docRef = doc(collection(db, "users", activeScopeUid, "susunan_pengurus")); batch.set(docRef, { nama: r.NAMA||'', nim: r.NIM||'', wa: r.WA||'', rayon: r.RAYON||'', jabatan: r.JABATAN||'' }); });
                 await batch.commit(); alert("Selesai!");
-            };
-            reader.readAsArrayBuffer(file);
+            }; reader.readAsArrayBuffer(file);
         }
 
         const fmtRp = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(n);
-        window.dlExcel = (id,n) => XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById(id),{sheet:"Sheet1"}), `${n}.xlsx`);
+        
+        // MODIFIKASI FUNGSI EXCEL (Mencegah elemen gambar masuk ke file agar tabel rapi)
+        window.dlExcel = (id, n) => {
+            // Clone the table to avoid modifying the visual DOM
+            const tableClone = document.getElementById(id).cloneNode(true);
+            
+            // Remove image elements (foto & tanda tangan) before exporting to avoid clutter
+            const images = tableClone.querySelectorAll('img');
+            images.forEach(img => {
+                const parent = img.parentNode;
+                parent.removeChild(img);
+                // Biarkan teks sel kosong untuk kolom gambar (atau tambah tulisan 'Image terlampir')
+            });
+
+            // Convert sanitized table clone to workbook
+            const wb = XLSX.utils.table_to_book(tableClone, {sheet: "Sheet1"});
+            XLSX.writeFile(wb, `${n}.xlsx`);
+        };
+
         window.openModalKeu = (c) => { document.getElementById('keu_cat').value=c; document.getElementById('ttlKeu').innerText=`Input ${c}`; document.getElementById('opsFields').className=c==='Operasional'?'d-block':'d-none'; new bootstrap.Modal(document.getElementById('mdlKeu')).show(); }
         window.openModalInv = (t) => { document.getElementById('inv_type').value=t; document.getElementById('ttlInv').innerText=`Input ${t}`; document.getElementById('rekapFields').className=t==='Rekap'?'d-block':'d-none'; document.getElementById('bukuFields').className=t==='Buku'?'d-block':'d-none'; new bootstrap.Modal(document.getElementById('mdlInv')).show(); }
         window.calcTotal = () => { document.getElementById('keu_nom').value = (parseFloat(v('keu_qty'))||0) * (parseFloat(v('keu_hrg'))||0); }
