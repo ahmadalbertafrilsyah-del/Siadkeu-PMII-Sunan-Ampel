@@ -203,7 +203,7 @@
             <form id="pubFormElement" onsubmit="submitCustomForm(event)"></form>
             <div id="pubFormSuccessMsg" class="alert alert-success mt-3 d-none text-center">
                 <i class="fas fa-check-circle fa-2x mb-2"></i><br>
-                Terima kasih! Tanggapan Anda telah berhasil direkam.
+                <span id="pubFormSuccessText">Terima kasih! Tanggapan Anda telah berhasil direkam.</span>
             </div>
         </div>
     </div>
@@ -560,6 +560,8 @@
                         <button class="btn btn-outline-primary btn-sm" onclick="addFormField('text')"><i class="fas fa-align-left"></i> Teks Pendek</button>
                         <button class="btn btn-outline-primary btn-sm" onclick="addFormField('textarea')"><i class="fas fa-align-justify"></i> Paragraf</button>
                         <button class="btn btn-outline-primary btn-sm" onclick="addFormField('radio')"><i class="fas fa-dot-circle"></i> Pilihan Ganda</button>
+                        <button class="btn btn-outline-info btn-sm" onclick="addFormField('file')"><i class="fas fa-file-upload"></i> Upload File</button>
+                        <button class="btn btn-outline-success btn-sm" onclick="addFormField('payment')"><i class="fas fa-shopping-cart"></i> Modul Order & Bayar</button>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -836,6 +838,13 @@
             const id = 'f_' + Date.now();
             let field = { id: id, type: type, label: 'Pertanyaan Baru', required: true, imageUrl: '' };
             if(type === 'radio') field.options = "Opsi 1, Opsi 2";
+            if(type === 'payment') {
+                field.label = "Formulir Pemesanan";
+                field.items = "Jas Laki-Laki S : 150000\nJas Perempuan S : 150000"; // Format default
+                field.wa_admin = "";
+                field.url_qris = ""; // URL gambar QRIS
+                field.bank_info = "BCA 12345678 a.n PMII";
+            }
             currentFormFields.push(field);
             renderFormBuilderFields();
         }
@@ -874,9 +883,27 @@
             const container = document.getElementById('fbFieldsContainer');
             container.innerHTML = currentFormFields.map((f, index) => {
                 let optionsHtml = '';
+                
                 if(f.type === 'radio') {
                     optionsHtml = `<input type="text" class="form-control form-control-sm mt-2" placeholder="Opsi jawaban pisahkan dengan koma" value="${f.options}" onchange="updateFieldData('${f.id}', 'options', this.value)">
                                    <small class="text-muted">Contoh: Laki-laki, Perempuan</small>`;
+                } else if(f.type === 'file') {
+                    optionsHtml = `<div class="alert alert-secondary py-1 mt-2 small m-0"><i class="fas fa-info-circle"></i> Responden dapat mengunggah PDF/JPG/PNG/DOC (Maks 1MB).</div>`;
+                } else if(f.type === 'payment') {
+                    optionsHtml = `
+                    <div class="p-2 border rounded mt-2 bg-white">
+                        <label class="small fw-bold text-primary">Daftar Barang & Harga (Baris Baru = Barang Baru)</label>
+                        <textarea class="form-control form-control-sm mb-2" rows="3" placeholder="Contoh:\\nJas Laki Laki : 150000\\nJas Perempuan : 160000" onchange="updateFieldData('${f.id}', 'items', this.value)">${f.items || ''}</textarea>
+                        
+                        <label class="small fw-bold text-success">Nomor WA Admin (Tujuan Cash)</label>
+                        <input type="number" class="form-control form-control-sm mb-2" placeholder="628..." value="${f.wa_admin || ''}" onchange="updateFieldData('${f.id}', 'wa_admin', this.value)">
+                        
+                        <label class="small fw-bold text-info">Link Gambar QRIS</label>
+                        <input type="text" class="form-control form-control-sm mb-2" placeholder="https://..." value="${f.url_qris || ''}" onchange="updateFieldData('${f.id}', 'url_qris', this.value)">
+                        
+                        <label class="small fw-bold text-warning">Info Rekening Bank (Transfer)</label>
+                        <input type="text" class="form-control form-control-sm" placeholder="Mandiri 1234 a.n PMII" value="${f.bank_info || ''}" onchange="updateFieldData('${f.id}', 'bank_info', this.value)">
+                    </div>`;
                 }
 
                 let imageHtml = `
@@ -892,16 +919,16 @@
                     </div>
                 `;
 
-                let typeLabel = f.type === 'text' ? 'Teks Pendek' : (f.type === 'textarea' ? 'Paragraf' : 'Pilihan Ganda');
+                let typeLabel = f.type === 'text' ? 'Teks Pendek' : (f.type === 'textarea' ? 'Paragraf' : (f.type === 'file' ? 'Upload File' : (f.type === 'payment' ? 'Modul Order' : 'Pilihan Ganda')));
 
                 return `
                 <div class="form-builder-field shadow-sm">
                     <span class="badge bg-secondary mb-2">${index + 1}. ${typeLabel}</span>
                     <i class="fas fa-trash del-btn" onclick="removeFormField('${f.id}')" title="Hapus"></i>
                     
-                    <input type="text" class="form-control fw-bold" value="${f.label}" onchange="updateFieldData('${f.id}', 'label', this.value)" placeholder="Tulis pertanyaan disini...">
+                    <input type="text" class="form-control fw-bold" value="${f.label}" onchange="updateFieldData('${f.id}', 'label', this.value)" placeholder="Tulis instruksi / judul kolom disini...">
                     
-                    ${imageHtml}
+                    ${f.type !== 'payment' ? imageHtml : ''}
                     ${optionsHtml}
                     
                     <div class="form-check form-switch mt-3">
@@ -1002,15 +1029,76 @@
                 responses.forEach(r => {
                     const time = new Date(r.submittedAt).toLocaleString('id-ID');
                     let row = `<tr><td class="text-muted small">${time}</td>`;
+                    
                     fields.forEach(f => {
-                        row += `<td>${r.answers[f.id] || '-'}</td>`;
+                        let cellData = r.answers[f.id] || '-';
+                        
+                        // Parse File & Payment Types for Display
+                        if(f.type === 'file' && cellData.startsWith('data:')) {
+                            cellData = `<a href="${cellData}" download="Upload_${f.label}.file" class="btn btn-sm btn-info text-white"><i class="fas fa-download"></i> Unduh File</a>`;
+                        } else if (f.type === 'payment' && r.answers[`${f.id}_full_data`]) {
+                            const pData = r.answers[`${f.id}_full_data`];
+                            cellData = `<b>[${pData.method}]</b><br>${pData.item}`;
+                            if(pData.proof_file) {
+                                cellData += `<br><a href="${pData.proof_file}" download="BuktiBayar.file" class="btn btn-sm btn-success mt-1" style="font-size:10px;"><i class="fas fa-receipt"></i> Bukti Bayar</a>`;
+                            }
+                        }
+
+                        row += `<td>${cellData}</td>`;
                     });
+                    
                     row += "</tr>";
                     bodyHtml += row;
                 });
                 document.getElementById('vrTableBody').innerHTML = bodyHtml;
 
             } catch(e) { console.error(e); alert("Gagal memuat jawaban."); }
+        }
+
+        // Helper File Upload -> Base64 (Untuk Form Publik)
+        window.processRespondFile = async (inputEl, hiddenInputId) => {
+            const file = inputEl.files[0];
+            if(!file) return;
+            // Batasi 1 MB untuk menghindari limit dokumen Firestore (1 MiB)
+            if(file.size > 1048576) {
+                alert("Ukuran file terlalu besar! Maksimal 1 MB.");
+                inputEl.value = ""; return;
+            }
+            try {
+                const b64 = await fileToBase64(file);
+                document.getElementById(hiddenInputId).value = b64;
+            } catch (e) { alert("Gagal memproses file."); }
+        }
+
+        // Logic UI untuk Payment Public Form
+        window.handlePaymentMethodChange = (fieldId) => {
+            const method = document.getElementById(`pay_method_${fieldId}`).value;
+            const itemSelect = document.getElementById(`pay_item_${fieldId}`);
+            const price = itemSelect.options[itemSelect.selectedIndex]?.dataset.price || 0;
+            
+            const qrisContainer = document.getElementById(`qris_view_${fieldId}`);
+            const bankContainer = document.getElementById(`bank_view_${fieldId}`);
+            const proofContainer = document.getElementById(`proof_view_${fieldId}`);
+            const proofInput = document.getElementById(`proof_input_${fieldId}`);
+            const nominalTexts = document.querySelectorAll(`.nominal_text_${fieldId}`);
+
+            nominalTexts.forEach(el => el.innerText = fmtRp(price));
+
+            // Sembunyikan semua dulu
+            qrisContainer.classList.add('d-none');
+            bankContainer.classList.add('d-none');
+            proofContainer.classList.add('d-none');
+            proofInput.removeAttribute('required');
+
+            if(method === 'QRIS') {
+                qrisContainer.classList.remove('d-none');
+                proofContainer.classList.remove('d-none');
+                proofInput.setAttribute('required', 'true');
+            } else if (method === 'Transfer') {
+                bankContainer.classList.remove('d-none');
+                proofContainer.classList.remove('d-none');
+                proofInput.setAttribute('required', 'true');
+            }
         }
 
         async function loadPublicCustomForm(formId) {
@@ -1047,6 +1135,63 @@
                                 <label class="form-check-label" for="${f.id}_${o}">${o}</label>
                             </div>
                         `).join('');
+                    } else if (f.type === 'file') {
+                        inputHtml = `
+                            <input type="file" class="form-control" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onchange="processRespondFile(this, 'hidden_${f.id}')" ${reqTxt}>
+                            <input type="hidden" name="${f.id}" id="hidden_${f.id}">
+                            <small class="text-muted">Maksimal 1 MB (PDF/Word/Gambar)</small>
+                        `;
+                    } else if (f.type === 'payment') {
+                        let itemsArr = [];
+                        if(f.items) {
+                            f.items.split('\n').forEach(line => {
+                                const parts = line.split(':');
+                                if(parts.length >= 2) itemsArr.push({ name: parts[0].trim(), price: parseInt(parts[1].trim()) || 0 });
+                            });
+                        }
+                        
+                        let itemOpts = itemsArr.map(item => `<option value="${item.name}" data-price="${item.price}">${item.name} - Rp ${item.price.toLocaleString('id-ID')}</option>`).join('');
+
+                        inputHtml = `
+                            <div class="bg-light p-3 border rounded">
+                                <input type="hidden" id="wa_admin_${f.id}" value="${f.wa_admin || ''}">
+                                
+                                <label class="small fw-bold">Pilih Pesanan</label>
+                                <select name="${f.id}_item" id="pay_item_${f.id}" class="form-select mb-3" onchange="handlePaymentMethodChange('${f.id}')" required>
+                                    <option value="">-- Pilih Barang --</option>
+                                    ${itemOpts}
+                                </select>
+
+                                <label class="small fw-bold">Metode Pembayaran</label>
+                                <select name="${f.id}_method" id="pay_method_${f.id}" class="form-select mb-3" onchange="handlePaymentMethodChange('${f.id}')" required>
+                                    <option value="">-- Pilih Metode --</option>
+                                    <option value="Cash">Cash (Bayar Langsung / WA Admin)</option>
+                                    <option value="Transfer">Transfer Bank</option>
+                                    <option value="QRIS">QRIS</option>
+                                </select>
+
+                                <div id="qris_view_${f.id}" class="text-center d-none p-3 bg-white border rounded mb-3">
+                                    <h6 class="fw-bold text-primary mb-2">Scan QRIS Berikut</h6>
+                                    ${f.url_qris ? `<img src="${f.url_qris}" class="img-fluid rounded border mb-2" style="max-height:250px;">` : `<p class="text-danger small">Admin belum menyetel gambar QRIS</p>`}
+                                    <p class="mb-0 small text-muted">Total Pembayaran:</p>
+                                    <h5 class="fw-bold text-success nominal_text_${f.id}">Rp 0</h5>
+                                </div>
+
+                                <div id="bank_view_${f.id}" class="text-center d-none p-3 bg-white border rounded mb-3">
+                                    <h6 class="fw-bold text-primary mb-2">Transfer Ke Rekening Berikut</h6>
+                                    <p class="fs-5 mb-2">${f.bank_info || '-'}</p>
+                                    <p class="mb-0 small text-muted">Total Pembayaran:</p>
+                                    <h5 class="fw-bold text-success nominal_text_${f.id}">Rp 0</h5>
+                                </div>
+
+                                <div id="proof_view_${f.id}" class="d-none">
+                                    <label class="small fw-bold text-danger">Upload Bukti Transfer / Pembayaran *</label>
+                                    <input type="file" id="proof_input_${f.id}" class="form-control" accept="image/*,.pdf" onchange="processRespondFile(this, 'hidden_proof_${f.id}')">
+                                    <input type="hidden" name="${f.id}_proof" id="hidden_proof_${f.id}">
+                                </div>
+                                <small class="text-muted d-block mt-2"><i class="fas fa-info-circle"></i> Jika pilih Cash, Anda akan diarahkan ke WhatsApp Admin setelah klik Kirim.</small>
+                            </div>
+                        `;
                     }
 
                     html += `
@@ -1074,8 +1219,36 @@
             const formData = new FormData(formElement);
             
             let answers = {};
+            let redirectWA = null;
+
             loadedFormToFill.fields.forEach(f => {
-                answers[f.id] = formData.get(f.id) || "";
+                if(f.type === 'payment') {
+                    const item = formData.get(`${f.id}_item`) || '-';
+                    const method = formData.get(`${f.id}_method`) || '-';
+                    const proofBase64 = document.getElementById(`hidden_proof_${f.id}`) ? document.getElementById(`hidden_proof_${f.id}`).value : '';
+                    
+                    // Simpan sebagai string yang bisa dibaca di excel
+                    answers[f.id] = `[${method}] Pesanan: ${item}`;
+                    if(proofBase64) answers[f.id] += ` | Status: Menyertakan Bukti Bayar`;
+                    
+                    // Simpan data mentahnya juga
+                    answers[`${f.id}_full_data`] = { item: item, method: method, proof_file: proofBase64 };
+
+                    // Cek jika cash, siapkan redirect WA
+                    if(method === 'Cash') {
+                        const waNum = document.getElementById(`wa_admin_${f.id}`).value;
+                        if(waNum) {
+                            let formattedWa = waNum.startsWith('0') ? '62' + waNum.substring(1) : waNum;
+                            let msg = `Halo Admin, saya baru saja mengisi formulir pemesanan untuk:\n\n*Barang*: ${item}\n*Metode*: CASH\n\nMohon petunjuk selanjutnya.`;
+                            redirectWA = `https://api.whatsapp.com/send?phone=${formattedWa}&text=${encodeURIComponent(msg)}`;
+                        }
+                    }
+                } else if (f.type === 'file') {
+                    // Ambil string Base64 dari hidden input
+                    answers[f.id] = document.getElementById(`hidden_${f.id}`).value; 
+                } else {
+                    answers[f.id] = formData.get(f.id) || "";
+                }
             });
 
             try {
@@ -1086,6 +1259,12 @@
                 
                 formElement.style.display = 'none';
                 document.getElementById('pubFormSuccessMsg').classList.remove('d-none');
+                
+                if(redirectWA) {
+                    document.getElementById('pubFormSuccessText').innerText = "Tanggapan direkam. Mengarahkan ke WhatsApp Admin...";
+                    setTimeout(() => { window.location.href = redirectWA; }, 1500);
+                }
+
             } catch(err) {
                 alert("Gagal mengirim: " + err.message);
                 btn.disabled = false; btn.innerText = "KIRIM JAWABAN";
@@ -1282,7 +1461,6 @@
             setTimeout(() => { document.getElementById('presensiDetailContainer').scrollIntoView({behavior: 'smooth'}); }, 300);
         }
 
-        // --- FITUR HAPUS KEHADIRAN (DOUBLE DATA) ---
         window.delAttendee = async (eventId, attendeeId) => {
             if(confirm("Hapus data kehadiran ini? Tindakan tidak bisa dibatalkan.")) {
                 await deleteDoc(doc(db, "presensi_events", eventId, "attendees", attendeeId));
