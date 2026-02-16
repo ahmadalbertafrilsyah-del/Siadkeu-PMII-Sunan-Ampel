@@ -99,7 +99,7 @@
         .ai-app-card { text-decoration: none; color: var(--text-main); display: block; height: 100%; transition: all 0.3s; }
         .ai-app-card:hover { transform: translateY(-5px); }
 
-        /* Public Views (Attendance & Custom Forms) */
+        /* Public Views */
         .public-view-container { display: none; background: var(--bg-body); min-height: 100vh; padding: 15px; }
         .public-card { max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
@@ -166,8 +166,8 @@
                     <input id="attName" class="form-control" placeholder="Tulis nama lengkap..." required>
                 </div>
                 <div class="mb-3 text-start">
-                    <label class="small fw-bold">Jabatan</label>
-                    <input id="attJabatan" class="form-control" placeholder="Sebagai apa..." required>
+                    <label class="small fw-bold">Jabatan / Delegasi</label>
+                    <input id="attJabatan" class="form-control" placeholder="Contoh: Rayon Fakultas..." required>
                 </div>
                 <div class="mb-3 text-start">
                     <label class="small fw-bold">No. WhatsApp</label>
@@ -276,12 +276,10 @@
                 </div>
 
                 <li class="nav-item mt-2 pt-2 border-top"><a class="nav-link" onclick="showSection('proker-view', this)"><i class="fas fa-calendar-alt"></i> <span>Program Kerja</span></a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showSection('presensi-view', this)"><i class="fas fa-qrcode"></i> <span>Intra Presensi</span></a></li>
-                
-                <li class="nav-item"><a class="nav-link" onclick="showSection('formulir-view', this)"><i class="fas fa-wpforms"></i> <span>Formulir Dinamis</span></a></li>
-                
+                <li class="nav-item"><a class="nav-link" onclick="showSection('presensi-view', this)"><i class="fas fa-qrcode"></i> <span>Daftar Hadir</span></a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('formulir-view', this)"><i class="fas fa-wpforms"></i> <span>Formulir</span></a></li>
                 <li class="nav-item"><a class="nav-link" onclick="showSection('pengurus-view', this)"><i class="fas fa-sitemap"></i> <span>Susunan Pengurus</span></a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showSection('asisten-ai', this)"><i class="fas fa-robot"></i> <span>Sistem AI</span></a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('asisten-ai', this)"><i class="fas fa-robot"></i> <span>Asisten AI</span></a></li>
                 <li class="nav-item" id="menu-settings"><a class="nav-link" onclick="requestAccess('settings', this)"><i class="fas fa-cog"></i> <span>Pengaturan Web</span></a></li>
                 <li class="nav-item mt-4"><a class="nav-link text-warning" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Keluar</span></a></li>
             </ul>
@@ -469,13 +467,13 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="fw-bold m-0 text-primary">Data Kehadiran: <span id="detailPresensiTitle" class="text-dark"></span></h5>
                             <div>
-                                <button class="btn btn-sm btn-success me-2" onclick="dlExcel('tblPresensiDetail','Data_Kehadiran')"><i class="fas fa-file-excel"></i> Download Excel</button>
+                                <button class="btn btn-sm btn-success me-2" onclick="dlExcelPresensi('tblPresensiDetail','Data_Kehadiran')"><i class="fas fa-file-excel"></i> Download Excel</button>
                                 <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('presensiDetailContainer').style.display='none'">Tutup</button>
                             </div>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle text-nowrap" id="tblPresensiDetail">
-                                <thead class="table-light"><tr><th>Foto</th><th>Waktu</th><th>Nama</th><th>Jabatan</th><th>No. WA</th><th>Tanda Tangan</th></tr></thead>
+                                <thead class="table-light"><tr><th>Foto</th><th>Waktu</th><th>Nama</th><th>Jabatan</th><th>No. WA</th><th>Tanda Tangan</th><th>Aksi</th></tr></thead>
                                 <tbody id="bodyPresensiDetail"></tbody>
                             </table>
                         </div>
@@ -532,10 +530,12 @@
             <div id="asisten-ai" class="page-section">
                 <h4 class="mb-4 fw-bold">Sistem AI</h4>
                 <div class="row g-4">
-                    <div class="col-md-6"><div class="card-modern h-100"><a id="linkPoPptaCard" href="https://gemini.google.com/share/71f52c5a6a49" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-blue"><i class="fas fa-robot"></i></div><h5 class="fw-bold m-0">Cek PO-PPTA Lembaga</h5></div><p class="text-muted small">Cek format surat otomatis sesuai PO-PPTA Terbaru.</p></a></div></div>
-                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/e06bb2f1202e" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-red"><i class="fas fa-file-signature"></i></div><h5 class="fw-bold m-0">Tempel TTD dan Stempel</h5></div><p class="text-muted small">Tanda tangan dan Stempel digital presisi pada PDF.</p></a></div></div>
-                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/52524759fda3" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-yellow"><i class="fas fa-brain"></i></div><h5 class="fw-bold m-0">Generator Renstra</h5></div><p class="text-muted small">Buat Program Kerja dan Analisis SWOT instan.</p></a></div></div>
-                    <div class="col-md-6"><div class="card-modern h-100"><a href="https://gemini.google.com/share/705409a52beb" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-green"><i class="fas fa-clipboard-list"></i></div><h5 class="fw-bold m-0">Generator Notulen</h5></div><p class="text-muted small">Ubah foto catatan rapat menjadi teks notulensi rapi.</p></a></div></div>
+                    <div class="col-md-6 col-lg-4"><div class="card-modern h-100"><a id="linkPoPptaCard" href="https://gemini.google.com/share/71f52c5a6a49" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-blue"><i class="fas fa-robot"></i></div><h5 class="fw-bold m-0">Cek PO-PPTA Lembaga</h5></div><p class="text-muted small">Cek format surat otomatis sesuai PO-PPTA Terbaru.</p></a></div></div>
+                    <div class="col-md-6 col-lg-4"><div class="card-modern h-100"><a href="https://gemini.google.com/share/e06bb2f1202e" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-red"><i class="fas fa-file-signature"></i></div><h5 class="fw-bold m-0">Tempel TTD dan Stempel</h5></div><p class="text-muted small">Tanda tangan dan Stempel digital presisi pada PDF.</p></a></div></div>
+                    <div class="col-md-6 col-lg-4"><div class="card-modern h-100"><a href="https://gemini.google.com/share/52524759fda3" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-yellow"><i class="fas fa-brain"></i></div><h5 class="fw-bold m-0">Generator Renstra</h5></div><p class="text-muted small">Buat Program Kerja dan Analisis SWOT instan.</p></a></div></div>
+                    <div class="col-md-6 col-lg-4"><div class="card-modern h-100"><a href="https://gemini.google.com/share/705409a52beb" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-green"><i class="fas fa-clipboard-list"></i></div><h5 class="fw-bold m-0">Generator Notulen</h5></div><p class="text-muted small">Ubah foto catatan rapat menjadi teks notulensi rapi.</p></a></div></div>
+                    <div class="col-md-6 col-lg-4"><div class="card-modern h-100"><a href="https://gemini.google.com/share/c7d5c59bcb84" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle bg-gradient-purple"><i class="fas fa-cut"></i></div><h5 class="fw-bold m-0">PDF Splitter Pro</h5></div><p class="text-muted small">Pisah halaman PDF menjadi file terpisah.</p></a></div></div>
+                    <div class="col-md-6 col-lg-4"><div class="card-modern h-100"><a href="https://gemini.google.com/share/4dd7a451e13b" target="_blank" class="ai-app-card p-4"><div class="d-flex align-items-center mb-3"><div class="icon-circle" style="background: linear-gradient(135deg, #f97316, #ea580c);"><i class="fas fa-magic"></i></div><h5 class="fw-bold m-0">Scanner Surat Pro</h5></div><p class="text-muted small">Scan Dokumen Surat dan otomatis melihat data rekapan surat sesuai dengan ketentuan (File JPG saja).</p></a></div></div>
                 </div>
             </div>
         </div>
@@ -649,22 +649,17 @@
             if(!sigCanvas) return;
             sigCtx = sigCanvas.getContext('2d');
             
-            // Atur resolusi kanvas agar tidak pecah (retina display support)
             const rect = sigCanvas.parentElement.getBoundingClientRect();
             sigCanvas.width = rect.width;
-            sigCanvas.height = 150; // Tinggi tetap 150px
+            sigCanvas.height = 150; 
             
-            // Set style coretan
             sigCtx.lineWidth = 3;
             sigCtx.lineCap = 'round';
             sigCtx.strokeStyle = '#000000';
 
-            // Event Mouse (Desktop)
             sigCanvas.addEventListener('mousedown', startPosition);
             sigCanvas.addEventListener('mouseup', endPosition);
             sigCanvas.addEventListener('mousemove', draw);
-
-            // Event Touch (Mobile)
             sigCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); startPosition(e.touches[0]); });
             sigCanvas.addEventListener('touchend', (e) => { e.preventDefault(); endPosition(); });
             sigCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
@@ -672,36 +667,22 @@
 
         function getMousePos(evt) {
             const rect = sigCanvas.getBoundingClientRect();
-            return {
-                x: evt.clientX - rect.left,
-                y: evt.clientY - rect.top
-            };
+            return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
         }
 
         function startPosition(e) {
-            isDrawing = true;
-            draw(e);
+            isDrawing = true; draw(e);
         }
 
         function endPosition() {
-            isDrawing = false;
-            sigCtx.beginPath();
-            
-            // Otomatis simpan data Base64 ke input hidden setiap kali selesai goresan
-            if(sigCanvas) {
-                // Pastikan kanvas tidak kosong melompong (cek logika ini bisa dikembangkan, sementara simpan langsung)
-                document.getElementById('attSignatureData').value = sigCanvas.toDataURL("image/png");
-            }
+            isDrawing = false; sigCtx.beginPath();
+            if(sigCanvas) document.getElementById('attSignatureData').value = sigCanvas.toDataURL("image/png");
         }
 
         function draw(e) {
             if (!isDrawing) return;
             const pos = getMousePos(e);
-            
-            sigCtx.lineTo(pos.x, pos.y);
-            sigCtx.stroke();
-            sigCtx.beginPath();
-            sigCtx.moveTo(pos.x, pos.y);
+            sigCtx.lineTo(pos.x, pos.y); sigCtx.stroke(); sigCtx.beginPath(); sigCtx.moveTo(pos.x, pos.y);
         }
 
         window.clearSignature = () => {
@@ -720,8 +701,6 @@
                     document.getElementById('attEventName').innerText = docSnap.data().nama + " (" + docSnap.data().tgl + ")";
                     document.getElementById('attEventId').value = attendanceId;
                     startCamera(); 
-                    
-                    // Inisiasi kanvas tanda tangan dengan sedikit penundaan agar render DOM selesai
                     setTimeout(initSignatureCanvas, 500);
                 } else alert("Kegiatan tidak ditemukan");
             });
@@ -1206,7 +1185,6 @@
             if(document.getElementById('bodyPengurus')) document.getElementById('bodyPengurus').innerHTML = rawData.pengurus.map((p,i)=>`<tr><td>${i+1}</td><td>${p.nama}</td><td>${p.jabatan}</td><td>${p.rayon}</td><td><a href="https://wa.me/${p.wa}" target="_blank">${p.wa}</a></td></tr>`).join('');
         }
 
-        // --- PRESENSI SELFI CAMERA LOGIC ---
         function startCamera() {
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
             .then(stream => {
@@ -1251,7 +1229,7 @@
                 await addDoc(collection(db, "presensi_events", eid, "attendees"), d);
                 e.target.reset(); 
                 document.getElementById('attPhotoData').value = "";
-                window.clearSignature(); // Bersihkan kanvas tanda tangan
+                window.clearSignature(); 
 
                 if(videoStream) videoStream.getTracks().forEach(track => track.stop()); 
                 document.getElementById('camera-container').style.display = 'none'; document.getElementById('btnCapture').style.display = 'none'; document.getElementById('btnRetake').style.display = 'none';
@@ -1285,10 +1263,10 @@
         window.viewPresensiDetail = (id, name) => {
             document.getElementById('detailPresensiTitle').innerText = name; 
             document.getElementById('presensiDetailContainer').style.display = 'block'; 
-            document.getElementById('bodyPresensiDetail').innerHTML = '<tr><td colspan="6" class="text-center">Memuat...</td></tr>';
+            document.getElementById('bodyPresensiDetail').innerHTML = '<tr><td colspan="7" class="text-center">Memuat...</td></tr>';
             
             onSnapshot(collection(db, "presensi_events", id, "attendees"), (snap) => {
-                const att = snap.docs.map(d => d.data());
+                const att = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 document.getElementById('bodyPresensiDetail').innerHTML = att.sort((a,b)=>b.time-a.time).map(a => `
                     <tr>
                         <td><img src="${a.foto || 'https://via.placeholder.com/50'}" width="50" height="50" style="object-fit:cover; border-radius:8px; cursor:pointer;" onclick="showFullImage(this.src)"></td>
@@ -1297,10 +1275,18 @@
                         <td>${a.jabatan}</td>
                         <td><a href="https://wa.me/${a.wa}" target="_blank" class="text-success text-decoration-none"><i class="fab fa-whatsapp"></i> ${a.wa}</a></td>
                         <td>${a.signature ? `<img src="${a.signature}" height="40" style="background:#fff; border:1px solid #ddd; cursor:pointer;" onclick="showFullImage(this.src)">` : '-'}</td>
+                        <td><button class="btn btn-sm btn-danger rounded-circle" onclick="delAttendee('${id}', '${a.id}')" title="Hapus Data"><i class="fas fa-trash"></i></button></td>
                     </tr>
                 `).join('');
             });
             setTimeout(() => { document.getElementById('presensiDetailContainer').scrollIntoView({behavior: 'smooth'}); }, 300);
+        }
+
+        // --- FITUR HAPUS KEHADIRAN (DOUBLE DATA) ---
+        window.delAttendee = async (eventId, attendeeId) => {
+            if(confirm("Hapus data kehadiran ini? Tindakan tidak bisa dibatalkan.")) {
+                await deleteDoc(doc(db, "presensi_events", eventId, "attendees", attendeeId));
+            }
         }
 
         window.generateWALinks = () => {
@@ -1384,23 +1370,55 @@
 
         const fmtRp = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(n);
         
-        // MODIFIKASI FUNGSI EXCEL (Mencegah elemen gambar masuk ke file agar tabel rapi)
+        // FUNGSI UMUM DOWNLOAD EXCEL (Standar tanpa gambar)
         window.dlExcel = (id, n) => {
-            // Clone the table to avoid modifying the visual DOM
             const tableClone = document.getElementById(id).cloneNode(true);
-            
-            // Remove image elements (foto & tanda tangan) before exporting to avoid clutter
             const images = tableClone.querySelectorAll('img');
             images.forEach(img => {
                 const parent = img.parentNode;
                 parent.removeChild(img);
-                // Biarkan teks sel kosong untuk kolom gambar (atau tambah tulisan 'Image terlampir')
             });
-
-            // Convert sanitized table clone to workbook
             const wb = XLSX.utils.table_to_book(tableClone, {sheet: "Sheet1"});
             XLSX.writeFile(wb, `${n}.xlsx`);
         };
+
+        // FUNGSI KHUSUS DOWNLOAD PRESENSI (Support Export TTD & Foto Selfi ke XLS)
+        window.dlExcelPresensi = (id, n) => {
+            const table = document.getElementById(id);
+            const clone = table.cloneNode(true);
+            
+            // Hapus kolom aksi (tombol hapus) agar tidak muncul di excel
+            clone.querySelectorAll('tr').forEach(tr => {
+                if(tr.lastElementChild) tr.removeChild(tr.lastElementChild);
+            });
+
+            // Pastikan gambar di-set ukurannya secara paksa agar sel excel menyesuaikan
+            clone.querySelectorAll('img').forEach(img => {
+                img.setAttribute('width', '80');
+                img.setAttribute('height', '80');
+            });
+            
+            const html = clone.outerHTML;
+            // Gunakan struktur meta format Excel jadul agar Base64 image bisa dimuat Excel
+            const template = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="utf-8">
+                    </head>
+                <body>
+                    ${html}
+                </body>
+            </html>`;
+            
+            const blob = new Blob([template], { type: 'application/vnd.ms-excel' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = n + '.xls';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
 
         window.openModalKeu = (c) => { document.getElementById('keu_cat').value=c; document.getElementById('ttlKeu').innerText=`Input ${c}`; document.getElementById('opsFields').className=c==='Operasional'?'d-block':'d-none'; new bootstrap.Modal(document.getElementById('mdlKeu')).show(); }
         window.openModalInv = (t) => { document.getElementById('inv_type').value=t; document.getElementById('ttlInv').innerText=`Input ${t}`; document.getElementById('rekapFields').className=t==='Rekap'?'d-block':'d-none'; document.getElementById('bukuFields').className=t==='Buku'?'d-block':'d-none'; new bootstrap.Modal(document.getElementById('mdlInv')).show(); }
