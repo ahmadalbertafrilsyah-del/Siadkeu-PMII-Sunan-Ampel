@@ -122,7 +122,7 @@
             <img src="https://i.ibb.co.com/7dQM1dKF/LOGO-PMII-SA.jpg" class="login-logo" id="loginLogo" alt="Logo">
             <h4 class="fw-bold mb-1" style="color:var(--primary)">SIADKEU PMII</h4>
             <p class="text-muted small mb-4">Sistem Administrasi & Keuangan</p>
-            <form onsubmit="handleLogin(event)">
+            <form onsubmit="event.preventDefault(); handleLogin(event)">
                 <div class="mb-3 text-start">
                     <label class="form-label small fw-bold">Email</label>
                     <input type="email" id="loginEmail" class="form-control" placeholder="admin@pmii.com" required>
@@ -143,7 +143,7 @@
             <h5 class="fw-bold mb-1">Presensi Kehadiran</h5>
             <p class="text-primary small fw-bold mb-3" id="attEventName">Memuat...</p>
             
-            <form onsubmit="submitPublicAttendance(event)" id="formPresensi">
+            <form onsubmit="event.preventDefault(); submitPublicAttendance(event)" id="formPresensi">
                 <input type="hidden" id="attEventId">
                 <input type="hidden" id="attPhotoData" required>
                 <input type="hidden" id="attSignatureData" required>
@@ -200,7 +200,7 @@
                 <h4 class="fw-bold mb-1" id="pubFormTitle">Memuat Formulir...</h4>
                 <p class="text-muted small" id="pubFormDesc"></p>
             </div>
-            <form id="pubFormElement" onsubmit="submitCustomForm(event)"></form>
+            <form id="pubFormElement" onsubmit="event.preventDefault(); submitCustomForm(event)"></form>
             <div id="pubFormSuccessMsg" class="alert alert-success mt-3 d-none text-center">
                 <i class="fas fa-check-circle fa-2x mb-2"></i><br>
                 Terima kasih! Tanggapan Anda telah berhasil direkam.
@@ -445,10 +445,10 @@
                     <div class="col-md-4">
                         <div class="card-modern p-3 h-100">
                             <h5 class="fw-bold mb-3">Buat Kegiatan Baru</h5>
-                            <form onsubmit="createPresensi(event)">
+                            <form onsubmit="event.preventDefault(); createPresensi(event)">
                                 <input id="newPresensiName" class="form-control mb-2" placeholder="Nama Kegiatan" required>
                                 <input type="date" id="newPresensiDate" class="form-control mb-2" required>
-                                <button class="btn btn-primary w-100">Buat Presensi</button>
+                                <button type="submit" class="btn btn-primary w-100">Buat Presensi</button>
                             </form>
                         </div>
                     </div>
@@ -517,7 +517,7 @@
                             <div class="mb-3"><label class="small fw-bold">PIN KOPRI</label><input type="text" id="pin_kopri" class="form-control" onchange="savePin('kopri', this.value)"></div>
                             
                             <h5 class="fw-bold mb-3 mt-4">Manajemen LSO</h5>
-                            <form onsubmit="addLSO(event)" class="d-flex flex-column gap-2 mb-3">
+                            <form onsubmit="event.preventDefault(); addLSO(event)" class="d-flex flex-column gap-2 mb-3">
                                 <input id="newLSO" class="form-control" placeholder="Nama LSO (misal: LPM)" required>
                                 <input id="newLSOPin" class="form-control" placeholder="PIN Akses LSO" required>
                                 <button class="btn btn-primary w-100">Tambah LSO</button>
@@ -562,7 +562,6 @@
                         <button class="btn btn-outline-primary btn-sm" onclick="addFormField('text')"><i class="fas fa-align-left"></i> Teks Pendek</button>
                         <button class="btn btn-outline-primary btn-sm" onclick="addFormField('textarea')"><i class="fas fa-align-justify"></i> Paragraf</button>
                         <button class="btn btn-outline-primary btn-sm" onclick="addFormField('radio')"><i class="fas fa-dot-circle"></i> Pilihan Ganda</button>
-                        
                         <button class="btn btn-outline-success btn-sm" onclick="addFormField('file')"><i class="fas fa-upload"></i> Upload File</button>
                         <button class="btn btn-outline-warning btn-sm text-dark" onclick="addFormField('checkout')"><i class="fas fa-shopping-cart"></i> Sistem Pembayaran/Order</button>
                     </div>
@@ -597,10 +596,10 @@
         </div>
     </div>
 
-    <div class="modal fade" id="mdlSM"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'sm')"><div class="modal-header"><h5 class="modal-title">Surat Masuk</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="small fw-bold">File (PDF/JPG)</label><input type="file" id="sm_file" class="form-control mb-2" accept=".pdf, image/*"><button type="button" class="btn btn-sm btn-info text-white w-100 mb-3 fw-bold shadow-sm" onclick="autoScanDokumen('sm', this)"><i class="fas fa-magic"></i> Scan Otomatis</button><select id="sm_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select><input id="sm_no" class="form-control mb-2" placeholder="Nomor Surat" required><input id="sm_asal" class="form-control mb-2" placeholder="Asal Surat" required><div class="row g-2 mb-2"><div class="col"><label class="small text-muted">Tgl Buat</label><input type="date" id="sm_tgl_buat" class="form-control" required></div><div class="col"><label class="small text-muted">Tgl Terima</label><input type="date" id="sm_tgl_datang" class="form-control" required></div></div><input id="sm_hal" class="form-control mb-2" placeholder="Perihal" required><textarea id="sm_ket" class="form-control mb-2" placeholder="Keterangan"></textarea></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Simpan</button></div></form></div></div>
-    <div class="modal fade" id="mdlSK"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'sk')"><div class="modal-header"><h5 class="modal-title">Surat Keluar</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="small fw-bold">File (PDF/JPG)</label><input type="file" id="sk_file" class="form-control mb-2" accept=".pdf, image/*"><button type="button" class="btn btn-sm btn-info text-white w-100 mb-3 fw-bold shadow-sm" onclick="autoScanDokumen('sk', this)"><i class="fas fa-magic"></i> Scan Otomatis</button><select id="sk_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select><input id="sk_no" class="form-control mb-2" placeholder="Nomor Surat" required><input id="sk_tujuan" class="form-control mb-2" placeholder="Tujuan" required><div class="row g-2 mb-2"><div class="col"><label class="small text-muted">Tgl Buat</label><input type="date" id="sk_tgl_buat" class="form-control" required></div><div class="col"><label class="small text-muted">Tgl Kirim</label><input type="date" id="sk_tgl_kirim" class="form-control" required></div></div><input id="sk_hal" class="form-control mb-2" placeholder="Perihal" required><textarea id="sk_ket" class="form-control mb-2" placeholder="Keterangan"></textarea></div><div class="modal-footer"><button type="submit" class="btn btn-warning">Simpan</button></div></form></div></div>
-    <div class="modal fade" id="mdlKeu"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'keu')"><div class="modal-header"><h5 class="modal-title" id="ttlKeu">Keuangan</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="keu_cat"><input type="date" id="keu_tgl" class="form-control mb-2" required><input id="keu_uraian" class="form-control mb-2" placeholder="Uraian" required><div id="opsFields" class="d-none"><input id="keu_pj" class="form-control mb-2" placeholder="PJ"><div class="row g-2 mb-2"><div class="col"><input type="number" id="keu_qty" class="form-control" placeholder="Qty" oninput="calcTotal()"></div><div class="col"><input type="number" id="keu_hrg" class="form-control" placeholder="Harga" oninput="calcTotal()"></div></div></div><select id="keu_jenis" class="form-select mb-2"><option value="Masuk">Pemasukan</option><option value="Keluar">Pengeluaran</option></select><input type="number" id="keu_nom" class="form-control" placeholder="Nominal" required></div><div class="modal-footer"><button class="btn btn-info text-white">Simpan</button></div></form></div></div>
-    <div class="modal fade" id="mdlInv"><div class="modal-dialog"><form class="modal-content" onsubmit="saveData(event, 'inv')"><div class="modal-header"><h5 class="modal-title" id="ttlInv">Inventaris</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="inv_type"><input id="inv_nama" class="form-control mb-2" placeholder="Nama Barang" required><div id="rekapFields"><input id="inv_merk" class="form-control mb-2" placeholder="Merk"><div class="row g-2 mb-2"><div class="col"><input type="number" id="inv_thn" class="form-control" placeholder="Tahun"></div><div class="col"><input type="number" id="inv_jml" class="form-control" placeholder="Jumlah"></div></div></div><div id="bukuFields" class="d-none"><input id="inv_kode" class="form-control mb-2" placeholder="Kode"><input id="inv_jenis" class="form-control mb-2" placeholder="Jenis"></div><select id="inv_cond" class="form-select mb-2"><option>Baik</option><option>Kurang Baik</option><option>Rusak</option></select><textarea id="inv_ket" class="form-control" placeholder="Ket"></textarea></div><div class="modal-footer"><button class="btn btn-success">Simpan</button></div></form></div></div>
+    <div class="modal fade" id="mdlSM"><div class="modal-dialog"><form class="modal-content" onsubmit="event.preventDefault(); saveData(event, 'sm')"><div class="modal-header"><h5 class="modal-title">Surat Masuk</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="small fw-bold">File (PDF/JPG)</label><input type="file" id="sm_file" class="form-control mb-2" accept=".pdf, image/*"><button type="button" class="btn btn-sm btn-info text-white w-100 mb-3 fw-bold shadow-sm" onclick="autoScanDokumen('sm', this)"><i class="fas fa-magic"></i> Scan Otomatis</button><select id="sm_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select><input id="sm_no" class="form-control mb-2" placeholder="Nomor Surat" required><input id="sm_asal" class="form-control mb-2" placeholder="Asal Surat" required><div class="row g-2 mb-2"><div class="col"><label class="small text-muted">Tgl Buat</label><input type="date" id="sm_tgl_buat" class="form-control" required></div><div class="col"><label class="small text-muted">Tgl Terima</label><input type="date" id="sm_tgl_datang" class="form-control" required></div></div><input id="sm_hal" class="form-control mb-2" placeholder="Perihal" required><textarea id="sm_ket" class="form-control mb-2" placeholder="Keterangan"></textarea></div><div class="modal-footer"><button type="submit" class="btn btn-primary">Simpan</button></div></form></div></div>
+    <div class="modal fade" id="mdlSK"><div class="modal-dialog"><form class="modal-content" onsubmit="event.preventDefault(); saveData(event, 'sk')"><div class="modal-header"><h5 class="modal-title">Surat Keluar</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="small fw-bold">File (PDF/JPG)</label><input type="file" id="sk_file" class="form-control mb-2" accept=".pdf, image/*"><button type="button" class="btn btn-sm btn-info text-white w-100 mb-3 fw-bold shadow-sm" onclick="autoScanDokumen('sk', this)"><i class="fas fa-magic"></i> Scan Otomatis</button><select id="sk_kat" class="form-select mb-2"><option value="Internal">Internal</option><option value="Eksternal">Eksternal</option></select><input id="sk_no" class="form-control mb-2" placeholder="Nomor Surat" required><input id="sk_tujuan" class="form-control mb-2" placeholder="Tujuan" required><div class="row g-2 mb-2"><div class="col"><label class="small text-muted">Tgl Buat</label><input type="date" id="sk_tgl_buat" class="form-control" required></div><div class="col"><label class="small text-muted">Tgl Kirim</label><input type="date" id="sk_tgl_kirim" class="form-control" required></div></div><input id="sk_hal" class="form-control mb-2" placeholder="Perihal" required><textarea id="sk_ket" class="form-control mb-2" placeholder="Keterangan"></textarea></div><div class="modal-footer"><button type="submit" class="btn btn-warning">Simpan</button></div></form></div></div>
+    <div class="modal fade" id="mdlKeu"><div class="modal-dialog"><form class="modal-content" onsubmit="event.preventDefault(); saveData(event, 'keu')"><div class="modal-header"><h5 class="modal-title" id="ttlKeu">Keuangan</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="keu_cat"><input type="date" id="keu_tgl" class="form-control mb-2" required><input id="keu_uraian" class="form-control mb-2" placeholder="Uraian" required><div id="opsFields" class="d-none"><input id="keu_pj" class="form-control mb-2" placeholder="PJ"><div class="row g-2 mb-2"><div class="col"><input type="number" id="keu_qty" class="form-control" placeholder="Qty" oninput="calcTotal()"></div><div class="col"><input type="number" id="keu_hrg" class="form-control" placeholder="Harga" oninput="calcTotal()"></div></div></div><select id="keu_jenis" class="form-select mb-2"><option value="Masuk">Pemasukan</option><option value="Keluar">Pengeluaran</option></select><input type="number" id="keu_nom" class="form-control" placeholder="Nominal" required></div><div class="modal-footer"><button class="btn btn-info text-white">Simpan</button></div></form></div></div>
+    <div class="modal fade" id="mdlInv"><div class="modal-dialog"><form class="modal-content" onsubmit="event.preventDefault(); saveData(event, 'inv')"><div class="modal-header"><h5 class="modal-title" id="ttlInv">Inventaris</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="inv_type"><input id="inv_nama" class="form-control mb-2" placeholder="Nama Barang" required><div id="rekapFields"><input id="inv_merk" class="form-control mb-2" placeholder="Merk"><div class="row g-2 mb-2"><div class="col"><input type="number" id="inv_thn" class="form-control" placeholder="Tahun"></div><div class="col"><input type="number" id="inv_jml" class="form-control" placeholder="Jumlah"></div></div></div><div id="bukuFields" class="d-none"><input id="inv_kode" class="form-control mb-2" placeholder="Kode"><input id="inv_jenis" class="form-control mb-2" placeholder="Jenis"></div><select id="inv_cond" class="form-select mb-2"><option>Baik</option><option>Kurang Baik</option><option>Rusak</option></select><textarea id="inv_ket" class="form-control" placeholder="Ket"></textarea></div><div class="modal-footer"><button class="btn btn-success">Simpan</button></div></form></div></div>
     <div class="modal fade" id="mdlQRCode"><div class="modal-dialog modal-sm"><div class="modal-content"><div class="modal-header"><h6 class="modal-title">QR Code Link</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><img id="imgQR" class="img-fluid mb-2"><p class="small text-muted mb-0">Scan / Bagikan link ini</p></div></div></div></div>
 
     <script type="module">
@@ -673,7 +672,6 @@
         function draw(e) { if (!isDrawing) return; const pos = getMousePos(e); sigCtx.lineTo(pos.x, pos.y); sigCtx.stroke(); sigCtx.beginPath(); sigCtx.moveTo(pos.x, pos.y); }
         window.clearSignature = () => { if(sigCtx && sigCanvas) { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); document.getElementById('attSignatureData').value = ""; } }
 
-
         // --- INIT URL ROUTING ---
         if(attendanceId) {
             document.getElementById('login-overlay').style.display = 'none';
@@ -731,7 +729,7 @@
         }
 
         window.handleLogin = async (e) => {
-            e.preventDefault(); const btn = document.getElementById('btnLogin'); const logo = document.getElementById('loginLogo');
+            const btn = document.getElementById('btnLogin'); const logo = document.getElementById('loginLogo');
             btn.disabled=true; btn.innerText="Memuat..."; logo.classList.add('logo-loading');
             try { 
                 await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPass').value); 
@@ -775,15 +773,14 @@
                 }
             }); listeners.push(authUnsub);
 
-            if(currentUser.role === 'admin') {
-                const presUnsub = onSnapshot(query(collection(db, "presensi_events"), where("uid_owner", "==", targetUid)), (s) => {
-                    rawData.presensi = s.docs.map(d => ({id:d.id, ...d.data()})); renderPresensiList();
-                }); listeners.push(presUnsub);
+            // FIX BUG MENTAL: Snapshot Data Presensi & Forms kini diload untuk SEMUA peran (tidak dibatasi role admin)
+            const presUnsub = onSnapshot(query(collection(db, "presensi_events"), where("uid_owner", "==", targetUid)), (s) => {
+                rawData.presensi = s.docs.map(d => ({id:d.id, ...d.data()})); renderPresensiList();
+            }); listeners.push(presUnsub);
 
-                const formUnsub = onSnapshot(query(collection(db, "dynamic_forms"), where("uid_owner", "==", targetUid)), (s) => {
-                    rawData.customForms = s.docs.map(d => ({id:d.id, ...d.data()})); renderCustomFormList();
-                }); listeners.push(formUnsub);
-            }
+            const formUnsub = onSnapshot(query(collection(db, "dynamic_forms"), where("uid_owner", "==", targetUid)), (s) => {
+                rawData.customForms = s.docs.map(d => ({id:d.id, ...d.data()})); renderCustomFormList();
+            }); listeners.push(formUnsub);
         }
 
         function loadRayonList() {
@@ -806,7 +803,6 @@
             let field = { id: id, type: type, label: 'Pertanyaan Baru', required: true, imageUrl: '' };
             if(type === 'radio') field.options = "Opsi 1, Opsi 2";
             
-            // Konfigurasi default khusus untuk field Checkout (Sistem Bayar)
             if(type === 'checkout') {
                 field.label = "Pemesanan & Pembayaran";
                 field.products = "Nama Barang|Harga|https://qris.link/hq\nNama Barang|Harga|https://qris.link/med";
@@ -896,13 +892,21 @@
             if(!title) return alert("Judul wajib diisi!");
             if(currentFormFields.length === 0) return alert("Tambahkan minimal 1 pertanyaan!");
 
-            const formData = { title: title, desc: desc, fields: currentFormFields, uid_owner: currentUser.uid, createdAt: Date.now() };
+            // FIX BUG MENTAL & DATA DISAPPEARING: Save with target activeScopeUid
+            const formData = { title: title, desc: desc, fields: currentFormFields, uid_owner: activeScopeUid, createdAt: Date.now() };
+
+            const btn = document.querySelector('#mdlFormBuilder .btn-success');
+            btn.disabled = true; btn.innerText = "Menyimpan...";
 
             try {
                 await addDoc(collection(db, "dynamic_forms"), formData);
                 bootstrap.Modal.getInstance(document.getElementById('mdlFormBuilder')).hide();
                 alert("Formulir berhasil dibuat!");
-            } catch(e) { alert("Error: " + e.message); }
+            } catch(e) { 
+                alert("Error: " + e.message); 
+            } finally {
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan Formulir';
+            }
         }
 
         function renderCustomFormList() {
@@ -963,7 +967,6 @@
                     fields.forEach(f => {
                         let ans = r.answers[f.id] || '-';
                         
-                        // Deteksi jika isinya adalah file Base64 (Gambar / PDF) atau dari Checkout
                         if(ans.includes('|| BUKTI:')) {
                             const parts = ans.split('|| BUKTI:');
                             const txt = parts[0];
@@ -980,7 +983,6 @@
                         row += `<td>${ans}</td>`;
                     });
                     
-                    // Tombol hapus respon
                     row += `<td><button class="btn btn-sm btn-danger rounded-circle" onclick="delFormResponse('${formId}', '${r.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
                     bodyHtml += row;
                 });
@@ -993,7 +995,6 @@
             if(confirm("Hapus data jawaban ini?")) { await deleteDoc(doc(db, "dynamic_forms", formId, "responses", respId)); alert("Terhapus! Silakan buka ulang jawaban."); }
         }
 
-        // FUNGSI PROSES UPLOAD FILE PADA FORM (Dibatasi 800KB agar tidak merusak DB)
         window.processFormFile = async (inputEl, hiddenId) => {
             if(!inputEl.files || !inputEl.files[0]) {
                 document.getElementById(hiddenId).value = ""; return;
@@ -1007,7 +1008,6 @@
             document.getElementById(hiddenId).value = b64;
         }
 
-        // FUNGSI UPDATE UI CHECKOUT
         window.updateCheckoutUI = (fieldId) => {
             if(!loadedFormToFill) return;
             const field = loadedFormToFill.fields.find(x => x.id === fieldId);
@@ -1026,10 +1026,10 @@
                 proofHidden.value = "";
             } else if (method === 'Transfer') {
                 isProofRequired = true;
-                html = `<div class="alert alert-warning small mt-2 m-0"><i class="fas fa-university"></i> Transfer sebesar <b> ${fmtRp(pPrice)}</b> ke Rekening:<br><b class="fs-6">${field.bankInfo}</b></div>`;
+                html = `<div class="alert alert-warning small mt-2 m-0"><i class="fas fa-university"></i> Transfer sebesar <b>Rp ${fmtRp(pPrice)}</b> ke Rekening:<br><b class="fs-6">${field.bankInfo}</b></div>`;
             } else if (method === 'QRIS') {
                 isProofRequired = true;
-                html = `<div class="alert alert-success small mt-2 m-0 text-center">Total Pembayaran: <b> ${fmtRp(pPrice)}</b><br><a href="${pQris}" target="_blank" class="btn btn-sm btn-dark mt-2 fw-bold"><i class="fas fa-qrcode"></i> Buka Link QRIS</a></div>`;
+                html = `<div class="alert alert-success small mt-2 m-0 text-center">Total Pembayaran: <b>Rp ${fmtRp(pPrice)}</b><br><a href="${pQris}" target="_blank" class="btn btn-sm btn-dark mt-2 fw-bold"><i class="fas fa-qrcode"></i> Buka Link QRIS</a></div>`;
             }
 
             if(isProofRequired) {
@@ -1081,7 +1081,7 @@
                         const prods = f.products.split('\n').map(p => p.trim()).filter(p => p);
                         let optProducts = prods.map(p => {
                             const parts = p.split('|');
-                            return `<option value="${p}">${parts[0].trim()} - ${fmtRp(parts[1]?.trim()||0)}</option>`;
+                            return `<option value="${p}">${parts[0].trim()} - Rp ${fmtRp(parts[1]?.trim()||0)}</option>`;
                         }).join('');
 
                         inputHtml = `
@@ -1120,15 +1120,12 @@
         }
 
         window.submitCustomForm = async (e) => {
-            e.preventDefault();
-            if(!loadedFormToFill) return;
-
             const btn = document.getElementById('btnSubmitCustomForm');
             btn.disabled = true; btn.innerText = "Memproses Data...";
 
+            if(!loadedFormToFill) return;
             const formData = new FormData(document.getElementById('pubFormElement'));
-            let answers = {};
-            let isValidationError = false;
+            let answers = {}; let isValidationError = false;
 
             loadedFormToFill.fields.forEach(f => {
                 if(f.type === 'text' || f.type === 'textarea' || f.type === 'radio') {
@@ -1145,7 +1142,6 @@
                     const proofB64 = document.getElementById(`val_proof_${f.id}`).value;
                     
                     if(f.required && (!prodRaw || !methRaw)) { alert(`Sistem pembayaran pada "${f.label}" belum lengkap dipilih!`); isValidationError = true; }
-                    
                     if((methRaw === 'Transfer' || methRaw === 'QRIS') && !proofB64) {
                         alert(`BUKTI PEMBAYARAN untuk "${f.label}" WAJIB diupload jika menggunakan Transfer/QRIS!`);
                         isValidationError = true;
@@ -1154,32 +1150,25 @@
                     let pName = prodRaw ? prodRaw.split('|')[0] : '';
                     let pPrice = prodRaw ? prodRaw.split('|')[1] : '';
                     let summary = `Paket: ${pName} | Hrg: ${pPrice} | via ${methRaw}`;
-                    
                     if(proofB64) summary += ` || BUKTI: ${proofB64}`;
                     
                     answers[f.id] = summary;
                 }
             });
 
-            if(isValidationError) {
-                btn.disabled = false; btn.innerText = "KIRIM JAWABAN"; return;
-            }
+            if(isValidationError) { btn.disabled = false; btn.innerText = "KIRIM JAWABAN"; return; }
 
             try {
                 await addDoc(collection(db, "dynamic_forms", loadedFormToFill.id, "responses"), {
-                    submittedAt: Date.now(),
-                    answers: answers
+                    submittedAt: Date.now(), answers: answers
                 });
                 document.getElementById('pubFormElement').style.display = 'none';
                 document.getElementById('pubFormSuccessMsg').classList.remove('d-none');
             } catch(err) {
-                alert("Gagal mengirim: " + err.message);
-                btn.disabled = false; btn.innerText = "KIRIM JAWABAN";
+                alert("Gagal mengirim: " + err.message); btn.disabled = false; btn.innerText = "KIRIM JAWABAN";
             }
         }
 
-
-        // --- MAIN APP NAVIGATION & DASHBOARD ---
         window.switchScope = (scope, el) => {
             document.querySelectorAll('.sidebar .nav-link').forEach(n => n.classList.remove('active'));
             document.querySelectorAll('.submenu a').forEach(n => n.classList.remove('active'));
@@ -1273,6 +1262,85 @@
             if(document.getElementById('bodyPengurus')) document.getElementById('bodyPengurus').innerHTML = rawData.pengurus.map((p,i)=>`<tr><td>${i+1}</td><td>${p.nama}</td><td>${p.jabatan}</td><td>${p.rayon}</td><td><a href="https://wa.me/${p.wa}" target="_blank">${p.wa}</a></td></tr>`).join('');
         }
 
+        // --- PRESENSI SELFI CAMERA LOGIC ---
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+            .then(stream => {
+                videoStream = stream; document.getElementById('camera-stream').srcObject = stream; document.getElementById('camera-stream').style.display = 'block';
+            }).catch(err => { alert("Gagal mengakses kamera."); });
+        }
+        window.capturePhoto = () => {
+            const video = document.getElementById('camera-stream'); const canvas = document.getElementById('camera-canvas');
+            if(!videoStream) return alert("Kamera belum siap!");
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight; canvas.getContext('2d').drawImage(video, 0, 0);
+            const photoData = canvas.toDataURL('image/jpeg', 0.6); 
+            document.getElementById('attPhotoData').value = photoData; document.getElementById('photo-preview').src = photoData;
+            document.getElementById('photo-preview').style.display = 'block'; video.style.display = 'none';
+            document.getElementById('btnCapture').style.display = 'none'; document.getElementById('btnRetake').style.display = 'inline-block';
+        }
+        window.retakePhoto = () => {
+            document.getElementById('attPhotoData').value = ""; document.getElementById('photo-preview').style.display = 'none';
+            document.getElementById('camera-stream').style.display = 'block'; document.getElementById('btnCapture').style.display = 'inline-block'; document.getElementById('btnRetake').style.display = 'none';
+        }
+
+        // FIX BUG MENTAL: Tambahkan tombol pencegah reload pada Create Presensi Data
+        window.createPresensi = async (e) => {
+            const nm = document.getElementById('newPresensiName').value; 
+            const tg = document.getElementById('newPresensiDate').value;
+            if(nm && tg) { 
+                const btn = e.target.querySelector('button');
+                const oldTxt = btn.innerText;
+                btn.disabled = true; btn.innerText = "Menyimpan...";
+                try {
+                    // Gunakan activeScopeUid agar bisa diakses oleh Rayon & Admin secara presisi
+                    await addDoc(collection(db, "presensi_events"), { nama: nm, tgl: tg, uid_owner: activeScopeUid, createdAt: Date.now() }); 
+                    e.target.reset(); 
+                } catch(error) { alert("Terjadi kesalahan: " + error.message); }
+                finally { btn.disabled = false; btn.innerText = oldTxt; }
+            }
+        }
+        
+        window.submitPublicAttendance = async (e) => {
+            const photoData = document.getElementById('attPhotoData').value;
+            const signatureData = document.getElementById('attSignatureData').value;
+            
+            if(!photoData) return alert("Silakan ambil foto selfi terlebih dahulu!");
+            if(!signatureData) return alert("Tanda tangan wajib diisi!");
+
+            const eid = document.getElementById('attEventId').value; const btn = document.getElementById('btnSubmitPresensi');
+            btn.disabled = true; btn.innerText = "Mengirim...";
+            
+            const d = { 
+                nama: document.getElementById('attName').value, 
+                jabatan: document.getElementById('attJabatan').value, 
+                wa: document.getElementById('attWa').value, 
+                foto: photoData, 
+                signature: signatureData,
+                time: Date.now() 
+            };
+            
+            try {
+                await addDoc(collection(db, "presensi_events", eid, "attendees"), d);
+                e.target.reset(); 
+                document.getElementById('attPhotoData').value = "";
+                window.clearSignature(); 
+
+                if(videoStream) videoStream.getTracks().forEach(track => track.stop()); 
+                document.getElementById('camera-container').style.display = 'none'; document.getElementById('btnCapture').style.display = 'none'; document.getElementById('btnRetake').style.display = 'none';
+                document.getElementById('attSuccessMsg').classList.remove('d-none'); btn.style.display = 'none';
+            } catch (err) { alert("Gagal kirim: " + err.message); btn.disabled = false; btn.innerText = "Kirim Kehadiran"; }
+        }
+
+        function renderPresensiList() {
+            const list = document.getElementById('listPresensi');
+            if(list) {
+                list.innerHTML = rawData.presensi.sort((a,b)=>b.createdAt-a.createdAt).map(p => {
+                    const link = window.location.origin + window.location.pathname + "?attendance=" + p.id;
+                    return `<tr><td><b>${p.nama}</b></td><td>${p.tgl}</td><td><button class="btn btn-sm btn-info text-white me-1" onclick="viewPresensiDetail('${p.id}', '${p.nama}')"><i class="fas fa-eye"></i> Data</button><button class="btn btn-sm btn-warning text-white" onclick="showQR('${link}')"><i class="fas fa-qrcode"></i></button></td><td><button class="btn btn-sm btn-outline-primary" onclick="copyToClip('${link}')"><i class="fas fa-copy"></i> Link</button><button class="btn btn-sm btn-danger rounded-circle ms-1" onclick="delPresensiEvent('${p.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+                }).join('');
+            }
+        }
+        
         window.showQR = (txt) => {
             const url = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(txt)}`;
             document.getElementById('imgQR').src = url; new bootstrap.Modal(document.getElementById('mdlQRCode')).show();
@@ -1316,7 +1384,7 @@
 
         const v=id=>document.getElementById(id).value;
         window.saveData = async (e, t) => {
-            e.preventDefault(); let saveScope = 'pusat'; 
+            let saveScope = 'pusat'; 
             if (currentScope === 'kopri' || currentScope.startsWith('lso_')) saveScope = currentScope; else if (currentUser.role === 'rayon' && currentScope === 'me') saveScope = 'pusat'; 
             const d = { createdAt: Date.now(), uid_inputter: currentUser.uid, scope: saveScope }; 
             const f = document.getElementById(`${t}_file`) || e.target.querySelector('input[type="file"]'); d.file = (f && f.files && f.files.length > 0) ? f.files[0].name : '-';
@@ -1388,11 +1456,17 @@
 
         const fmtRp = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(n);
         
-        // EXCEL DOWNLOAD KHUSUS FORMULIR DINAMIS (Agar Base64 diabaikan & file Excel tidak patah)
+        // EXCEL DOWNLOAD KHUSUS FORMULIR DINAMIS (Agar file stabil dan tidak berat)
         window.dlExcel = (id, n) => {
             const tableClone = document.getElementById(id).cloneNode(true);
-            // Bersihkan elemen gambar / tombol hapus
-            tableClone.querySelectorAll('img, button, a').forEach(el => el.parentNode.removeChild(el));
+            tableClone.querySelectorAll('img, button, a').forEach(el => {
+                if(el.tagName === 'IMG') {
+                    const textNode = document.createTextNode("[File Terlampir]");
+                    el.parentNode.replaceChild(textNode, el);
+                } else {
+                    el.parentNode.removeChild(el);
+                }
+            });
             const wb = XLSX.utils.table_to_book(tableClone, {sheet: "Sheet1"});
             XLSX.writeFile(wb, `${n}.xlsx`);
         };
