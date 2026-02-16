@@ -230,7 +230,9 @@
             <div class="modal-content bg-transparent border-0">
                 <div class="modal-body text-center position-relative p-0">
                     <button type="button" class="btn-close bg-white position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" style="z-index:10"></button>
-                    <img id="fullPhotoView" class="img-fluid rounded shadow-lg" src="">
+                    <div id="fullPhotoContent">
+                        <img id="fullPhotoView" class="img-fluid rounded shadow-lg" src="">
+                    </div>
                 </div>
             </div>
         </div>
@@ -277,7 +279,7 @@
 
                 <li class="nav-item mt-2 pt-2 border-top"><a class="nav-link" onclick="showSection('proker-view', this)"><i class="fas fa-calendar-alt"></i> <span>Program Kerja</span></a></li>
                 <li class="nav-item"><a class="nav-link" onclick="showSection('presensi-view', this)"><i class="fas fa-qrcode"></i> <span>Daftar Hadir</span></a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showSection('formulir-view', this)"><i class="fas fa-wpforms"></i> <span>Formulir</span></a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('formulir-view', this)"><i class="fas fa-wpforms"></i> <span>Formulir Dinamis</span></a></li>
                 <li class="nav-item"><a class="nav-link" onclick="showSection('pengurus-view', this)"><i class="fas fa-sitemap"></i> <span>Susunan Pengurus</span></a></li>
                 <li class="nav-item"><a class="nav-link" onclick="showSection('asisten-ai', this)"><i class="fas fa-robot"></i> <span>Asisten AI</span></a></li>
                 <li class="nav-item" id="menu-settings"><a class="nav-link" onclick="requestAccess('settings', this)"><i class="fas fa-cog"></i> <span>Pengaturan Web</span></a></li>
@@ -560,6 +562,9 @@
                         <button class="btn btn-outline-primary btn-sm" onclick="addFormField('text')"><i class="fas fa-align-left"></i> Teks Pendek</button>
                         <button class="btn btn-outline-primary btn-sm" onclick="addFormField('textarea')"><i class="fas fa-align-justify"></i> Paragraf</button>
                         <button class="btn btn-outline-primary btn-sm" onclick="addFormField('radio')"><i class="fas fa-dot-circle"></i> Pilihan Ganda</button>
+                        
+                        <button class="btn btn-outline-success btn-sm" onclick="addFormField('file')"><i class="fas fa-upload"></i> Upload File</button>
+                        <button class="btn btn-outline-warning btn-sm text-dark" onclick="addFormField('checkout')"><i class="fas fa-shopping-cart"></i> Sistem Pembayaran/Order</button>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -627,13 +632,11 @@
         let pinModalInstance = null; 
         let pendingAction = null;
         
-        // Kamera & Signature variabel
         let videoStream = null;
         let sigCanvas = null;
         let sigCtx = null;
         let isDrawing = false;
         
-        // Form Builder Variables
         let currentFormFields = [];
         let loadedFormToFill = null;
 
@@ -642,7 +645,7 @@
         const customFormId = urlParams.get('form');
 
         // =====================================
-        // SIGNATURE CANVAS LOGIC (TANDA TANGAN)
+        // SIGNATURE CANVAS LOGIC
         // =====================================
         function initSignatureCanvas() {
             sigCanvas = document.getElementById('signature-canvas');
@@ -664,35 +667,14 @@
             sigCanvas.addEventListener('touchend', (e) => { e.preventDefault(); endPosition(); });
             sigCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
         }
-
-        function getMousePos(evt) {
-            const rect = sigCanvas.getBoundingClientRect();
-            return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
-        }
-
-        function startPosition(e) {
-            isDrawing = true; draw(e);
-        }
-
-        function endPosition() {
-            isDrawing = false; sigCtx.beginPath();
-            if(sigCanvas) document.getElementById('attSignatureData').value = sigCanvas.toDataURL("image/png");
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            const pos = getMousePos(e);
-            sigCtx.lineTo(pos.x, pos.y); sigCtx.stroke(); sigCtx.beginPath(); sigCtx.moveTo(pos.x, pos.y);
-        }
-
-        window.clearSignature = () => {
-            if(sigCtx && sigCanvas) {
-                sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
-                document.getElementById('attSignatureData').value = "";
-            }
-        }
+        function getMousePos(evt) { const rect = sigCanvas.getBoundingClientRect(); return { x: evt.clientX - rect.left, y: evt.clientY - rect.top }; }
+        function startPosition(e) { isDrawing = true; draw(e); }
+        function endPosition() { isDrawing = false; sigCtx.beginPath(); if(sigCanvas) document.getElementById('attSignatureData').value = sigCanvas.toDataURL("image/png"); }
+        function draw(e) { if (!isDrawing) return; const pos = getMousePos(e); sigCtx.lineTo(pos.x, pos.y); sigCtx.stroke(); sigCtx.beginPath(); sigCtx.moveTo(pos.x, pos.y); }
+        window.clearSignature = () => { if(sigCtx && sigCanvas) { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); document.getElementById('attSignatureData').value = ""; } }
 
 
+        // --- INIT URL ROUTING ---
         if(attendanceId) {
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('attendance-public-view').style.display = 'block';
@@ -728,9 +710,7 @@
                             currentUser = { uid: user.uid, email: user.email, ...userSnap.data() };
                         } else if(user.email.includes('admin')) {
                             currentUser = { uid: user.uid, email: user.email, role: 'admin', name: 'Administrator' };
-                        } else {
-                            alert("Akun belum disetting."); await signOut(auth); return;
-                        }
+                        } else { alert("Akun belum disetting."); await signOut(auth); return; }
                         
                         setupUIByRole();
                         loadDataForScope(currentUser.uid); 
@@ -739,8 +719,7 @@
                         const overlay = document.getElementById('login-overlay');
                         overlay.classList.add('fade-out-up');
                         setTimeout(() => {
-                            overlay.style.display = 'none';
-                            document.getElementById('app-container').style.display = 'block';
+                            overlay.style.display = 'none'; document.getElementById('app-container').style.display = 'block';
                         }, 600);
                     } catch (err) { alert("Error: " + err.message); }
                 } else {
@@ -752,15 +731,12 @@
         }
 
         window.handleLogin = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnLogin');
-            const logo = document.getElementById('loginLogo');
+            e.preventDefault(); const btn = document.getElementById('btnLogin'); const logo = document.getElementById('loginLogo');
             btn.disabled=true; btn.innerText="Memuat..."; logo.classList.add('logo-loading');
             try { 
                 await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPass').value); 
                 localStorage.setItem('lastLoginTime', Date.now());
-            } 
-            catch (error) { 
+            } catch (error) { 
                 document.getElementById('loginError').innerText = "Login Gagal: Password Salah / User tidak ditemukan."; 
                 btn.disabled=false; btn.innerText="MASUK"; logo.classList.remove('logo-loading');
             }
@@ -768,9 +744,7 @@
         window.logout = () => { if(confirm("Keluar?")) signOut(auth).then(()=>location.reload()); }
 
         function loadDataForScope(targetUid) {
-            listeners.forEach(unsub => unsub());
-            listeners = [];
-            activeScopeUid = targetUid;
+            listeners.forEach(unsub => unsub()); listeners = []; activeScopeUid = targetUid;
             rawData = { sm:[], sk:[], keu:[], inv:[], pengurus:[], users: rawData.users, presensi:[], customForms:[] }; 
 
             const collections = ['surat_masuk', 'surat_keluar', 'keuangan', 'inventaris', 'susunan_pengurus'];
@@ -784,13 +758,11 @@
                     if(colName==='inventaris') rawData.inv = data;
                     if(colName==='susunan_pengurus') rawData.pengurus = data;
                     renderGlobalDashboard(); refreshView();
-                });
-                listeners.push(unsub);
+                }); listeners.push(unsub);
             });
 
             const lsoUnsub = onSnapshot(collection(db, "users", targetUid, "settings_lso"), (s) => { 
-                listLSO = s.docs.map(d => ({id:d.id, ...d.data()})); 
-                renderLSOMenu(); renderGlobalDashboard();
+                listLSO = s.docs.map(d => ({id:d.id, ...d.data()})); renderLSOMenu(); renderGlobalDashboard();
             }); listeners.push(lsoUnsub);
             
             const cfgUnsub = onSnapshot(doc(db, "users", targetUid, "config", "general"), (doc) => { 
@@ -799,20 +771,17 @@
             
             const authUnsub = onSnapshot(doc(db, "users", targetUid, "config", "auth"), (doc) => { 
                 if(doc.exists()) {
-                    pinData = doc.data(); 
-                    ['master','pusat','kopri'].forEach(k => { if(document.getElementById(`pin_${k}`)) document.getElementById(`pin_${k}`).value = pinData[k] || ''; });
+                    pinData = doc.data(); ['master','pusat','kopri'].forEach(k => { if(document.getElementById(`pin_${k}`)) document.getElementById(`pin_${k}`).value = pinData[k] || ''; });
                 }
             }); listeners.push(authUnsub);
 
             if(currentUser.role === 'admin') {
                 const presUnsub = onSnapshot(query(collection(db, "presensi_events"), where("uid_owner", "==", targetUid)), (s) => {
-                    rawData.presensi = s.docs.map(d => ({id:d.id, ...d.data()}));
-                    renderPresensiList();
+                    rawData.presensi = s.docs.map(d => ({id:d.id, ...d.data()})); renderPresensiList();
                 }); listeners.push(presUnsub);
 
                 const formUnsub = onSnapshot(query(collection(db, "dynamic_forms"), where("uid_owner", "==", targetUid)), (s) => {
-                    rawData.customForms = s.docs.map(d => ({id:d.id, ...d.data()}));
-                    renderCustomFormList();
+                    rawData.customForms = s.docs.map(d => ({id:d.id, ...d.data()})); renderCustomFormList();
                 }); listeners.push(formUnsub);
             }
         }
@@ -824,59 +793,67 @@
             });
         }
         
+        // ==========================================
+        //  FORMULIR DINAMIS (FORM BUILDER)
+        // ==========================================
         window.openModalFormBuilder = () => {
-            document.getElementById('fbTitle').value = "";
-            document.getElementById('fbDesc').value = "";
-            currentFormFields = [];
-            renderFormBuilderFields();
-            new bootstrap.Modal(document.getElementById('mdlFormBuilder')).show();
+            document.getElementById('fbTitle').value = ""; document.getElementById('fbDesc').value = ""; currentFormFields = [];
+            renderFormBuilderFields(); new bootstrap.Modal(document.getElementById('mdlFormBuilder')).show();
         }
 
         window.addFormField = (type) => {
             const id = 'f_' + Date.now();
             let field = { id: id, type: type, label: 'Pertanyaan Baru', required: true, imageUrl: '' };
             if(type === 'radio') field.options = "Opsi 1, Opsi 2";
-            currentFormFields.push(field);
-            renderFormBuilderFields();
+            
+            // Konfigurasi default khusus untuk field Checkout (Sistem Bayar)
+            if(type === 'checkout') {
+                field.label = "Pemesanan & Pembayaran";
+                field.products = "Nama Barang|Harga|https://qris.link/hq\nNama Barang|Harga|https://qris.link/med";
+                field.waAdmin = "628123456789";
+                field.bankInfo = "BCA 12345678 a.n PMII";
+            }
+            
+            currentFormFields.push(field); renderFormBuilderFields();
         }
 
-        window.removeFormField = (id) => {
-            currentFormFields = currentFormFields.filter(f => f.id !== id);
-            renderFormBuilderFields();
-        }
-
-        window.updateFieldData = (id, key, value) => {
-            const field = currentFormFields.find(f => f.id === id);
-            if(field) field[key] = value;
-        }
+        window.removeFormField = (id) => { currentFormFields = currentFormFields.filter(f => f.id !== id); renderFormBuilderFields(); }
+        window.updateFieldData = (id, key, value) => { const field = currentFormFields.find(f => f.id === id); if(field) field[key] = value; }
 
         const fileToBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
+            const reader = new FileReader(); reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error);
         });
 
         window.handleFieldImageUpload = async (id, inputEl) => {
             if(inputEl.files && inputEl.files[0]) {
-                const b64 = await fileToBase64(inputEl.files[0]);
-                updateFieldData(id, 'imageUrl', b64);
-                renderFormBuilderFields();
+                const b64 = await fileToBase64(inputEl.files[0]); updateFieldData(id, 'imageUrl', b64); renderFormBuilderFields();
             }
         }
-
-        window.removeFieldImage = (id) => {
-            updateFieldData(id, 'imageUrl', '');
-            renderFormBuilderFields();
-        }
+        window.removeFieldImage = (id) => { updateFieldData(id, 'imageUrl', ''); renderFormBuilderFields(); }
 
         function renderFormBuilderFields() {
             const container = document.getElementById('fbFieldsContainer');
             container.innerHTML = currentFormFields.map((f, index) => {
-                let optionsHtml = '';
+                let extraHtml = '';
+                
                 if(f.type === 'radio') {
-                    optionsHtml = `<input type="text" class="form-control form-control-sm mt-2" placeholder="Opsi jawaban pisahkan dengan koma" value="${f.options}" onchange="updateFieldData('${f.id}', 'options', this.value)">
-                                   <small class="text-muted">Contoh: Laki-laki, Perempuan</small>`;
+                    extraHtml = `<input type="text" class="form-control form-control-sm mt-2" placeholder="Opsi jawaban pisahkan dengan koma" value="${f.options}" onchange="updateFieldData('${f.id}', 'options', this.value)">
+                                 <small class="text-muted">Contoh: Laki-laki, Perempuan</small>`;
+                } 
+                else if (f.type === 'checkout') {
+                    extraHtml = `
+                        <div class="mt-3 p-3 bg-white border rounded">
+                            <label class="small fw-bold mb-1">Daftar Paket/Produk (Nama | Harga | Link QRIS) - Pisahkan baris dengan Enter</label>
+                            <textarea class="form-control form-control-sm mb-2" rows="3" onchange="updateFieldData('${f.id}', 'products', this.value)">${f.products}</textarea>
+                            
+                            <label class="small fw-bold mb-1">No. WA Admin (Untuk Cash)</label>
+                            <input type="text" class="form-control form-control-sm mb-2" value="${f.waAdmin}" onchange="updateFieldData('${f.id}', 'waAdmin', this.value)">
+                            
+                            <label class="small fw-bold mb-1">Info Bank (Untuk Transfer)</label>
+                            <input type="text" class="form-control form-control-sm" value="${f.bankInfo}" onchange="updateFieldData('${f.id}', 'bankInfo', this.value)">
+                        </div>
+                    `;
                 }
 
                 let imageHtml = `
@@ -892,21 +869,21 @@
                     </div>
                 `;
 
-                let typeLabel = f.type === 'text' ? 'Teks Pendek' : (f.type === 'textarea' ? 'Paragraf' : 'Pilihan Ganda');
+                let typeLabel = f.type === 'text' ? 'Teks Pendek' : (f.type === 'textarea' ? 'Paragraf' : (f.type === 'radio' ? 'Pilihan Ganda' : (f.type === 'file' ? 'Upload File' : 'Sistem Pembayaran/Order')));
 
                 return `
                 <div class="form-builder-field shadow-sm">
                     <span class="badge bg-secondary mb-2">${index + 1}. ${typeLabel}</span>
                     <i class="fas fa-trash del-btn" onclick="removeFormField('${f.id}')" title="Hapus"></i>
                     
-                    <input type="text" class="form-control fw-bold" value="${f.label}" onchange="updateFieldData('${f.id}', 'label', this.value)" placeholder="Tulis pertanyaan disini...">
+                    <input type="text" class="form-control fw-bold" value="${f.label}" onchange="updateFieldData('${f.id}', 'label', this.value)" placeholder="Tulis nama pertanyaan / label disini...">
                     
-                    ${imageHtml}
-                    ${optionsHtml}
+                    ${f.type !== 'checkout' && f.type !== 'file' ? imageHtml : ''}
+                    ${extraHtml}
                     
                     <div class="form-check form-switch mt-3">
                         <input class="form-check-input" type="checkbox" ${f.required ? 'checked' : ''} onchange="updateFieldData('${f.id}', 'required', this.checked)">
-                        <label class="form-check-label small text-muted">Wajib Diisi</label>
+                        <label class="form-check-label small text-muted">Wajib Diisi (Required)</label>
                     </div>
                 </div>
                 `;
@@ -916,17 +893,10 @@
         window.saveBuiltForm = async () => {
             const title = document.getElementById('fbTitle').value;
             const desc = document.getElementById('fbDesc').value;
-            
             if(!title) return alert("Judul wajib diisi!");
             if(currentFormFields.length === 0) return alert("Tambahkan minimal 1 pertanyaan!");
 
-            const formData = {
-                title: title,
-                desc: desc,
-                fields: currentFormFields,
-                uid_owner: currentUser.uid,
-                createdAt: Date.now()
-            };
+            const formData = { title: title, desc: desc, fields: currentFormFields, uid_owner: currentUser.uid, createdAt: Date.now() };
 
             try {
                 await addDoc(collection(db, "dynamic_forms"), formData);
@@ -938,20 +908,12 @@
         function renderCustomFormList() {
             const tbody = document.getElementById('listCustomForms');
             if(!tbody) return;
-            
-            if(rawData.customForms.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Belum ada formulir.</td></tr>';
-                return;
-            }
+            if(rawData.customForms.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Belum ada formulir.</td></tr>'; return; }
 
             tbody.innerHTML = rawData.customForms.sort((a,b)=>b.createdAt-a.createdAt).map(f => {
                 const date = new Date(f.createdAt).toLocaleDateString('id-ID');
                 const link = window.location.origin + window.location.pathname + "?form=" + f.id;
-                
-                getDocs(collection(db, "dynamic_forms", f.id, "responses")).then(snap => {
-                    const cntEl = document.getElementById('resp_cnt_'+f.id);
-                    if(cntEl) cntEl.innerText = snap.size;
-                });
+                getDocs(collection(db, "dynamic_forms", f.id, "responses")).then(snap => { const cntEl = document.getElementById('resp_cnt_'+f.id); if(cntEl) cntEl.innerText = snap.size; });
 
                 return `
                 <tr>
@@ -968,11 +930,7 @@
             }).join('');
         }
 
-        window.delCustomForm = async (id) => {
-            if(confirm("Hapus formulir ini? Semua jawaban juga akan hilang (tidak bisa dipulihkan).")) {
-                await deleteDoc(doc(db, "dynamic_forms", id));
-            }
-        }
+        window.delCustomForm = async (id) => { if(confirm("Hapus formulir ini? Semua jawaban juga akan hilang (tidak bisa dipulihkan).")) { await deleteDoc(doc(db, "dynamic_forms", id)); } }
 
         window.viewFormResponses = async (formId, title) => {
             document.getElementById('vrTitle').innerText = title;
@@ -987,25 +945,43 @@
 
                 let headHtml = "<tr><th>Waktu Submit</th>";
                 fields.forEach(f => headHtml += `<th>${f.label}</th>`);
-                headHtml += "</tr>";
+                headHtml += "<th>Aksi</th></tr>";
                 document.getElementById('vrTableHead').innerHTML = headHtml;
 
                 const respSnap = await getDocs(collection(db, "dynamic_forms", formId, "responses"));
-                const responses = respSnap.docs.map(d => d.data()).sort((a,b)=>b.submittedAt-a.submittedAt);
+                const responses = respSnap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>b.submittedAt-a.submittedAt);
                 
                 if(responses.length === 0) {
-                    document.getElementById('vrTableBody').innerHTML = `<tr><td colspan="${fields.length + 1}" class="text-center py-4 text-muted">Belum ada jawaban</td></tr>`;
-                    return;
+                    document.getElementById('vrTableBody').innerHTML = `<tr><td colspan="${fields.length + 2}" class="text-center py-4 text-muted">Belum ada jawaban</td></tr>`; return;
                 }
 
                 let bodyHtml = "";
                 responses.forEach(r => {
                     const time = new Date(r.submittedAt).toLocaleString('id-ID');
                     let row = `<tr><td class="text-muted small">${time}</td>`;
+                    
                     fields.forEach(f => {
-                        row += `<td>${r.answers[f.id] || '-'}</td>`;
+                        let ans = r.answers[f.id] || '-';
+                        
+                        // Deteksi jika isinya adalah file Base64 (Gambar / PDF) atau dari Checkout
+                        if(ans.includes('|| BUKTI:')) {
+                            const parts = ans.split('|| BUKTI:');
+                            const txt = parts[0];
+                            const fileB64 = parts[1].trim();
+                            ans = `<div>${txt}</div><img src="${fileB64}" height="40" style="cursor:pointer;" onclick="showFullImage(this.src)" title="Lihat Bukti">`;
+                        } 
+                        else if (ans.startsWith('data:image/')) {
+                            ans = `<img src="${ans}" height="40" style="cursor:pointer;" onclick="showFullImage(this.src)">`;
+                        }
+                        else if (ans.startsWith('data:application/pdf')) {
+                            ans = `<a href="${ans}" download="Dokumen_${f.label}.pdf" class="btn btn-sm btn-outline-danger"><i class="fas fa-file-pdf"></i> Download PDF</a>`;
+                        }
+
+                        row += `<td>${ans}</td>`;
                     });
-                    row += "</tr>";
+                    
+                    // Tombol hapus respon
+                    row += `<td><button class="btn btn-sm btn-danger rounded-circle" onclick="delFormResponse('${formId}', '${r.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
                     bodyHtml += row;
                 });
                 document.getElementById('vrTableBody').innerHTML = bodyHtml;
@@ -1013,16 +989,64 @@
             } catch(e) { console.error(e); alert("Gagal memuat jawaban."); }
         }
 
+        window.delFormResponse = async (formId, respId) => {
+            if(confirm("Hapus data jawaban ini?")) { await deleteDoc(doc(db, "dynamic_forms", formId, "responses", respId)); alert("Terhapus! Silakan buka ulang jawaban."); }
+        }
+
+        // FUNGSI PROSES UPLOAD FILE PADA FORM (Dibatasi 800KB agar tidak merusak DB)
+        window.processFormFile = async (inputEl, hiddenId) => {
+            if(!inputEl.files || !inputEl.files[0]) {
+                document.getElementById(hiddenId).value = ""; return;
+            }
+            const file = inputEl.files[0];
+            if(file.size > 800 * 1024) {
+                alert("Maaf, ukuran file terlalu besar! Maksimal 800 KB agar sistem tetap stabil. Silakan kompres foto/file Anda terlebih dahulu.");
+                inputEl.value = ""; document.getElementById(hiddenId).value = ""; return;
+            }
+            const b64 = await fileToBase64(file);
+            document.getElementById(hiddenId).value = b64;
+        }
+
+        // FUNGSI UPDATE UI CHECKOUT
+        window.updateCheckoutUI = (fieldId) => {
+            if(!loadedFormToFill) return;
+            const field = loadedFormToFill.fields.find(x => x.id === fieldId);
+            const prodSelect = document.getElementById(`prod_${fieldId}`).value; 
+            const method = document.querySelector(`input[name="meth_${fieldId}"]:checked`)?.value;
+            const uiArea = document.getElementById(`ui_${fieldId}`);
+            const proofHidden = document.getElementById(`val_proof_${fieldId}`);
+
+            if(!prodSelect || !method) return;
+
+            const [pName, pPrice, pQris] = prodSelect.split('|');
+            let html = ''; let isProofRequired = false;
+
+            if(method === 'Cash') {
+                html = `<div class="alert alert-info small mt-2 m-0"><i class="fab fa-whatsapp"></i> Hubungi WA Admin (<b>${field.waAdmin}</b>) untuk janjian bayar Cash/Tunai.</div>`;
+                proofHidden.value = "";
+            } else if (method === 'Transfer') {
+                isProofRequired = true;
+                html = `<div class="alert alert-warning small mt-2 m-0"><i class="fas fa-university"></i> Transfer sebesar <b> ${fmtRp(pPrice)}</b> ke Rekening:<br><b class="fs-6">${field.bankInfo}</b></div>`;
+            } else if (method === 'QRIS') {
+                isProofRequired = true;
+                html = `<div class="alert alert-success small mt-2 m-0 text-center">Total Pembayaran: <b> ${fmtRp(pPrice)}</b><br><a href="${pQris}" target="_blank" class="btn btn-sm btn-dark mt-2 fw-bold"><i class="fas fa-qrcode"></i> Buka Link QRIS</a></div>`;
+            }
+
+            if(isProofRequired) {
+                html += `<div class="mt-2 border-top pt-2"><label class="small fw-bold text-danger">Upload Bukti Pembayaran Wajib (JPG/PNG/PDF) *</label>
+                         <input type="file" class="form-control form-control-sm" accept=".jpg,.png,.pdf" onchange="processFormFile(this, 'val_proof_${fieldId}')" id="file_${fieldId}">
+                         <small class="text-muted" style="font-size:0.7rem">Maks 800KB</small></div>`;
+            }
+
+            uiArea.innerHTML = html;
+        }
+
         async function loadPublicCustomForm(formId) {
             try {
                 const docSnap = await getDoc(doc(db, "dynamic_forms", formId));
-                if(!docSnap.exists()) {
-                    document.getElementById('pubFormTitle').innerText = "Formulir Tidak Ditemukan";
-                    return;
-                }
+                if(!docSnap.exists()) { document.getElementById('pubFormTitle').innerText = "Formulir Tidak Ditemukan"; return; }
                 
                 loadedFormToFill = { id: formId, ...docSnap.data() };
-                
                 document.getElementById('pubFormTitle').innerText = loadedFormToFill.title;
                 document.getElementById('pubFormDesc').innerText = loadedFormToFill.desc || "";
 
@@ -1047,11 +1071,43 @@
                                 <label class="form-check-label" for="${f.id}_${o}">${o}</label>
                             </div>
                         `).join('');
+                    } else if (f.type === 'file') {
+                        inputHtml = `
+                            <input type="file" class="form-control" accept=".jpg,.png,.pdf,.doc,.docx" onchange="processFormFile(this, 'val_${f.id}')" ${reqTxt}>
+                            <input type="hidden" id="val_${f.id}">
+                            <small class="text-danger d-block mt-1">Maksimal file 800 KB</small>
+                        `;
+                    } else if (f.type === 'checkout') {
+                        const prods = f.products.split('\n').map(p => p.trim()).filter(p => p);
+                        let optProducts = prods.map(p => {
+                            const parts = p.split('|');
+                            return `<option value="${p}">${parts[0].trim()} - ${fmtRp(parts[1]?.trim()||0)}</option>`;
+                        }).join('');
+
+                        inputHtml = `
+                            <div class="p-3 bg-light border rounded">
+                                <label class="small fw-bold">1. Pilih Paket / Produk</label>
+                                <select id="prod_${f.id}" class="form-select mb-3" onchange="updateCheckoutUI('${f.id}')">
+                                    <option value="" disabled selected>-- Pilih --</option>
+                                    ${optProducts}
+                                </select>
+                                
+                                <label class="small fw-bold">2. Pilih Metode Pembayaran</label>
+                                <div class="d-flex gap-3 mb-2">
+                                    <label><input type="radio" name="meth_${f.id}" value="Cash" onchange="updateCheckoutUI('${f.id}')"> Cash</label>
+                                    <label><input type="radio" name="meth_${f.id}" value="Transfer" onchange="updateCheckoutUI('${f.id}')"> Transfer</label>
+                                    <label><input type="radio" name="meth_${f.id}" value="QRIS" onchange="updateCheckoutUI('${f.id}')"> QRIS</label>
+                                </div>
+                                
+                                <div id="ui_${f.id}"></div>
+                                <input type="hidden" id="val_proof_${f.id}">
+                            </div>
+                        `;
                     }
 
                     html += `
                     <div class="mb-4 text-start">
-                        <label class="form-label fw-bold">${f.label} ${reqStar}</label>
+                        <label class="form-label fw-bold" style="color:var(--primary)">${f.label} ${reqStar}</label>
                         ${imgHtml}
                         ${inputHtml}
                     </div>`;
@@ -1068,23 +1124,53 @@
             if(!loadedFormToFill) return;
 
             const btn = document.getElementById('btnSubmitCustomForm');
-            btn.disabled = true; btn.innerText = "Mengirim...";
+            btn.disabled = true; btn.innerText = "Memproses Data...";
 
-            const formElement = document.getElementById('pubFormElement');
-            const formData = new FormData(formElement);
-            
+            const formData = new FormData(document.getElementById('pubFormElement'));
             let answers = {};
+            let isValidationError = false;
+
             loadedFormToFill.fields.forEach(f => {
-                answers[f.id] = formData.get(f.id) || "";
+                if(f.type === 'text' || f.type === 'textarea' || f.type === 'radio') {
+                    answers[f.id] = formData.get(f.id) || "";
+                } 
+                else if (f.type === 'file') {
+                    const b64 = document.getElementById(`val_${f.id}`).value;
+                    if(f.required && !b64) { alert(`File untuk "${f.label}" wajib diupload!`); isValidationError = true; }
+                    answers[f.id] = b64;
+                }
+                else if (f.type === 'checkout') {
+                    const prodRaw = document.getElementById(`prod_${f.id}`).value;
+                    const methRaw = document.querySelector(`input[name="meth_${f.id}"]:checked`)?.value;
+                    const proofB64 = document.getElementById(`val_proof_${f.id}`).value;
+                    
+                    if(f.required && (!prodRaw || !methRaw)) { alert(`Sistem pembayaran pada "${f.label}" belum lengkap dipilih!`); isValidationError = true; }
+                    
+                    if((methRaw === 'Transfer' || methRaw === 'QRIS') && !proofB64) {
+                        alert(`BUKTI PEMBAYARAN untuk "${f.label}" WAJIB diupload jika menggunakan Transfer/QRIS!`);
+                        isValidationError = true;
+                    }
+                    
+                    let pName = prodRaw ? prodRaw.split('|')[0] : '';
+                    let pPrice = prodRaw ? prodRaw.split('|')[1] : '';
+                    let summary = `Paket: ${pName} | Hrg: ${pPrice} | via ${methRaw}`;
+                    
+                    if(proofB64) summary += ` || BUKTI: ${proofB64}`;
+                    
+                    answers[f.id] = summary;
+                }
             });
+
+            if(isValidationError) {
+                btn.disabled = false; btn.innerText = "KIRIM JAWABAN"; return;
+            }
 
             try {
                 await addDoc(collection(db, "dynamic_forms", loadedFormToFill.id, "responses"), {
                     submittedAt: Date.now(),
                     answers: answers
                 });
-                
-                formElement.style.display = 'none';
+                document.getElementById('pubFormElement').style.display = 'none';
                 document.getElementById('pubFormSuccessMsg').classList.remove('d-none');
             } catch(err) {
                 alert("Gagal mengirim: " + err.message);
@@ -1092,6 +1178,8 @@
             }
         }
 
+
+        // --- MAIN APP NAVIGATION & DASHBOARD ---
         window.switchScope = (scope, el) => {
             document.querySelectorAll('.sidebar .nav-link').forEach(n => n.classList.remove('active'));
             document.querySelectorAll('.submenu a').forEach(n => n.classList.remove('active'));
@@ -1185,73 +1273,6 @@
             if(document.getElementById('bodyPengurus')) document.getElementById('bodyPengurus').innerHTML = rawData.pengurus.map((p,i)=>`<tr><td>${i+1}</td><td>${p.nama}</td><td>${p.jabatan}</td><td>${p.rayon}</td><td><a href="https://wa.me/${p.wa}" target="_blank">${p.wa}</a></td></tr>`).join('');
         }
 
-        function startCamera() {
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-            .then(stream => {
-                videoStream = stream; document.getElementById('camera-stream').srcObject = stream; document.getElementById('camera-stream').style.display = 'block';
-            }).catch(err => { alert("Gagal mengakses kamera."); });
-        }
-        window.capturePhoto = () => {
-            const video = document.getElementById('camera-stream'); const canvas = document.getElementById('camera-canvas');
-            if(!videoStream) return alert("Kamera belum siap!");
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight; canvas.getContext('2d').drawImage(video, 0, 0);
-            const photoData = canvas.toDataURL('image/jpeg', 0.6); 
-            document.getElementById('attPhotoData').value = photoData; document.getElementById('photo-preview').src = photoData;
-            document.getElementById('photo-preview').style.display = 'block'; video.style.display = 'none';
-            document.getElementById('btnCapture').style.display = 'none'; document.getElementById('btnRetake').style.display = 'inline-block';
-        }
-        window.retakePhoto = () => {
-            document.getElementById('attPhotoData').value = ""; document.getElementById('photo-preview').style.display = 'none';
-            document.getElementById('camera-stream').style.display = 'block'; document.getElementById('btnCapture').style.display = 'inline-block'; document.getElementById('btnRetake').style.display = 'none';
-        }
-
-        window.submitPublicAttendance = async (e) => {
-            e.preventDefault(); 
-            const photoData = document.getElementById('attPhotoData').value;
-            const signatureData = document.getElementById('attSignatureData').value;
-            
-            if(!photoData) return alert("Silakan ambil foto selfi terlebih dahulu!");
-            if(!signatureData) return alert("Tanda tangan wajib diisi!");
-
-            const eid = document.getElementById('attEventId').value; const btn = document.getElementById('btnSubmitPresensi');
-            btn.disabled = true; btn.innerText = "Mengirim...";
-            
-            const d = { 
-                nama: document.getElementById('attName').value, 
-                jabatan: document.getElementById('attJabatan').value, 
-                wa: document.getElementById('attWa').value, 
-                foto: photoData, 
-                signature: signatureData,
-                time: Date.now() 
-            };
-            
-            try {
-                await addDoc(collection(db, "presensi_events", eid, "attendees"), d);
-                e.target.reset(); 
-                document.getElementById('attPhotoData').value = "";
-                window.clearSignature(); 
-
-                if(videoStream) videoStream.getTracks().forEach(track => track.stop()); 
-                document.getElementById('camera-container').style.display = 'none'; document.getElementById('btnCapture').style.display = 'none'; document.getElementById('btnRetake').style.display = 'none';
-                document.getElementById('attSuccessMsg').classList.remove('d-none'); btn.style.display = 'none';
-            } catch (err) { alert("Gagal kirim: " + err.message); btn.disabled = false; btn.innerText = "Kirim Kehadiran"; }
-        }
-
-        window.createPresensi = async (e) => {
-            e.preventDefault(); const nm = document.getElementById('newPresensiName').value; const tg = document.getElementById('newPresensiDate').value;
-            if(nm && tg) { await addDoc(collection(db, "presensi_events"), { nama: nm, tgl: tg, uid_owner: currentUser.uid, createdAt: Date.now() }); e.target.reset(); }
-        }
-        
-        function renderPresensiList() {
-            const list = document.getElementById('listPresensi');
-            if(list) {
-                list.innerHTML = rawData.presensi.sort((a,b)=>b.createdAt-a.createdAt).map(p => {
-                    const link = window.location.origin + window.location.pathname + "?attendance=" + p.id;
-                    return `<tr><td><b>${p.nama}</b></td><td>${p.tgl}</td><td><button class="btn btn-sm btn-info text-white me-1" onclick="viewPresensiDetail('${p.id}', '${p.nama}')"><i class="fas fa-eye"></i> Data</button><button class="btn btn-sm btn-warning text-white" onclick="showQR('${link}')"><i class="fas fa-qrcode"></i></button></td><td><button class="btn btn-sm btn-outline-primary" onclick="copyToClip('${link}')"><i class="fas fa-copy"></i> Link</button><button class="btn btn-sm btn-danger rounded-circle ms-1" onclick="delPresensiEvent('${p.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
-                }).join('');
-            }
-        }
-        
         window.showQR = (txt) => {
             const url = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(txt)}`;
             document.getElementById('imgQR').src = url; new bootstrap.Modal(document.getElementById('mdlQRCode')).show();
@@ -1282,11 +1303,8 @@
             setTimeout(() => { document.getElementById('presensiDetailContainer').scrollIntoView({behavior: 'smooth'}); }, 300);
         }
 
-        // --- FITUR HAPUS KEHADIRAN (DOUBLE DATA) ---
         window.delAttendee = async (eventId, attendeeId) => {
-            if(confirm("Hapus data kehadiran ini? Tindakan tidak bisa dibatalkan.")) {
-                await deleteDoc(doc(db, "presensi_events", eventId, "attendees", attendeeId));
-            }
+            if(confirm("Hapus data kehadiran ini? Tindakan tidak bisa dibatalkan.")) { await deleteDoc(doc(db, "presensi_events", eventId, "attendees", attendeeId)); }
         }
 
         window.generateWALinks = () => {
@@ -1370,54 +1388,27 @@
 
         const fmtRp = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(n);
         
-        // FUNGSI UMUM DOWNLOAD EXCEL (Standar tanpa gambar)
+        // EXCEL DOWNLOAD KHUSUS FORMULIR DINAMIS (Agar Base64 diabaikan & file Excel tidak patah)
         window.dlExcel = (id, n) => {
             const tableClone = document.getElementById(id).cloneNode(true);
-            const images = tableClone.querySelectorAll('img');
-            images.forEach(img => {
-                const parent = img.parentNode;
-                parent.removeChild(img);
-            });
+            // Bersihkan elemen gambar / tombol hapus
+            tableClone.querySelectorAll('img, button, a').forEach(el => el.parentNode.removeChild(el));
             const wb = XLSX.utils.table_to_book(tableClone, {sheet: "Sheet1"});
             XLSX.writeFile(wb, `${n}.xlsx`);
         };
 
-        // FUNGSI KHUSUS DOWNLOAD PRESENSI (Support Export TTD & Foto Selfi ke XLS)
+        // EXCEL DOWNLOAD KHUSUS PRESENSI
         window.dlExcelPresensi = (id, n) => {
             const table = document.getElementById(id);
             const clone = table.cloneNode(true);
-            
-            // Hapus kolom aksi (tombol hapus) agar tidak muncul di excel
-            clone.querySelectorAll('tr').forEach(tr => {
-                if(tr.lastElementChild) tr.removeChild(tr.lastElementChild);
-            });
-
-            // Pastikan gambar di-set ukurannya secara paksa agar sel excel menyesuaikan
-            clone.querySelectorAll('img').forEach(img => {
-                img.setAttribute('width', '80');
-                img.setAttribute('height', '80');
-            });
+            clone.querySelectorAll('tr').forEach(tr => { if(tr.lastElementChild) tr.removeChild(tr.lastElementChild); });
+            clone.querySelectorAll('img').forEach(img => { img.setAttribute('width', '80'); img.setAttribute('height', '80'); });
             
             const html = clone.outerHTML;
-            // Gunakan struktur meta format Excel jadul agar Base64 image bisa dimuat Excel
-            const template = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-                <head>
-                    <meta charset="utf-8">
-                    </head>
-                <body>
-                    ${html}
-                </body>
-            </html>`;
-            
+            const template = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"></head><body>${html}</body></html>`;
             const blob = new Blob([template], { type: 'application/vnd.ms-excel' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = n + '.xls';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = n + '.xls';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
         window.openModalKeu = (c) => { document.getElementById('keu_cat').value=c; document.getElementById('ttlKeu').innerText=`Input ${c}`; document.getElementById('opsFields').className=c==='Operasional'?'d-block':'d-none'; new bootstrap.Modal(document.getElementById('mdlKeu')).show(); }
