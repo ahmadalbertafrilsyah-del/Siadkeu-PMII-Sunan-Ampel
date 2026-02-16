@@ -694,6 +694,57 @@
             }
         }
 
+        // =====================================
+        // FUNGSI HELPER QRIS DINAMIS
+        // =====================================
+        function generateDynamicQRIS(qrisString, nominal) {
+            if (!qrisString || typeof qrisString !== 'string') return qrisString;
+            
+            // Jika yang diinput adalah URL gambar biasa, kembalikan URL tersebut
+            if (qrisString.startsWith('http://') || qrisString.startsWith('https://')) return qrisString;
+
+            try {
+                // Potong string dari belakang, cari indeks "6304" (tag CRC statis)
+                let crcIndex = qrisString.lastIndexOf("6304");
+                if (crcIndex === -1) return qrisString; // Bukan string QRIS valid
+                
+                let baseString = qrisString.substring(0, crcIndex);
+                
+                // Tambahkan tag Nominal (Tag 54)
+                let nominalStr = nominal.toString();
+                let lengthStr = nominalStr.length.toString().padStart(2, '0');
+                let tagNominal = "54" + lengthStr + nominalStr;
+                
+                // Cek apakah sudah ada tag 54 di string asli, jika ada ganti, jika belum sisipkan sebelum 58 atau 59
+                if (baseString.includes("54" + lengthStr)) {
+                    // Ini butuh regex kompleks untuk ganti, cara simplenya, tempel saja di akhir sebelum 6304 jika belum ada
+                } else {
+                     baseString += tagNominal;
+                }
+
+                baseString += "6304"; // Tambahkan kembali tag CRC
+                
+                // Hitung CRC CCITT-16
+                let crc = 0xFFFF;
+                for (let c = 0; c < baseString.length; c++) {
+                    crc ^= baseString.charCodeAt(c) << 8;
+                    for (let i = 0; i < 8; i++) {
+                        if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
+                        else crc = crc << 1;
+                    }
+                }
+                
+                let crcHex = (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+                let finalQrisString = baseString + crcHex;
+                
+                // Kembalikan URL API QR Code dari string yang dimodifikasi
+                return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(finalQrisString)}`;
+            } catch (error) {
+                console.error("Gagal generate QRIS dinamis", error);
+                return qrisString;
+            }
+        }
+
 
         if(attendanceId) {
             document.getElementById('login-overlay').style.display = 'none';
@@ -842,7 +893,7 @@
                 field.label = "Formulir Pemesanan";
                 field.items = "Jas Laki-Laki S : 150000\nJas Perempuan S : 150000"; // Format default
                 field.wa_admin = "";
-                field.url_qris = ""; // URL gambar QRIS
+                field.url_qris = ""; // URL ATAU String QRIS Mentah
                 field.bank_info = "BCA 12345678 a.n PMII";
             }
             currentFormFields.push(field);
@@ -898,8 +949,9 @@
                         <label class="small fw-bold text-success">Nomor WA Admin (Tujuan Cash)</label>
                         <input type="number" class="form-control form-control-sm mb-2" placeholder="628..." value="${f.wa_admin || ''}" onchange="updateFieldData('${f.id}', 'wa_admin', this.value)">
                         
-                        <label class="small fw-bold text-info">Link Gambar QRIS</label>
-                        <input type="text" class="form-control form-control-sm mb-2" placeholder="https://..." value="${f.url_qris || ''}" onchange="updateFieldData('${f.id}', 'url_qris', this.value)">
+                        <label class="small fw-bold text-info">String Data QRIS / Link Gambar QRIS</label>
+                        <input type="text" class="form-control form-control-sm mb-1" placeholder="000201010211266... ATAU https://..." value="${f.url_qris || ''}" onchange="updateFieldData('${f.id}', 'url_qris', this.value)">
+                        <small class="text-muted d-block mb-2" style="font-size:0.7rem;">*Jika diisi string panjang QRIS asli dari Bank, sistem akan otomatis menyesuaikan harga barcode saat scan. Jika diisi link http, sistem tampilkan foto statis.</small>
                         
                         <label class="small fw-bold text-warning">Info Rekening Bank (Transfer)</label>
                         <input type="text" class="form-control form-control-sm" placeholder="Mandiri 1234 a.n PMII" value="${f.bank_info || ''}" onchange="updateFieldData('${f.id}', 'bank_info', this.value)">
@@ -1075,6 +1127,7 @@
             const method = document.getElementById(`pay_method_${fieldId}`).value;
             const itemSelect = document.getElementById(`pay_item_${fieldId}`);
             const price = itemSelect.options[itemSelect.selectedIndex]?.dataset.price || 0;
+            const qrisData = document.getElementById(`qris_data_${fieldId}`).value; // Bisa string panjang atau url image
             
             const qrisContainer = document.getElementById(`qris_view_${fieldId}`);
             const bankContainer = document.getElementById(`bank_view_${fieldId}`);
@@ -1091,6 +1144,12 @@
             proofInput.removeAttribute('required');
 
             if(method === 'QRIS') {
+                // Tampilkan QRIS secara Dinamis
+                const qrisImg = document.getElementById(`qris_img_${fieldId}`);
+                if (qrisData) {
+                    qrisImg.src = generateDynamicQRIS(qrisData, price);
+                }
+                
                 qrisContainer.classList.remove('d-none');
                 proofContainer.classList.remove('d-none');
                 proofInput.setAttribute('required', 'true');
@@ -1155,6 +1214,7 @@
                         inputHtml = `
                             <div class="bg-light p-3 border rounded">
                                 <input type="hidden" id="wa_admin_${f.id}" value="${f.wa_admin || ''}">
+                                <input type="hidden" id="qris_data_${f.id}" value="${f.url_qris || ''}">
                                 
                                 <label class="small fw-bold">Pilih Pesanan</label>
                                 <select name="${f.id}_item" id="pay_item_${f.id}" class="form-select mb-3" onchange="handlePaymentMethodChange('${f.id}')" required>
@@ -1172,8 +1232,8 @@
 
                                 <div id="qris_view_${f.id}" class="text-center d-none p-3 bg-white border rounded mb-3">
                                     <h6 class="fw-bold text-primary mb-2">Scan QRIS Berikut</h6>
-                                    ${f.url_qris ? `<img src="${f.url_qris}" class="img-fluid rounded border mb-2" style="max-height:250px;">` : `<p class="text-danger small">Admin belum menyetel gambar QRIS</p>`}
-                                    <p class="mb-0 small text-muted">Total Pembayaran:</p>
+                                    <img id="qris_img_${f.id}" src="" class="img-fluid rounded border shadow-sm mb-2" style="max-height:250px; min-height:100px; background:#f8f9fa;">
+                                    <p class="mb-0 small text-muted mt-2">Total Pembayaran:</p>
                                     <h5 class="fw-bold text-success nominal_text_${f.id}">Rp 0</h5>
                                 </div>
 
