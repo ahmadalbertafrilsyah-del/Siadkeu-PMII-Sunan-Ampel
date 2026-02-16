@@ -541,6 +541,29 @@
         </div>
     </div>
 
+    <div class="modal fade" id="mdlLinkSpreadsheet" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <form class="modal-content" onsubmit="saveSpreadsheetLink(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Hubungkan Spreadsheet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <input type="hidden" id="linkFormId">
+                    <div class="mb-3">
+                        <label class="small fw-bold mb-1">URL Webhook (Google Apps Script)</label>
+                        <input type="url" id="linkSpreadsheetUrl" class="form-control" placeholder="https://script.google.com/macros/s/..." required>
+                        <small class="text-muted mt-1 d-block"><i class="fas fa-info-circle"></i> Masukkan URL hasil Deploy Web App dari Google Apps Script.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-link"></i> Simpan Link</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="modal fade" id="mdlFormBuilder" data-bs-backdrop="static">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
@@ -603,7 +626,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, getDoc, setDoc, onSnapshot, writeBatch, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        // EDIT 1: Menambahkan updateDoc pada list import Firestore
+        import { getFirestore, collection, addDoc, deleteDoc, doc, getDoc, setDoc, updateDoc, onSnapshot, writeBatch, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAwsqkpDt01N2U9PpPNfnKFbB2_AqaSFvA",
@@ -642,6 +666,29 @@
         const urlParams = new URLSearchParams(window.location.search);
         const attendanceId = urlParams.get('attendance');
         const customFormId = urlParams.get('form');
+
+        // =====================================
+        // SCRIPT WEBHOOK SPREADSHEET (BARU)
+        // =====================================
+        window.openLinkSpreadsheetModal = (id, url) => {
+            document.getElementById('linkFormId').value = id;
+            document.getElementById('linkSpreadsheetUrl').value = (url !== 'undefined' && url !== 'null') ? url : '';
+            new bootstrap.Modal(document.getElementById('mdlLinkSpreadsheet')).show();
+        }
+
+        window.saveSpreadsheetLink = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('linkFormId').value;
+            const url = document.getElementById('linkSpreadsheetUrl').value;
+            
+            try {
+                await updateDoc(doc(db, "dynamic_forms", id), { spreadsheet_url: url });
+                bootstrap.Modal.getInstance(document.getElementById('mdlLinkSpreadsheet')).hide();
+                alert("Link Spreadsheet berhasil dihubungkan!");
+            } catch (err) {
+                alert("Gagal menyimpan link: " + err.message);
+            }
+        }
 
         // =====================================
         // SIGNATURE CANVAS LOGIC (TANDA TANGAN)
@@ -945,7 +992,7 @@
                     optionsHtml = `
                     <div class="p-2 border rounded mt-2 bg-white">
                         <label class="small fw-bold text-primary">Daftar Barang & Harga (Baris Baru = Barang Baru)</label>
-                        <textarea class="form-control form-control-sm mb-2" rows="3" placeholder="Contoh:\\nJas Laki Laki : 150000\\nJas Perempuan : 160000" onchange="updateFieldData('${f.id}', 'items', this.value)">${f.items || ''}</textarea>
+                        <textarea class="form-control form-control-sm mb-2" rows="3" placeholder="Contoh:\nJas Laki Laki : 150000\nJas Perempuan : 160000" onchange="updateFieldData('${f.id}', 'items', this.value)">${f.items || ''}</textarea>
                         
                         <div class="row g-2 mb-2">
                             <div class="col-md-5">
@@ -1042,6 +1089,7 @@
                     if(cntEl) cntEl.innerText = snap.size;
                 });
 
+                // EDIT 2: Menambahkan tombol "Set Sheet" di List
                 return `
                 <tr>
                     <td><span class="fw-bold text-primary">${f.title}</span></td>
@@ -1049,8 +1097,9 @@
                     <td><span class="badge bg-info text-dark" id="resp_cnt_${f.id}">...</span></td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary" onclick="copyToClip('${link}')"><i class="fas fa-copy"></i> Link</button>
-                        <button class="btn btn-sm btn-warning text-white" onclick="showQR('${link}')"><i class="fas fa-qrcode"></i></button>
-                        <button class="btn btn-sm btn-success" onclick="viewFormResponses('${f.id}', '${f.title}')"><i class="fas fa-eye"></i> Jawaban</button>
+                        <button class="btn btn-sm btn-info text-white ms-1" onclick="openLinkSpreadsheetModal('${f.id}', '${f.spreadsheet_url || ''}')" title="Hubungkan ke Spreadsheet"><i class="fas fa-file-excel"></i></button>
+                        <button class="btn btn-sm btn-warning text-white ms-1" onclick="showQR('${link}')"><i class="fas fa-qrcode"></i></button>
+                        <button class="btn btn-sm btn-success ms-1" onclick="viewFormResponses('${f.id}', '${f.title}')"><i class="fas fa-eye"></i> Jawaban</button>
                         <button class="btn btn-sm btn-danger rounded-circle ms-2" onclick="delCustomForm('${f.id}')"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`;
@@ -1337,6 +1386,35 @@
                     answers: answers
                 });
                 
+                // EDIT 3: KIRIM DATA KE GOOGLE SPREADSHEET VIA WEBHOOK
+                if (loadedFormToFill.spreadsheet_url) {
+                    let payloadForSheet = { "Waktu": new Date().toLocaleString('id-ID') };
+                    
+                    loadedFormToFill.fields.forEach(f => {
+                        let val = answers[f.id] || "";
+                        
+                        // Handle File
+                        if(typeof val === 'string' && val.startsWith('data:')) {
+                            val = "File dilampirkan (Lihat di Web)";
+                        } 
+                        // Handle Tipe Pembayaran agar lebih rapi di sheet
+                        else if (f.type === 'payment' && answers[`${f.id}_full_data`]) {
+                            const pData = answers[`${f.id}_full_data`];
+                            val = `[${pData.method}] ${pData.item}`;
+                            if(pData.proof_file) val += " (Ada Bukti Bayar)";
+                        }
+                        
+                        payloadForSheet[f.label] = val; // Label kolom = Pertanyaan
+                    });
+
+                    fetch(loadedFormToFill.spreadsheet_url, {
+                        method: 'POST',
+                        mode: 'no-cors', // Penting untuk bypass google CORS restriction
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payloadForSheet)
+                    }).catch(e => console.log("Silent error POST ke Spreadsheet", e));
+                }
+
                 formElement.style.display = 'none';
                 document.getElementById('pubFormSuccessMsg').classList.remove('d-none');
                 
