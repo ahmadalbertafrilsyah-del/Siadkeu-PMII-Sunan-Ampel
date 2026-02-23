@@ -145,11 +145,10 @@
             
             <form onsubmit="submitPublicAttendance(event)" id="formPresensi">
                 <input type="hidden" id="attEventId">
-                <input type="hidden" id="attPhotoData" required>
-                <input type="hidden" id="attSignatureData" required>
+                <input type="hidden" id="attPhotoData"> <input type="hidden" id="attSignatureData" required>
                 
                 <div class="mb-3">
-                    <label class="small fw-bold d-block text-start mb-1">Foto Selfi Di Tempat <span class="text-danger">*</span></label>
+                    <label class="small fw-bold d-block text-start mb-1">Foto Selfi Di Tempat <span class="text-muted">(Opsional)</span></label>
                     <div id="camera-container">
                         <video id="camera-stream" autoplay playsinline></video>
                         <canvas id="camera-canvas" style="display:none;"></canvas>
@@ -1386,7 +1385,7 @@
                     answers: answers
                 });
                 
-                // EDIT 3: KIRIM DATA KE GOOGLE SPREADSHEET VIA WEBHOOK
+                // EDIT 3: KIRIM DATA KE GOOGLE SPREADSHEET VIA WEBHOOK (DIUBAH MENJADI text/plain)
                 if (loadedFormToFill.spreadsheet_url) {
                     let payloadForSheet = { "Waktu": new Date().toLocaleString('id-ID') };
                     
@@ -1410,9 +1409,13 @@
                     fetch(loadedFormToFill.spreadsheet_url, {
                         method: 'POST',
                         mode: 'no-cors', // Penting untuk bypass google CORS restriction
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'text/plain;charset=utf-8' 
+                        },
                         body: JSON.stringify(payloadForSheet)
-                    }).catch(e => console.log("Silent error POST ke Spreadsheet", e));
+                    })
+                    .then(() => console.log("Permintaan dikirim ke Spreadsheet"))
+                    .catch(e => console.error("Error gagal fetch ke Sheet:", e));
                 }
 
                 formElement.style.display = 'none';
@@ -1547,7 +1550,9 @@
             const photoData = document.getElementById('attPhotoData').value;
             const signatureData = document.getElementById('attSignatureData').value;
             
-            if(!photoData) return alert("Silakan ambil foto selfi terlebih dahulu!");
+            // FOTO TIDAK WAJIB (BARIS DIBAWAH INI DINONAKTIFKAN)
+            // if(!photoData) return alert("Silakan ambil foto selfi terlebih dahulu!");
+            
             if(!signatureData) return alert("Tanda tangan wajib diisi!");
 
             const eid = document.getElementById('attEventId').value; const btn = document.getElementById('btnSubmitPresensi');
