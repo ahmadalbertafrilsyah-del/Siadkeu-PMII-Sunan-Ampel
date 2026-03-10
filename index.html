@@ -104,7 +104,7 @@
         .public-card { max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
         #camera-container { position: relative; border-radius: 10px; overflow: hidden; background: #000; width: 100%; aspect-ratio: 4/3; }
-        #camera-stream { width: 100%; height: 100%; object-fit: cover; }
+        #camera-stream { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
         
         /* Signature Canvas Styles */
         .signature-container { border: 1px solid #ced4da; border-radius: 8px; background: #f8f9fa; overflow: hidden; position: relative; }
@@ -1531,15 +1531,30 @@
                 videoStream = stream; document.getElementById('camera-stream').srcObject = stream; document.getElementById('camera-stream').style.display = 'block';
             }).catch(err => { alert("Gagal mengakses kamera."); });
         }
+        
         window.capturePhoto = () => {
-            const video = document.getElementById('camera-stream'); const canvas = document.getElementById('camera-canvas');
+            const video = document.getElementById('camera-stream'); 
+            const canvas = document.getElementById('camera-canvas');
             if(!videoStream) return alert("Kamera belum siap!");
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight; canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            canvas.width = video.videoWidth; 
+            canvas.height = video.videoHeight; 
+            
+            const ctx = canvas.getContext('2d');
+            // Balik koordinat horizontal agar hasil foto tidak mirror
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0);
+            
             const photoData = canvas.toDataURL('image/jpeg', 0.6); 
-            document.getElementById('attPhotoData').value = photoData; document.getElementById('photo-preview').src = photoData;
-            document.getElementById('photo-preview').style.display = 'block'; video.style.display = 'none';
-            document.getElementById('btnCapture').style.display = 'none'; document.getElementById('btnRetake').style.display = 'inline-block';
+            document.getElementById('attPhotoData').value = photoData; 
+            document.getElementById('photo-preview').src = photoData;
+            document.getElementById('photo-preview').style.display = 'block'; 
+            video.style.display = 'none';
+            document.getElementById('btnCapture').style.display = 'none'; 
+            document.getElementById('btnRetake').style.display = 'inline-block';
         }
+
         window.retakePhoto = () => {
             document.getElementById('attPhotoData').value = ""; document.getElementById('photo-preview').style.display = 'none';
             document.getElementById('camera-stream').style.display = 'block'; document.getElementById('btnCapture').style.display = 'inline-block'; document.getElementById('btnRetake').style.display = 'none';
